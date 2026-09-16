@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>跨站測試覆蓋優化 SOP</title>
+<title>半導體跨站測試覆蓋優化 SOP</title>
 <style>
   :root{
     --bg:#eef2f1;
@@ -274,6 +274,10 @@
 
   figure{margin:20px 0;max-width:100%;}
   figure svg{max-width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:4px;}
+  .pipeline-link{cursor:pointer;}
+  .pipeline-link rect{transition:stroke-width .12s ease;}
+  .pipeline-link:hover rect, .pipeline-link:focus-visible rect{stroke-width:3.5;}
+  .pipeline-link:focus-visible{outline:none;}
   figcaption{font-size:13px;color:var(--ink-faint);margin-top:8px;max-width:70ch;}
 
   .field-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:16px 0;max-width:800px;}
@@ -308,7 +312,7 @@
         <button type="button" id="langToggle" class="ctrl-btn">EN</button>
       </div>
     </div>
-    <h1><span class="zh">跨站測試覆蓋優化 SOP</span><span class="en">Cross-Stage Test Coverage Optimization SOP</span></h1>
+    <h1><span class="zh">半導體跨站測試覆蓋優化 SOP</span><span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP</span></h1>
     <p class="sub">
       <span class="zh">WT／FT 跨站測項冗餘分析與 Test Time Reduction 決策流程 — 從 Bin-level 判定延伸至 Parameter-level 統計驗證，附樣本數科學依據與範本表格。</span>
       <span class="en">A decision process for WT/FT cross-stage test redundancy analysis and Test Time Reduction — extending from Bin-level judgment to Parameter-level statistical validation, with sample-size science and ready-to-use templates.</span>
@@ -419,6 +423,8 @@
             <g font-family="Source Serif 4">
               <line x1="70" y1="140" x2="1070" y2="140" stroke="var(--border)" stroke-width="2"/>
               <!-- 0 -->
+              <a href="#phase0" class="pipeline-link">
+              <title>Phase 0</title>
               <g transform="translate(20,80)">
                 <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--warn)">00</text>
@@ -428,12 +434,15 @@
                 <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Gates</text>
                 <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">規格/零覆蓋</text>
                 <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Spec / coverage</text>
-                <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">見 Section 3</text>
-                <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">See Section 3</text>
+                <text class="zh" x="12" y="109" font-size="11" fill="var(--warn)">見 Section 3 →</text>
+                <text class="en" x="12" y="109" font-size="11" fill="var(--warn)">See Section 3 →</text>
               </g>
+              </a>
               <!-- 1 -->
+              <a href="#phase1" class="pipeline-link">
+              <title>Phase 1</title>
               <g transform="translate(180,80)">
-                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">01</text>
                 <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">測項盤點</text>
                 <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與配對</text>
@@ -442,7 +451,10 @@
                 <text x="12" y="94" font-size="11" fill="var(--ink-faint)">Bin + Parameter</text>
                 <text x="12" y="109" font-size="11" fill="var(--ink-faint)">mapping</text>
               </g>
+              </a>
               <!-- 2 -->
+              <a href="#phase2" class="pipeline-link">
+              <title>Phase 2</title>
               <g transform="translate(340,80)">
                 <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">02</text>
@@ -454,7 +466,10 @@
                 <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">WT↔FT 配對</text>
                 <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">WT↔FT pairing</text>
               </g>
+              </a>
               <!-- 3 -->
+              <a href="#phase3" class="pipeline-link">
+              <title>Phase 3</title>
               <g transform="translate(500,68)">
                 <rect x="0" y="0" width="140" height="144" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent-strong)">03</text>
@@ -466,10 +481,13 @@
                 <text class="en" x="12" y="84" font-size="13.5" fill="var(--ink)">Statistical</text>
                 <text class="zh" x="12" y="108" font-size="11" fill="var(--accent-strong)" font-weight="600">核心 Phase</text>
                 <text class="en" x="12" y="108" font-size="11" fill="var(--accent-strong)" font-weight="600">Core Phase</text>
-                <text class="zh" x="12" y="124" font-size="11" fill="var(--ink-faint)">見 Section 6</text>
-                <text class="en" x="12" y="124" font-size="11" fill="var(--ink-faint)">See Section 6</text>
+                <text class="zh" x="12" y="124" font-size="11" fill="var(--ink-faint)">見 Section 6 →</text>
+                <text class="en" x="12" y="124" font-size="11" fill="var(--ink-faint)">See Section 6 →</text>
               </g>
+              </a>
               <!-- 4 -->
+              <a href="#phase4" class="pipeline-link">
+              <title>Phase 4</title>
               <g transform="translate(660,80)">
                 <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">04</text>
@@ -481,7 +499,10 @@
                 <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">保留/抽測/移除</text>
                 <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">Keep/Sample/Remove</text>
               </g>
+              </a>
               <!-- 5 -->
+              <a href="#phase5" class="pipeline-link">
+              <title>Phase 5</title>
               <g transform="translate(820,80)">
                 <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">05</text>
@@ -492,7 +513,10 @@
                 <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">Skip-lot 觀察期</text>
                 <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Skip-lot window</text>
               </g>
+              </a>
               <!-- 6 -->
+              <a href="#phase6" class="pipeline-link">
+              <title>Phase 6</title>
               <g transform="translate(980,80)">
                 <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
                 <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">06</text>
@@ -503,6 +527,7 @@
                 <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">文件化/覆核</text>
                 <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Docs / review</text>
               </g>
+              </a>
               <g fill="var(--ink-faint)">
                 <path d="M162,140 l10,-5 l0,10 z"/>
                 <path d="M322,140 l10,-5 l0,10 z"/>
@@ -514,8 +539,8 @@
             </g>
           </svg>
           <figcaption>
-            <span class="zh">Phase 0（前置強制檢查）先擋掉規格硬性規定或會造成零覆蓋的候選；Phase 3（統計分析）同時保留 Bin-level、Parameter-level 與溫度 Corner 線性三條證據線，全部通過才進入 Phase 4 的分級決策。</span>
-            <span class="en">Phase 0 (Hard Gates) screens out candidates that are spec-mandated or would create zero coverage; Phase 3 (Statistical Analysis) keeps the Bin-level, Parameter-level, and temperature-corner linearity evidence lines in parallel — only when all pass does the process move into Phase 4's tiered decision.</span>
+            <span class="zh">橘框（Phase 0）代表不需資料就能判斷的硬性守則，藍框（Phase 3）代表本 SOP 的統計核心 —— 其餘 Phase 皆為一般流程步驟，刻意不特別上色。點擊任一方框可直接跳到對應章節。</span>
+            <span class="en">The orange box (Phase 0) marks the hard gates decidable without any data; the blue box (Phase 3) marks this SOP's statistical core — every other phase is a regular process step, deliberately left uncolored. Click any box to jump straight to its section.</span>
           </figcaption>
         </figure>
       </section>
@@ -1254,8 +1279,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">跨站測試覆蓋優化 SOP · Rev. A（草案，待正式核准與編號）</span>
-    <span class="en">Cross-Stage Test Coverage Optimization SOP · Rev. A (Draft, pending formal approval &amp; numbering)</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · Rev. A（草案，待正式核准與編號）</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Rev. A (Draft, pending formal approval &amp; numbering)</span>
   </footer>
 </div>
 
@@ -1310,7 +1335,7 @@
   function applyLang(l){
     root.setAttribute('data-lang', l);
     root.setAttribute('lang', l === 'en' ? 'en' : 'zh-Hant');
-    document.title = l === 'en' ? 'Cross-Stage Test Coverage Optimization SOP' : '跨站測試覆蓋優化 SOP';
+    document.title = l === 'en' ? 'Semiconductor Cross-Stage Test Coverage Optimization SOP' : '半導體跨站測試覆蓋優化 SOP';
     langBtn.textContent = l === 'en' ? '中文' : 'EN';
   }
   applyLang(savedLang);
