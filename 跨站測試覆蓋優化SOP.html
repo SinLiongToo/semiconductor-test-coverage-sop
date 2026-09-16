@@ -809,10 +809,58 @@
           <span class="en">This is the statistical principle behind Parameter-level analysis: attribute data (Pass/Fail) carries only 1 bit per unit, so converting a zero-event observation into a low-DPPM confidence bound inherently requires a huge sample. Variables data (actual measured values) carries continuous information per unit — both mean and variance are used in the estimate — so a <strong>statistical tolerance interval</strong> method can make an equivalent-confidence population claim with a far smaller sample (commonly n = 30–200 in practice). See ASTM E2586 / ISO 16269-6 for the method and k-factor tables (Appendix).</span>
         </p>
 
+        <h4><span class="zh">(e) 全矩陣相關性 — 同站跨溫度 vs 跨站同溫度</span><span class="en">(e) Full Correlation Matrix — Same-Stage Cross-Temperature vs. Cross-Stage Same-Temperature</span></h4>
+        <p>
+          <span class="zh">候選配對不該只鎖定「WT vs FT、同一溫度」這一組。同一參數實際上最多有六個量測點（WT-RT／WT-HT／WT-LT／FT-RT／FT-HT／FT-LT），應該用 (a) 的方法對所有存在的配對都算一次相關係數，畫出完整的相關矩陣，原因有二：</span>
+          <span class="en">Candidate pairs shouldn't be limited to "WT vs FT at the same temperature." A given parameter has up to six measurement points (WT-RT/WT-HT/WT-LT/FT-RT/FT-HT/FT-LT); use the method in (a) to compute a correlation coefficient for every pair that actually exists, and build the full correlation matrix. Two reasons:</span>
+        </p>
+        <ol>
+          <li>
+            <span class="zh"><strong>同站跨溫度</strong>（如 WT-RT 對 WT-HT）本身可能就有很高的相關性 —— 這代表的是「溫度 corner 冗餘」而非「跨站冗餘」。這類配對即使 r 很高，也必須額外通過 §6.3 的線性／TC 模型驗證才能核准移除，因為相關係數高不代表關係是線性的，也不代表兩端物理機制相同。</span>
+            <span class="en"><strong>Same-stage, cross-temperature</strong> pairs (e.g., WT-RT vs WT-HT) can themselves be highly correlated — that's temperature-corner redundancy, not cross-stage redundancy. Even with a high r, such pairs must still additionally pass the §6.3 linearity/TC-model validation before removal is approved, since a high correlation coefficient neither implies a linear relationship nor that both ends share the same underlying physics.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>跨站同溫度</strong>（如 WT-RT 對 FT-RT）才是 (a)–(d) 處理的標準案例。矩陣中相關性偏低的配對，無論同站跨溫或跨站同溫，都應直接排除移除候選，不需要進到 Phase 4。</span>
+            <span class="en"><strong>Cross-stage, same-temperature</strong> pairs (e.g., WT-RT vs FT-RT) are the standard case that (a)–(d) already cover. Any pair in the matrix with low correlation — same-stage or cross-stage — is disqualified as a removal candidate and does not proceed to Phase 4.</span>
+          </li>
+        </ol>
+
+        <h4><span class="zh">(f) Outlier Detection — 個體層級異常偵測</span><span class="en">(f) Outlier Detection — Individual-Level Anomaly Screening</span></h4>
+        <p>
+          <span class="zh">高相關係數、良好線性都只是「母體層級」的證據，不保證沒有個別 die 是離群值 —— 樣本數一大，少數 outlier 對整體 r 或 R² 的影響會被稀釋，異常反而被平均掉而看不見。核准移除前，應在殘差上額外跑一次個體層級的異常偵測：</span>
+          <span class="en">A high correlation coefficient and good linearity are only population-level evidence — they don't guarantee no individual die is an outlier. As sample size grows, a handful of outliers get diluted in their effect on the overall r or R², averaging the anomaly away until it's invisible. Before approving removal, run an individual-level outlier-detection pass on the residuals:</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>NNR（Nearest Neighbor Residual）：</strong>把每顆 die 的量測值與晶圓上鄰近 die 的平滑預測值比較，殘差過大視為空間異常（典型的 Good-Die-in-Bad-Neighborhood 現象），能抓到單靠站間或溫度相關性看不出來的局部異常。</span>
+            <span class="en"><strong>NNR (Nearest Neighbor Residual):</strong> compare each die's measured value against a smoothed prediction from its spatial neighbors on the wafer; a large residual flags a spatial anomaly (the classic "Good Die in Bad Neighborhood" pattern) — catching local anomalies that a stage- or temperature-correlation check alone would miss.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>DPAT（Dynamic Part Average Testing）：</strong>不用固定 spec limit，改用每個 lot／wafer 自己的統計分布（mean ± kσ）動態計算限制；即使數值仍在 spec 內，只要明顯偏離同批分布就會被標記。</span>
+            <span class="en"><strong>DPAT (Dynamic Part Average Testing):</strong> instead of a fixed spec limit, compute limits dynamically per lot/wafer from that batch's own statistics (mean ± kσ); a die can still be flagged for sitting well outside its own batch's distribution even while inside spec.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>雙變量／多變量異常偵測</strong>（如 Mahalanobis 距離）：單一參數看起來正常，不代表兩個相關參數的「組合」正常 —— 用 Mahalanobis 距離同時看多個維度，才能抓到只有在聯合分布上才顯形的離群點。</span>
+            <span class="en"><strong>Bivariate/multivariate outlier detection</strong> (e.g., Mahalanobis distance): a value can look normal on each parameter individually yet be abnormal in the <em>combination</em> of two correlated parameters — Mahalanobis distance looks across multiple dimensions at once to catch outliers that only show up in the joint distribution.</span>
+          </li>
+        </ul>
+        <div class="formula">
+          <div class="label"><span class="zh">馬氏距離（多變量離群偵測）</span><span class="en">Mahalanobis distance (multivariate outlier detection)</span></div>
+          <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
+          <div class="note">
+            <span class="zh">D² 近似服從自由度等於變數個數的卡方分布，可用卡方分位數設定異常判定門檻（如 99% 分位數）。</span>
+            <span class="en">D² approximately follows a chi-squared distribution with degrees of freedom equal to the number of variables, so a chi-squared quantile (e.g., the 99th percentile) makes a natural anomaly threshold.</span>
+          </div>
+        </div>
+        <p>
+          <span class="zh">這條檢查獨立於相關係數與線性驗證：任何一種方法標記出的 outlier 都應該讓該候選回頭複查，而不是被一個看起來很高的整體 r 值掩蓋過去。</span>
+          <span class="en">This check is independent of the correlation coefficient and linearity validation. Any outlier flagged by any of these methods should send the candidate back for review, rather than being smoothed away by a reassuringly high aggregate r.</span>
+        </p>
+
         <h3><span class="zh">6.3 溫度 Corner 冗餘分析（線性／TC 模型）</span><span class="en">6.3 Temperature-Corner Redundancy (Linearity / TC Model)</span></h3>
         <p>
-          <span class="zh">僅在候選屬於「移除某個溫度 corner 的測試」時才需要這條證據線（見 Phase 0 §3.3）；若候選單純是跨站（WT↔FT）冗餘、溫度 corner 不變，此節不適用。</span>
-          <span class="en">This evidence line is only required when the candidate is "remove testing at one temperature corner" (see Phase 0 §3.3); if the candidate is purely cross-stage (WT↔FT) redundancy with the temperature corner unchanged, this section does not apply.</span>
+          <span class="zh">僅在候選屬於「移除某個溫度 corner 的測試」時才需要這條證據線（見 Phase 0 §3.3、§6.2(e)）；若候選單純是跨站（WT↔FT）冗餘、溫度 corner 不變，此節不適用。</span>
+          <span class="en">This evidence line is only required when the candidate is "remove testing at one temperature corner" (see Phase 0 §3.3 and §6.2(e)); if the candidate is purely cross-stage (WT↔FT) redundancy with the temperature corner unchanged, this section does not apply.</span>
         </p>
         <div class="formula">
           <div class="label"><span class="zh">溫度係數（TC）線性模型</span><span class="en">Temperature-coefficient (TC) linear model</span></div>
@@ -835,8 +883,8 @@
             <span class="en">Bin-level: Incremental Catch = 0 over the observation window, with sample size meeting the confidence level required for that Tier (see the table in 6.1).</span>
           </li>
           <li>
-            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內。</span>
-            <span class="en">Parameter-level: r ≥ the Tier's r_min; no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range.</span>
+            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內；相關矩陣中同站跨溫與跨站同溫配對皆已檢視（§6.2(e)）；殘差通過個體層級異常偵測，無 NNR／DPAT／雙變量離群點（§6.2(f)）。</span>
+            <span class="en">Parameter-level: r ≥ the Tier's r_min; no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range; every same-stage cross-temperature and cross-stage same-temperature pair in the correlation matrix has been reviewed (§6.2(e)); residuals pass individual-level outlier detection with no NNR/DPAT/bivariate outliers (§6.2(f)).</span>
           </li>
           <li>
             <span class="zh">溫度 Corner 線性（僅溫度 corner 候選適用）：線性假設經迴歸驗證成立，未測 corner 的預測區間距 spec limit 仍有足夠 margin。</span>
@@ -994,12 +1042,19 @@
           <div class="label"><span class="zh">溫度係數線性模型</span><span class="en">Temperature-coefficient linear model</span></div>
           <div class="eq">\[ \hat{x}(T) = x(T_{\text{ref}}) + TC \cdot (T - T_{\text{ref}}) \]</div>
         </div>
+        <div class="formula">
+          <div class="label"><span class="zh">馬氏距離（多變量離群偵測）</span><span class="en">Mahalanobis distance (multivariate outlier detection)</span></div>
+          <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
+        </div>
 
         <h3><span class="zh">10.4 延伸參考</span><span class="en">10.4 Further References</span></h3>
         <ul>
           <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
           <li>ASTM E2586 — Standard Practice for Calculating and Using Tolerance Factors for Statistical Tolerance Intervals.</li>
           <li>ISO 16269-6:2014 — Statistical interpretation of data, Part 6: Determination of statistical tolerance intervals.</li>
+          <li><span class="zh">Nearest Neighbor Residual（NNR）— 以晶圓上鄰近 die 的平滑預測值篩選空間異常，常見於 Good-Die-in-Bad-Neighborhood 篩選文獻。</span><span class="en">Nearest Neighbor Residual (NNR) — screens spatial anomalies using a smoothed prediction from neighboring die on the wafer map; widely discussed in Good-Die-in-Bad-Neighborhood screening literature.</span></li>
+          <li><span class="zh">Dynamic Part Average Testing（DPAT）— AEC-Q001 PAT 概念的延伸，以每 lot／wafer 自身分布動態計算限制而非固定 spec limit。</span><span class="en">Dynamic Part Average Testing (DPAT) — an extension of the AEC-Q001 PAT concept that computes limits dynamically from each lot/wafer's own distribution rather than a fixed spec limit.</span></li>
+          <li><span class="zh">Mahalanobis, P. C. (1936) — 多變量離群偵測的基礎距離量測，將 z-score 概念推廣到相關變數的聯合分布。</span><span class="en">Mahalanobis, P. C. (1936) — the foundational distance measure for multivariate outlier detection, generalizing the z-score concept to the joint distribution of correlated variables.</span></li>
           <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
