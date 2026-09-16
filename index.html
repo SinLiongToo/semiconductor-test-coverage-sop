@@ -716,7 +716,7 @@
 
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
-          <svg viewBox="-90 0 950 1010" role="img" aria-label="decision flowchart with hard gates and field-complaint feedback loop">
+          <svg viewBox="-100 0 960 1010" role="img" aria-label="decision flowchart with hard gates and field-complaint feedback loop through Phase 7">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">DECISION FLOW</text>
             <g font-family="Source Serif 4" fill="var(--ink)">
               <line x1="220" y1="90" x2="220" y2="890" stroke="var(--border)" stroke-width="2"/>
@@ -799,16 +799,25 @@
               <text x="690" y="645" text-anchor="middle" font-size="12" fill="var(--danger)"><tspan class="zh">統計證據未過關</tspan><tspan class="en">Statistical evidence insufficient</tspan></text>
               <text x="690" y="680" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">（回 Phase 3 繼續觀察）</tspan><tspan class="en">(back to Phase 3, keep observing)</tspan></text>
 
-              <!-- feedback loop: Phase 7 finds coverage was genuinely insufficient, not a wrong removal -->
-              <path d="M40,930 H-20 V60 H40" fill="none" stroke="var(--danger)" stroke-width="2" stroke-dasharray="8,5"/>
+              <!-- feedback loop: routes through an explicit Phase 7 node before returning to Phase 0 -->
+              <path d="M40,930 H-35 V60 H40" fill="none" stroke="var(--danger)" stroke-width="2" stroke-dasharray="8,5"/>
               <path d="M40,60 l-10,-6 l0,12 z" fill="var(--danger)"/>
-              <text x="-40" y="495" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)" transform="rotate(-90 -40 495)"><tspan class="zh">客訴（Phase 7 §10）發現真實覆蓋缺口／未知未知</tspan><tspan class="en">Complaint (Phase 7 §10) reveals a genuine coverage gap / unknown-unknown</tspan></text>
-              <text x="-60" y="495" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)" transform="rotate(-90 -60 495)"><tspan class="zh">→ 不是誤移除，整個流程回到 Phase 0 重新開始</tspan><tspan class="en">→ not a wrong removal — the whole process restarts at Phase 0</tspan></text>
+              <text x="-40" y="730" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--danger)" transform="rotate(-90 -40 730)"><tspan class="zh">客訴發現真實覆蓋缺口／未知未知</tspan><tspan class="en">Complaint reveals a genuine coverage gap / unknown-unknown</tspan></text>
+              <text x="-40" y="260" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--danger)" transform="rotate(-90 -40 260)"><tspan class="zh">→ 不是誤移除，回到 Phase 0 重新開始</tspan><tspan class="en">→ not a wrong removal — restart at Phase 0</tspan></text>
+
+              <!-- Phase 7 node the loop passes through -->
+              <a href="#phase7" class="pipeline-link">
+              <title>Phase 7 (Optional) — Complaint Verification, §10</title>
+              <rect x="-85" y="460" width="100" height="70" rx="8" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="5,4"/>
+              <text x="-35" y="486" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">Phase 7</text>
+              <text x="-35" y="502" text-anchor="middle" font-size="10" fill="var(--ink-faint)"><tspan class="zh">客訴查證</tspan><tspan class="en">Complaint</tspan></text>
+              <text x="-35" y="516" text-anchor="middle" font-size="10" fill="var(--ink-faint)"><tspan class="zh">（Optional）§10 →</tspan><tspan class="en">Verify (Opt.) §10 →</tspan></text>
+              </a>
             </g>
           </svg>
           <figcaption>
-            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性、§3.5 的 fault coverage／應力條件查證，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。左側紅色虛線是額外的回饋迴路：即使順利走到 Phase 6 正式移除，日後若客訴查證（Phase 7 §10）發現問題不是誤移除、而是原本的覆蓋規劃本身就有缺口（例如數位 fault coverage 沒做夠、應力不足、封裝相關的未知因子），就不能只回退單一測項，必須回到最上面的候選測項、從 Phase 0 重新走一次。</span>
-            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity and §3.5's fault-coverage/stress-condition verification are what make the fourth checkpoint trustworthy in the first place, so they're noted inside the Phase 3 box rather than as their own diamonds. Failing any checkpoint routes to "Keep" rather than advancing to the next stage. The red dashed loop on the left is an additional feedback path: even after a clean run all the way to Phase 6's formal removal, if a later complaint investigation (Phase 7 §10) finds the problem wasn't a wrong removal but a genuine gap in the original coverage plan (e.g., digital fault coverage was never adequate, stress was insufficient, or an unknown package-related factor), a single test restoration isn't enough — the whole process restarts from the candidate item at Phase 0.</span>
+            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性、§3.5 的 fault coverage／應力條件查證，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。左側紅色虛線是額外的回饋迴路，中間串了一個虛線的 Phase 7 節點（點擊可跳到 §10）：即使順利走到 Phase 6 正式移除，日後若透過 Phase 7 客訴查證發現問題不是誤移除、而是原本的覆蓋規劃本身就有缺口（例如數位 fault coverage 沒做夠、應力不足、封裝相關的未知因子），就不能只回退單一測項，必須回到最上面的候選測項、從 Phase 0 重新走一次。</span>
+            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity and §3.5's fault-coverage/stress-condition verification are what make the fourth checkpoint trustworthy in the first place, so they're noted inside the Phase 3 box rather than as their own diamonds. Failing any checkpoint routes to "Keep" rather than advancing to the next stage. The red dashed loop on the left is an additional feedback path, routed through a dashed Phase 7 node (click it to jump to §10): even after a clean run all the way to Phase 6's formal removal, if Phase 7's complaint verification later finds the problem wasn't a wrong removal but a genuine gap in the original coverage plan (e.g., digital fault coverage was never adequate, stress was insufficient, or an unknown package-related factor), a single test restoration isn't enough — the whole process restarts from the candidate item at Phase 0.</span>
           </figcaption>
         </figure>
       </section>
