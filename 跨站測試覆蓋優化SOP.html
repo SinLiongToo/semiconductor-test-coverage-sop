@@ -341,7 +341,8 @@
       <li><a href="#phase4"><span class="zh">7 · Phase 4 風險分級與決策</span><span class="en">7 · Phase 4 Risk Tiering &amp; Decision</span></a></li>
       <li><a href="#phase5"><span class="zh">8 · Phase 5 Pilot 導入與監控</span><span class="en">8 · Phase 5 Pilot Rollout &amp; Monitoring</span></a></li>
       <li><a href="#phase6"><span class="zh">9 · Phase 6 正式變更與回退</span><span class="en">9 · Phase 6 Formal Change &amp; Rollback</span></a></li>
-      <li><a href="#appendix"><span class="zh">10 · 附錄</span><span class="en">10 · Appendix</span></a></li>
+      <li><a href="#phase7"><span class="zh">10 · Phase 7（Optional）客訴查證</span><span class="en">10 · Phase 7 (Optional) Complaint Verification</span></a></li>
+      <li><a href="#appendix"><span class="zh">11 · 附錄</span><span class="en">11 · Appendix</span></a></li>
     </ol>
   </details>
 
@@ -359,7 +360,8 @@
         <li><a href="#phase4"><span class="zh">7 · 風險分級與決策</span><span class="en">7 · Risk &amp; Decision</span></a></li>
         <li><a href="#phase5"><span class="zh">8 · Pilot 導入與監控</span><span class="en">8 · Pilot &amp; Monitoring</span></a></li>
         <li><a href="#phase6"><span class="zh">9 · 正式變更與回退</span><span class="en">9 · Change &amp; Rollback</span></a></li>
-        <li><a href="#appendix"><span class="zh">10 · 附錄</span><span class="en">10 · Appendix</span></a></li>
+        <li><a href="#phase7"><span class="zh">10 · 客訴查證（Optional）</span><span class="en">10 · Complaint Verification (Optional)</span></a></li>
+        <li><a href="#appendix"><span class="zh">11 · 附錄</span><span class="en">11 · Appendix</span></a></li>
       </ol>
     </nav>
 
@@ -406,6 +408,8 @@
               <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
               <tr><td class="mono">Die-level 追溯</td><td><span class="zh">透過 Wafer ID + X,Y 座標或封裝序號，將同一顆 die 在 WT 與 FT 的資料點對點配對。</span><span class="en">Die-level traceability — pairing the same die's WT and FT data point-to-point via Wafer ID + X,Y coordinates or package serial number.</span></td></tr>
               <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
+              <tr><td class="mono">Gauge R&amp;R / MSA</td><td><span class="zh">Measurement System Analysis，量化量測系統本身貢獻的變異（repeatability + reproducibility）佔總變異的比例，用以判斷一組量測數據是否值得信任。</span><span class="en">Measurement System Analysis — quantifies how much of total variance comes from the measurement system itself (repeatability + reproducibility), used to judge whether a set of measurements can be trusted.</span></td></tr>
+              <tr><td class="mono">CQC</td><td><span class="zh">Customer Quality Complaint，客戶端提出的品質相關客訴事件。</span><span class="en">Customer Quality Complaint — a quality-related complaint raised by a customer.</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -584,6 +588,41 @@
           <span class="en">Cross-stage (WT↔FT) redundancy and cross-temperature-corner (RT/HT/LT) redundancy are two different questions and cannot substitute for each other. If the candidate is "remove testing at one temperature corner" (e.g., assuming RT already covers it, so HT/LT can be skipped), the temperature relationship must be separately validated — never assume linearity just because values "look smooth across temperature." Some electrical parameters (e.g., leakage current) follow an exponential, not linear, relationship with temperature, and two-point interpolation/extrapolation badly underestimates risk for those. This evidence line sits alongside Bin-level and Parameter-level in Phase 3 (§6.3), and applies only when the candidate involves removing a temperature corner.</span>
         </p>
 
+        <h3><span class="zh">3.4 量測系統有效性（Contact／Repeatability／儀器極限）</span><span class="en">3.4 Measurement System Validity (Contact / Repeatability / Instrument Limits)</span></h3>
+        <p>
+          <span class="zh">在信任任何相關係數或 Cpk 之前，必須先確認量測系統本身是有效的 —— 否則相關性可能只是反映「兩站共享同樣的量測雜訊」，或者反過來，真正的實體冗餘被雜訊蓋過而誤判為不相關。三個常見盲點：</span>
+          <span class="en">Before trusting any correlation coefficient or Cpk, first confirm the measurement system itself is valid — otherwise a correlation might just reflect "both stages sharing the same measurement noise," or conversely, real physical redundancy gets buried under noise and wrongly read as unrelated. Three common blind spots:</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>Contact 品質：</strong>探針卡／socket 接觸不良（接觸電阻異常、需要 retouch）會在資料中製造假的變異。務必監控 retest rate、contact resistance 等指標，異常批次要先排除或重測，不能直接拿來做冗餘分析。</span>
+            <span class="en"><strong>Contact quality:</strong> poor probe-card/socket contact (elevated contact resistance, needing a retouch) manufactures fake variance in the data. Monitor retest rate, contact resistance, and similar indicators; exclude or retest anomalous lots before using them for redundancy analysis.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>測試程式 Repeatability：</strong>同一顆 die 在同一站、同一條件下重複測試，量測值的變異（Gauge R&amp;R 中的 repeatability 分量）若太大，會直接壓低任何跨站相關係數的上限 —— 這種情況下低 r 不代表「兩站不相關」，可能只是「量測本身不夠穩定」。</span>
+            <span class="en"><strong>Test-program repeatability:</strong> retest the same die at the same station under the same conditions — if the measurement variance (the repeatability component of a Gauge R&amp;R study) is too large, it caps how high any cross-stage correlation can possibly read. A low r here doesn't mean "the two stages are unrelated" — it may just mean "the measurement itself isn't stable enough."</span>
+          </li>
+          <li>
+            <span class="zh"><strong>測試項特性與儀器極限：</strong>部分參數天生量測雜訊大（如極低漏電流量測接近儀器解析度極限），或該儀器的量測範圍／解析度本身就無法穩定分辨 die 間的真實差異 —— 這種情況下，相關性分析的結論本來就不可靠，不該用來支持移除決策。</span>
+            <span class="en"><strong>Test-item characteristics and instrument limits:</strong> some parameters are inherently noisy to measure (e.g., ultra-low leakage current near the instrument's resolution floor), or the instrument's range/resolution simply can't reliably distinguish real die-to-die differences. In that case the correlation analysis's conclusion is unreliable to begin with and shouldn't be used to support a removal decision.</span>
+          </li>
+        </ul>
+        <div class="formula">
+          <div class="label"><span class="zh">Gauge R&amp;R 變異拆解</span><span class="en">Gauge R&amp;R variance decomposition</span></div>
+          <div class="eq">\[ \sigma_{\text{total}}^{2} = \sigma_{\text{part}}^{2} + \sigma_{\text{gauge}}^{2}, \qquad \%R\&R = \dfrac{\sigma_{\text{gauge}}}{\sigma_{\text{total}}}\times100\% \]</div>
+          <div class="note">
+            <span class="zh">σ_gauge 包含 repeatability（同人同機重測的變異）與 reproducibility（換探針卡／機台／人員的變異）。業界常見門檻：%R&amp;R &lt; 10% 視為量測系統可接受，10–30% 需視情況謹慎使用，&gt; 30% 視為不可接受 —— 相關性分析前應先確認此測項的量測系統落在可接受範圍。</span>
+            <span class="en">σ_gauge combines repeatability (variance from retesting with the same setup) and reproducibility (variance across probe cards/testers/operators). Common industry thresholds: %R&amp;R &lt; 10% is acceptable, 10–30% is marginal and needs case-by-case judgment, and &gt; 30% is unacceptable — confirm this item's measurement system falls in an acceptable range before trusting any correlation analysis built on it.</span>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">前提不成立時該怎麼做</span><span class="en">What to Do When This Precondition Fails</span></span>
+          <p>
+            <span class="zh">應先改善量測系統（如更換探針卡、調整測試條件、提高儀器解析度），而不是急著用「相關性不夠」的結論來保留或移除測項 —— 因為那個結論本身可能只是雜訊，不是物理事實。</span>
+            <span class="en">Fix the measurement system first (a different probe card, adjusted test conditions, higher-resolution instrumentation) — don't rush to use a "correlation isn't high enough" conclusion to keep or remove a test, because that conclusion might just be noise, not physics.</span>
+          </p>
+        </div>
+
         <figure>
           <svg viewBox="0 0 860 1010" role="img" aria-label="decision flowchart with hard gates">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">DECISION FLOW</text>
@@ -634,7 +673,7 @@
               <rect x="40" y="490" width="360" height="80" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
               <text x="220" y="522" text-anchor="middle" font-size="13"><tspan class="zh">Phase 3：Bin-level + Parameter-level</tspan><tspan class="en">Phase 3: Bin-level + Parameter-level</tspan></text>
               <text x="220" y="542" text-anchor="middle" font-size="13"><tspan class="zh">統計驗證</tspan><tspan class="en">statistical validation</tspan></text>
-              <text x="220" y="560" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">（適用時含溫度 Corner 線性分析 §6.3）</tspan><tspan class="en">(incl. §6.3 temp-corner linearity when applicable)</tspan></text>
+              <text x="220" y="560" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">前提：量測系統有效（§3.4）；適用時另含 §6.3</tspan><tspan class="en">Requires §3.4 valid measurement system; §6.3 when applicable</tspan></text>
 
               <!-- Diamond 4: all evidence pass -->
               <polygon points="220,590 400,640 220,690 40,640" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
@@ -670,8 +709,8 @@
             </g>
           </svg>
           <figcaption>
-            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過；任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。</span>
-            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Failing any checkpoint routes to "Keep" rather than advancing to the next stage.</span>
+            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立一個菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。</span>
+            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity is what makes the fourth checkpoint trustworthy in the first place, so it's noted inside the Phase 3 box rather than as its own diamond. Failing any checkpoint routes to "Keep" rather than advancing to the next stage.</span>
           </figcaption>
         </figure>
       </section>
@@ -820,8 +859,8 @@
 
         <h4><span class="zh">(a) 相關性驗證 — Pearson / Fisher z</span><span class="en">(a) Correlation Validation — Pearson / Fisher z</span></h4>
         <p>
-          <span class="zh">對同一 parameter 在 WT、FT 兩站的量測值做相關係數 r 檢定，確認兩站量測確實反映同一物理量，且相關性穩定高於可接受下限 r_min（而非只看單次樣本的 r 剛好夠高）。</span>
-          <span class="en">Test the correlation coefficient r between WT and FT measured values for the same parameter, confirming the two stages truly reflect the same physical quantity and that the correlation reliably exceeds an acceptable floor r_min (not just that a single sample's r happens to clear the bar).</span>
+          <span class="zh">對同一 parameter 在 WT、FT 兩站的量測值做相關係數 r 檢定，確認兩站量測確實反映同一物理量，且相關性穩定高於可接受下限 r_min（而非只看單次樣本的 r 剛好夠高）。<strong>前提是 Phase 0 §3.4 的量測系統有效性已經確認</strong>——量測雜訊過大時，算出來的 r 偏低不代表兩站真的不相關，只代表量測系統蓋過了訊號。</span>
+          <span class="en">Test the correlation coefficient r between WT and FT measured values for the same parameter, confirming the two stages truly reflect the same physical quantity and that the correlation reliably exceeds an acceptable floor r_min (not just that a single sample's r happens to clear the bar). <strong>This assumes Phase 0 §3.4's measurement-system validity has already been confirmed</strong> — when measurement noise is too large, a low computed r doesn't mean the two stages are truly unrelated, only that the measurement system is drowning out the signal.</span>
         </p>
         <div class="formula">
           <div class="label"><span class="zh">相關係數所需樣本數（Fisher z-transform，Cohen 1988）</span><span class="en">Sample size for a correlation coefficient (Fisher z-transform, Cohen 1988)</span></div>
@@ -1197,8 +1236,8 @@
             <span class="en">No anomalies during the pilot → file a formal ECN / test flow change, attaching the Phase 3 statistical evidence (Bin-level table + Parameter-level charts) and the Phase 5 pilot record.</span>
           </li>
           <li>
-            <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件），一旦觸發即自動恢復該測項，不需重新走完整審核流程。</span>
-            <span class="en">Maintain a list of rollback trigger conditions (e.g., the corresponding fail mode appears in the field, an SPC control chart goes out of limits, a yield excursion), so hitting any of them automatically restores the test without a full re-approval cycle.</span>
+            <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件），一旦觸發即自動恢復該測項，不需重新走完整審核流程；「客戶端出現對應 fail mode」的具體查證程序見 Phase 7。</span>
+            <span class="en">Maintain a list of rollback trigger conditions (e.g., the corresponding fail mode appears in the field, an SPC control chart goes out of limits, a yield excursion), so hitting any of them automatically restores the test without a full re-approval cycle; see Phase 7 for the concrete verification procedure behind "the corresponding fail mode appears in the field."</span>
           </li>
           <li>
             <span class="zh">所有決策需留存於變更歷史紀錄（見附錄範本），供未來稽核與新進工程師追溯決策脈絡。</span>
@@ -1207,10 +1246,47 @@
         </ul>
       </section>
 
-      <section id="appendix">
-        <h2><span class="num">10</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+      <section id="phase7">
+        <h2><span class="num">10</span><span class="zh">Phase 7（Optional）— 客訴快速查證與覆蓋回補</span><span class="en">Phase 7 (Optional) — Customer Complaint Quick Verification &amp; Coverage Recovery</span></h2>
+        <p class="lead">
+          <span class="zh">這個 Phase 是事件觸發，不是循序執行的步驟，所以不畫在 Section 2 的七階段管線圖裡 —— 它是 Phase 6 回退觸發條件中「客戶端出現對應 fail mode」這一項的具體操作程序，目標是縮短「客訴發生」到「查明是否誤移除、並恢復覆蓋」之間的時間。若組織尚未有正式的客訴（CQC）流程可對接，此 Phase 可暫不導入，故標示為 Optional。</span>
+          <span class="en">This phase is event-triggered, not a sequential step, so it isn't drawn into Section 2's seven-phase pipeline — it's the concrete operating procedure behind Phase 6's rollback trigger "the corresponding fail mode appears in the field," aimed at shrinking the time between a complaint landing and confirming whether a test was wrongly removed and restoring coverage. If the organization has no formal CQC process to plug into yet, this phase can be deferred — hence marked Optional.</span>
+        </p>
+        <ol>
+          <li>
+            <span class="zh"><strong>CQC 進線：</strong>從客訴中萃取出對應的 fail mode／電性參數／bin。</span>
+            <span class="en"><strong>CQC intake:</strong> extract the associated fail mode / electrical parameter / bin from the complaint.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>比對決策紀錄：</strong>用該參數查詢 §11.2 的決策紀錄（Risk &amp; Decision Log）—— 這個測項目前是「保留」「抽測」還是「已移除」？</span>
+            <span class="en"><strong>Cross-check the decision log:</strong> look up that parameter in the §11.2 Risk &amp; Decision Log — is this test item currently "kept," "sampled," or "removed"?</span>
+          </li>
+          <li>
+            <span class="zh"><strong>若為已移除或抽測 →</strong> 立即觸發 Phase 6 的回退條件，恢復 100% 測試，不等待正式審核流程；根因調查與統計覆核可以並行進行，不應拖延恢復覆蓋的時間。</span>
+            <span class="en"><strong>If removed or sampled →</strong> immediately trigger the Phase 6 rollback, restoring 100% testing without waiting for a formal review cycle; root-cause investigation and statistical re-validation can run in parallel and should not delay restoring coverage.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>若查無對應測項（真正的覆蓋缺口）→</strong> 這比「移除錯誤」更嚴重，代表整個流程從未涵蓋這個 fail mode，應立即評估新增測項，並回頭檢視 Phase 0 §3.2 零覆蓋守則當初是否有漏判。</span>
+            <span class="en"><strong>If no corresponding test item exists at all (a genuine coverage gap) →</strong> this is more serious than a wrong removal — it means the flow never covered this fail mode. Immediately evaluate adding a new test item, and revisit whether Phase 0 §3.2's zero-coverage guard missed something.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>回寫紀錄：</strong>把這次 CQC 事件與處置結果補進決策紀錄，作為未來稽核與流程覆核的依據。</span>
+            <span class="en"><strong>Log it back:</strong> record the CQC event and its resolution in the decision log, as evidence for future audits and process reviews.</span>
+          </li>
+        </ol>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">目標：查證速度優先於流程完整度</span><span class="en">Goal: Verification Speed Over Process Completeness</span></span>
+          <p>
+            <span class="zh">Step 2–3 的目的是在數小時內給出「是否恢復覆蓋」的答案，不是走完整套 Phase 0–6 的重新驗證。正式的根因分析、統計覆核、變更紀錄可以晚一點補齊，但「先恢復覆蓋」不應該被這些流程卡住 —— 這正是 Phase 6 把「客戶端出現對應 fail mode」單獨列為可跳過審核的回退觸發條件的原因。</span>
+            <span class="en">Steps 2–3 exist to answer "should coverage be restored" within hours, not to re-run the full Phase 0–6 validation. Formal root-cause analysis, statistical re-validation, and change documentation can catch up later, but restoring coverage should never be blocked on them — this is exactly why Phase 6 calls out "the corresponding fail mode appears in the field" as a rollback trigger that skips the approval cycle.</span>
+          </p>
+        </div>
+      </section>
 
-        <h3><span class="zh">10.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">10.1 Template Fields — Test Mapping Table</span></h3>
+      <section id="appendix">
+        <h2><span class="num">11</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+
+        <h3><span class="zh">11.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">11.1 Template Fields — Test Mapping Table</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (WT / FT)</b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Name</b></div>
@@ -1222,7 +1298,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">備註</span><span class="en">Notes</span></b></div>
         </div>
 
-        <h3><span class="zh">10.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">10.2 Template Fields — Risk &amp; Decision Log</span></h3>
+        <h3><span class="zh">11.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">11.2 Template Fields — Risk &amp; Decision Log</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">候選測項</span><span class="en">Candidate test item</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">規格是否強制</span><span class="en">Spec-mandated?</span></b></div>
@@ -1239,7 +1315,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">下次覆核日期</span><span class="en">Next review date</span></b></div>
         </div>
 
-        <h3><span class="zh">10.3 公式參考卡</span><span class="en">10.3 Formula Reference Card</span></h3>
+        <h3><span class="zh">11.3 公式參考卡</span><span class="en">11.3 Formula Reference Card</span></h3>
         <div class="formula">
           <div class="label"><span class="zh">Zero-failure 樣本數（95% CI）</span><span class="en">Zero-failure sample size (95% CI)</span></div>
           <div class="eq">\[ n \ge \dfrac{\ln(0.05)}{\ln(1-p_{\text{target}})} \approx \dfrac{3}{p_{\text{target}}} \]</div>
@@ -1261,7 +1337,7 @@
           <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
         </div>
 
-        <h3><span class="zh">10.4 延伸參考</span><span class="en">10.4 Further References</span></h3>
+        <h3><span class="zh">11.4 延伸參考</span><span class="en">11.4 Further References</span></h3>
         <ul>
           <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
           <li>ASTM E2586 — Standard Practice for Calculating and Using Tolerance Factors for Statistical Tolerance Intervals.</li>
