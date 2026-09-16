@@ -23,8 +23,9 @@
 
 1. **本地優先，不主動用 Artifact 工具發佈**：預設寫本地檔案 + git commit；只有使用者明確要求分享/上線時才處理發佈，且優先選使用者自己能控制的地方（他自己的 GitHub 帳號），而不是 Claude 代管的 Artifact 連結。牽涉到 repo 可見度（public/private）這類影響分享範圍的決定，要先問清楚再動手。
 2. **每次編輯完 `index.html` 都要 commit + push**：GitHub Pages 網站（https://sinliongtoo.github.io/semiconductor-test-coverage-sop/）不會自動反映本機變更，一定要 `git add` + `git commit`（訊息寫清楚改了什麼、為什麼）+ `git push` 到 `origin/master`，線上版本才會跟著更新。
-3. **commit 訊息寫「為什麼」，不是條列「做了什麼」**：解釋這個變更背後解決的問題或工程理由，方便未來（包含未來的自己）回頭看 log 就懂決策脈絡，不用重新讀一次 diff。
-4. **大改動後、commit 前先做結構完整性檢查**：用 grep 比對 `<section>`、`<figure>`/`<svg>`、KaTeX 公式 `\[...\]`／`\]</div>`、`<div class="callout...">` 等標籤的開合數量是否一致；再用 Node.js 對每段 inline `<script>` 跑一次 `new Function(scriptText)` 確認語法沒壞掉。兩項都過了才 commit。
+3. **每次實質編輯都要更新版次時間戳**：masthead 的「版次更新」欄位（`<div><span class="zh">版次更新</span>...<b>YYYY-MM-DD HH:MM</b></div>`）和 footer 的同一組時間戳，是判斷「這份文件是不是最新」的唯一依據——commit 前先跑一次 `date` 拿目前時間，`sed -i` 或 Edit 把兩處（masthead + footer）都換成新時間，不要漏掉任何一處，也不要用記憶中的日期硬編。這件事已經漏做過一次（連續好幾次 commit 都忘記更新，時間戳停在舊的），要當成跟結構完整性檢查同等級的「commit 前必做項」。
+4. **commit 訊息寫「為什麼」，不是條列「做了什麼」**：解釋這個變更背後解決的問題或工程理由，方便未來（包含未來的自己）回頭看 log 就懂決策脈絡，不用重新讀一次 diff。
+5. **大改動後、commit 前先做結構完整性檢查**：用 grep 比對 `<section>`、`<figure>`/`<svg>`、KaTeX 公式 `\[...\]`／`\]</div>`、`<div class="callout...">` 等標籤的開合數量是否一致；再用 Node.js 對每段 inline `<script>` 跑一次 `new Function(scriptText)` 確認語法沒壞掉。三項（結構檢查、時間戳、語法檢查）都過了才 commit。
 
 ---
 
