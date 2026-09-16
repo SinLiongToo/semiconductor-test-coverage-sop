@@ -431,6 +431,8 @@
               <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
               <tr><td class="mono">Gauge R&amp;R / MSA</td><td><span class="zh">Measurement System Analysis，量化量測系統本身貢獻的變異（repeatability + reproducibility）佔總變異的比例，用以判斷一組量測數據是否值得信任。</span><span class="en">Measurement System Analysis — quantifies how much of total variance comes from the measurement system itself (repeatability + reproducibility), used to judge whether a set of measurements can be trusted.</span></td></tr>
               <tr><td class="mono">CQC</td><td><span class="zh">Customer Quality Complaint，客戶端提出的品質相關客訴事件。</span><span class="en">Customer Quality Complaint — a quality-related complaint raised by a customer.</span></td></tr>
+              <tr><td class="mono">8D</td><td><span class="zh">Eight Disciplines，八步驟結構化問題解決方法（團隊、問題描述、圍堵、根因、矯正措施、驗證、預防再發、團隊肯定），業界常用於處理客訴／品質異常的正式根因分析。</span><span class="en">Eight Disciplines — a structured 8-step problem-solving method (team, problem description, containment, root cause, corrective action, verification, prevent recurrence, team recognition), commonly used for formal root-cause analysis of complaints/quality excursions.</span></td></tr>
+              <tr><td class="mono">Fault coverage（Stuck-at／Delay）</td><td><span class="zh">數位電路測試向量能偵測到的邏輯故障比例；stuck-at fault（節點卡死於 0 或 1）與 delay／transition fault（訊號切換延遲異常）是兩種基本 fault model，涵蓋率不足時代表向量集合本身有漏洞，跟跨站冗餘是不同層次的問題。</span><span class="en">The proportion of logic faults a digital test vector set can detect; stuck-at faults (a node frozen at 0 or 1) and delay/transition faults (abnormal switching delay) are two basic fault models — insufficient coverage means the vector set itself has a hole, a different layer of problem from cross-stage redundancy.</span></td></tr>
               <tr><td class="mono">Stop-on-fail / Continue-on-fail</td><td><span class="zh">測試程式的執行模式：前者一遇 fail 就中止該顆 die 的後續測試（後面測項無資料）；後者即使 fail 仍會繼續執行並記錄所有測項。</span><span class="en">Test-program execution modes: the former halts a die's remaining tests on the first fail (later items have no data); the latter keeps running and recording every item even after a fail.</span></td></tr>
               <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
@@ -441,12 +443,12 @@
       <section id="overview">
         <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
         <p>
-          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性），先擋掉不該評估的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序。</span>
-          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it.</span>
+          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性），先擋掉不該評估的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。</span>
+          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10.</span>
         </p>
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
-          <svg viewBox="0 0 1320 260" role="img" aria-label="process flow including optional phase 7">
+          <svg viewBox="0 0 1320 330" role="img" aria-label="process flow including optional phase 7 and its feedback loop">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">PROCESS FLOW</text>
             <g font-family="Source Serif 4">
               <line x1="70" y1="140" x2="1070" y2="140" stroke="var(--border)" stroke-width="2"/>
@@ -582,11 +584,16 @@
                 <path d="M962,140 l10,-5 l0,10 z"/>
                 <path d="M1122,140 l10,-5 l0,10 z"/>
               </g>
+              <!-- feedback loop: a genuine coverage gap found via Phase 7 goes all the way back to Phase 0 -->
+              <path d="M1210,200 V270 H90 V200" fill="none" stroke="var(--danger)" stroke-width="2" stroke-dasharray="8,5"/>
+              <path d="M90,200 l-6,10 l12,0 z" fill="var(--danger)"/>
+              <text x="650" y="238" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)"><tspan class="zh">客訴發現真實覆蓋缺口／未知未知（數位 fault、應力不足、封裝相關）</tspan><tspan class="en">Complaint reveals a genuine coverage gap / unknown-unknown (digital fault, insufficient stress, package-related)</tspan></text>
+              <text x="650" y="256" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)"><tspan class="zh">→ 回到 Phase 0 全面重審（必要時走 8D）</tspan><tspan class="en">→ back to Phase 0 for a full re-review (8D if needed)</tspan></text>
             </g>
           </svg>
           <figcaption>
-            <span class="zh">橘框（Phase 0）代表不需資料就能判斷的硬性守則，藍框（Phase 3）代表本 SOP 的統計核心 —— 其餘 Phase 皆為一般流程步驟，刻意不特別上色。虛線框（Phase 7）不是順序上的第七步，而是客訴事件觸發時才啟動的旁支流程，故用虛線連接、標示 Optional。點擊任一方框可直接跳到對應章節。</span>
-            <span class="en">The orange box (Phase 0) marks the hard gates decidable without any data; the blue box (Phase 3) marks this SOP's statistical core — every other phase is a regular process step, deliberately left uncolored. The dashed box (Phase 7) isn't a sequential seventh step — it's a side process that only activates when a customer complaint triggers it, hence the dashed connector and "Optional" label. Click any box to jump straight to its section.</span>
+            <span class="zh">橘框（Phase 0）代表不需資料就能判斷的硬性守則，藍框（Phase 3）代表本 SOP 的統計核心 —— 其餘 Phase 皆為一般流程步驟，刻意不特別上色。虛線框（Phase 7）不是順序上的第七步，而是客訴事件觸發時才啟動的旁支流程，故用虛線連接、標示 Optional。紅色虛線是 Phase 7 §10 的回饋迴路：若查證後發現不是誤移除，而是原本的覆蓋本來就不夠（見 §10 的三種情境），就必須整個流程回到 Phase 0 重新審查，而不是只恢復單一測項。點擊任一方框可直接跳到對應章節。</span>
+            <span class="en">The orange box (Phase 0) marks the hard gates decidable without any data; the blue box (Phase 3) marks this SOP's statistical core — every other phase is a regular process step, deliberately left uncolored. The dashed box (Phase 7) isn't a sequential seventh step — it's a side process that only activates when a customer complaint triggers it, hence the dashed connector and "Optional" label. The red dashed loop is Phase 7 §10's feedback path: if verification finds the coverage was genuinely insufficient to begin with — not a wrong removal (see §10's three scenarios) — the whole process returns to Phase 0 for a full re-review, not just a single test restoration. Click any box to jump straight to its section.</span>
           </figcaption>
         </figure>
       </section>
@@ -686,7 +693,7 @@
 
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
-          <svg viewBox="0 0 860 1010" role="img" aria-label="decision flowchart with hard gates">
+          <svg viewBox="-90 0 950 1010" role="img" aria-label="decision flowchart with hard gates and field-complaint feedback loop">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">DECISION FLOW</text>
             <g font-family="Source Serif 4" fill="var(--ink)">
               <line x1="220" y1="90" x2="220" y2="890" stroke="var(--border)" stroke-width="2"/>
@@ -768,11 +775,17 @@
               <text x="690" y="415" text-anchor="middle" font-size="12" fill="var(--danger)"><tspan class="zh">溫度線性不足</tspan><tspan class="en">Temp linearity insufficient</tspan></text>
               <text x="690" y="645" text-anchor="middle" font-size="12" fill="var(--danger)"><tspan class="zh">統計證據未過關</tspan><tspan class="en">Statistical evidence insufficient</tspan></text>
               <text x="690" y="680" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">（回 Phase 3 繼續觀察）</tspan><tspan class="en">(back to Phase 3, keep observing)</tspan></text>
+
+              <!-- feedback loop: Phase 7 finds coverage was genuinely insufficient, not a wrong removal -->
+              <path d="M40,930 H-20 V60 H40" fill="none" stroke="var(--danger)" stroke-width="2" stroke-dasharray="8,5"/>
+              <path d="M40,60 l-10,-6 l0,12 z" fill="var(--danger)"/>
+              <text x="-40" y="495" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)" transform="rotate(-90 -40 495)"><tspan class="zh">客訴（Phase 7 §10）發現真實覆蓋缺口／未知未知</tspan><tspan class="en">Complaint (Phase 7 §10) reveals a genuine coverage gap / unknown-unknown</tspan></text>
+              <text x="-60" y="495" text-anchor="middle" font-size="12" font-weight="600" fill="var(--danger)" transform="rotate(-90 -60 495)"><tspan class="zh">→ 不是誤移除，整個流程回到 Phase 0 重新開始</tspan><tspan class="en">→ not a wrong removal — the whole process restarts at Phase 0</tspan></text>
             </g>
           </svg>
           <figcaption>
-            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立一個菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。</span>
-            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity is what makes the fourth checkpoint trustworthy in the first place, so it's noted inside the Phase 3 box rather than as its own diamond. Failing any checkpoint routes to "Keep" rather than advancing to the next stage.</span>
+            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立一個菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。左側紅色虛線是額外的回饋迴路：即使順利走到 Phase 6 正式移除，日後若客訴查證（Phase 7 §10）發現問題不是誤移除、而是原本的覆蓋規劃本身就有缺口（例如數位 fault coverage 沒做夠、應力不足、封裝相關的未知因子），就不能只回退單一測項，必須回到最上面的候選測項、從 Phase 0 重新走一次。</span>
+            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity is what makes the fourth checkpoint trustworthy in the first place, so it's noted inside the Phase 3 box rather than as its own diamond. Failing any checkpoint routes to "Keep" rather than advancing to the next stage. The red dashed loop on the left is an additional feedback path: even after a clean run all the way to Phase 6's formal removal, if a later complaint investigation (Phase 7 §10) finds the problem wasn't a wrong removal but a genuine gap in the original coverage plan (e.g., digital fault coverage was never adequate, stress was insufficient, or an unknown package-related factor), a single test restoration isn't enough — the whole process restarts from the candidate item at Phase 0.</span>
           </figcaption>
         </figure>
       </section>
@@ -1355,12 +1368,34 @@
             <span class="en"><strong>If removed or sampled →</strong> immediately trigger the Phase 6 rollback, restoring 100% testing without waiting for a formal review cycle; root-cause investigation and statistical re-validation can run in parallel and should not delay restoring coverage.</span>
           </li>
           <li>
-            <span class="zh"><strong>若查無對應測項（真正的覆蓋缺口）→</strong> 這比「移除錯誤」更嚴重，代表整個流程從未涵蓋這個 fail mode，應立即評估新增測項，並回頭檢視 Phase 0 §3.2 零覆蓋守則當初是否有漏判。</span>
-            <span class="en"><strong>If no corresponding test item exists at all (a genuine coverage gap) →</strong> this is more serious than a wrong removal — it means the flow never covered this fail mode. Immediately evaluate adding a new test item, and revisit whether Phase 0 §3.2's zero-coverage guard missed something.</span>
+            <span class="zh"><strong>若查無對應測項（真正的覆蓋缺口）→</strong> 這比「移除錯誤」更嚴重，代表整個流程從未涵蓋這個 fail mode。依缺口類型不同，處置方向也不同，不是每次都只是「加一個測項」這麼簡單：</span>
+            <span class="en"><strong>If no corresponding test item exists at all (a genuine coverage gap) →</strong> this is more serious than a wrong removal — it means the flow never covered this fail mode. The right response depends on what kind of gap it is; it isn't always as simple as "add one test":</span>
+            <ul>
+              <li>
+                <span class="zh"><strong>數位邏輯 fault coverage 不足</strong>（如 stuck-at、delay／transition fault 沒被涵蓋）→ 問題出在比本 SOP 更底層的地方：測試向量／ATPG 產生時的 fault model 本身就沒涵蓋到。不能只在既有測項裡找哪個被拿掉，必須退回最原始的 fault coverage review，重新評估 fault model 與向量集合是否足夠——這已經超出「跨站冗餘」的範疇。</span>
+                <span class="en"><strong>Insufficient digital-logic fault coverage</strong> (e.g., stuck-at or delay/transition faults never covered) → the problem sits below this SOP's layer entirely: the fault model used to generate test vectors/ATPG never covered it. Don't just look for which existing item was removed — go back to a from-scratch fault-coverage review of the fault model and vector set; this is outside the scope of "cross-stage redundancy."</span>
+              </li>
+              <li>
+                <span class="zh"><strong>原始測試內容的應力（stress）不足</strong>，無法激發 latent defect（如電壓／溫度／頻率範圍不夠）→ 這不是「被移除」的覆蓋，而是「原本就不夠強」的覆蓋，出貨後在客戶端長期使用的應力下才被激發。處置方向是加嚴或新增應力條件（如提高電壓 guardband、延長 burn-in），而不是恢復某個被移除的測項。</span>
+                <span class="en"><strong>Insufficient stress in the original test content</strong> to excite a latent defect (e.g., too narrow a voltage/temperature/frequency range) → this isn't coverage that was removed, it's coverage that was never strong enough to begin with, only excited later under the customer's real-world usage stress. The fix is tightening or adding stress conditions (e.g., a wider voltage guardband, longer burn-in), not restoring some removed item.</span>
+              </li>
+              <li>
+                <span class="zh"><strong>Assembly／封裝後造成的客訴</strong> → 雖然發生在 electrical coverage flow 的末端、甚至在電性測試範圍之外，做 TTR 決策時仍需一併考慮：某些電性測項雖然主要目的不是測封裝，卻可能間接捕捉到封裝異常造成的電性徵狀（如接合不良造成的漏電流異常）——若只因統計上看起來冗餘就移除，等於也拿掉了這層間接防護。這類根因需要跟封裝／組裝工程協同調查，不是單靠電性測試資料能完全定位的。</span>
+                <span class="en"><strong>Assembly/package-related complaints</strong> → these occur at the tail end of the electrical coverage flow, or even outside it entirely, but still need to be weighed during TTR: some electrical items, even though not designed to test packaging directly, may indirectly catch an electrical symptom of a package defect (e.g., abnormal leakage from a bad bond). Removing such an item just because it looks statistically redundant also removes that indirect protection. Root cause here needs joint investigation with packaging/assembly engineering — electrical test data alone can't fully localize it.</span>
+              </li>
+              <li>
+                <span class="zh"><strong>多重因子交互作用下的「unknown unknown」</strong> → TTR 分析本質上是根據「已知」的失效模式與相關性做決策，無法窮舉未來才會出現的多因子交互作用。這類狀況一旦在移除後才浮現，代表當初的風險模型有沒涵蓋到的維度，不能只是簡單恢復測項就結案——必須重新啟動完整分析，必要時走 <strong>8D</strong>（問題描述、圍堵、根因、矯正措施、預防再發），並把這次事件學到的新失效模式回饋進 Phase 0 的候選篩選準則，避免同類問題在其他產品重演。</span>
+                <span class="en"><strong>Multi-factor "unknown unknown" interactions</strong> → TTR analysis is fundamentally a decision based on known failure modes and known correlations; it can't exhaustively anticipate every future multi-factor interaction. If one surfaces after a removal, the original risk model had a dimension it never covered — don't just restore the item and call it done. Re-launch a full analysis, and where warranted run an <strong>8D</strong> (problem description, containment, root cause, corrective action, prevent recurrence), feeding the newly learned failure mode back into Phase 0's screening criteria so the same gap doesn't repeat on other products.</span>
+              </li>
+            </ul>
+            <p>
+              <span class="zh">無論屬於哪一種，都要回頭檢視 Phase 0 §3.2 零覆蓋守則當初是否有漏判，並依 §2 的紅色虛線回饋迴路，讓整個流程從候選測項重新走一次，而不是只在 Phase 6／7 之間打轉。</span>
+              <span class="en">Whichever category it falls into, revisit whether Phase 0 §3.2's zero-coverage guard missed something, and follow §2's red dashed feedback loop to restart the whole process from the candidate item — don't just cycle between Phase 6 and Phase 7.</span>
+            </p>
           </li>
           <li>
-            <span class="zh"><strong>回寫紀錄：</strong>把這次 CQC 事件與處置結果補進決策紀錄，作為未來稽核與流程覆核的依據。</span>
-            <span class="en"><strong>Log it back:</strong> record the CQC event and its resolution in the decision log, as evidence for future audits and process reviews.</span>
+            <span class="zh"><strong>回寫紀錄：</strong>把這次 CQC 事件、判定為哪一類缺口、與處置結果補進決策紀錄，作為未來稽核與流程覆核的依據。</span>
+            <span class="en"><strong>Log it back:</strong> record the CQC event, which gap category it was classified as, and its resolution in the decision log, as evidence for future audits and process reviews.</span>
           </li>
         </ol>
         <div class="callout danger">
