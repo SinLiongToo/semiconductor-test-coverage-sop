@@ -1510,10 +1510,10 @@
     h.insertBefore(arrow, h.firstChild);
 
     // Default state: every top-level (h2) section starts collapsed except
-    // Phase 2, which stays open. Sub-headings (h3/h4) start expanded.
+    // Process Overview, which stays open. Sub-headings (h3/h4) start expanded.
     if (h.tagName === 'H2') {
       var section = h.closest('section');
-      if (!section || section.id !== 'phase2') {
+      if (!section || section.id !== 'overview') {
         body.classList.add('collapsed');
         h.classList.add('is-collapsed');
       }
