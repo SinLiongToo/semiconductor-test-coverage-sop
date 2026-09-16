@@ -431,6 +431,8 @@
               <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
               <tr><td class="mono">Gauge R&amp;R / MSA</td><td><span class="zh">Measurement System Analysis，量化量測系統本身貢獻的變異（repeatability + reproducibility）佔總變異的比例，用以判斷一組量測數據是否值得信任。</span><span class="en">Measurement System Analysis — quantifies how much of total variance comes from the measurement system itself (repeatability + reproducibility), used to judge whether a set of measurements can be trusted.</span></td></tr>
               <tr><td class="mono">CQC</td><td><span class="zh">Customer Quality Complaint，客戶端提出的品質相關客訴事件。</span><span class="en">Customer Quality Complaint — a quality-related complaint raised by a customer.</span></td></tr>
+              <tr><td class="mono">Stop-on-fail / Continue-on-fail</td><td><span class="zh">測試程式的執行模式：前者一遇 fail 就中止該顆 die 的後續測試（後面測項無資料）；後者即使 fail 仍會繼續執行並記錄所有測項。</span><span class="en">Test-program execution modes: the former halts a die's remaining tests on the first fail (later items have no data); the latter keeps running and recording every item even after a fail.</span></td></tr>
+              <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -799,6 +801,20 @@
           <p>
             <span class="zh">兩測項「名稱相似、spec limit 相同」不代表等效 —— 務必確認量測電路路徑、負載條件、溫度 corner 是否真的一致，否則配對本身就不成立，後面的統計分析會建立在錯誤前提上。</span>
             <span class="en">Two items with similar names and identical spec limits are not necessarily equivalent — always confirm the measurement circuit path, load conditions, and temperature corner truly match. Otherwise the pairing itself is invalid and every downstream statistical analysis rests on a false premise.</span>
+          </p>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">常見誤區：Stop-on-fail 讓「沒有資料」被誤讀成「沒有 fail」</span><span class="en">Common Pitfall: Stop-on-Fail Makes "No Data" Look Like "No Fail"</span></span>
+          <p>
+            <span class="zh">蒐集資料前務必確認測試程式的執行模式：<strong>stop-on-fail</strong>（一顆 die 一旦在某測項 fail，程式就中止，後面的測項完全不會執行）跟 <strong>continue-on-fail</strong>（即使前面 fail，後面測項仍照跑並記錄）差異很大——也要留意這是「跨站（WT／FT）」還是「同站內部」的執行模式，視實際測試流程而定。若程式是 stop-on-fail，那些「fail 點之後」的測項對該顆 die 而言根本沒有資料，不是「沒有 fail」，是「壓根沒測到」。把這種資料缺失誤當成「無 fail 證據」放進 Incremental Catch 或相關性分析，會嚴重低估真實的漏測風險。務必：(1) 先確認候選測項配對是否受 stop-on-fail 影響，受影響的話優先取得 continue-on-fail（或 debug／engineering mode）資料再分析；(2) 資料萃取時明確區分「Pass」「Fail」「未執行（No data）」三種狀態，不要把「未執行」當「Pass」處理。</span>
+            <span class="en">Before collecting data, confirm the test program's execution mode: <strong>stop-on-fail</strong> (once a die fails one item, the program halts and every later item never runs) versus <strong>continue-on-fail</strong> (later items still run and get recorded even after an earlier fail) make a big difference — and check whether this applies across stages (WT/FT) or only within a station, depending on the actual flow. Under stop-on-fail, items after the fail point simply have no data for that die — that's not "no fail," it's "never tested." Treating this missing data as "no-fail evidence" in Incremental Catch or correlation analysis badly underestimates the real escape risk. Always: (1) check whether the candidate pair is affected by stop-on-fail, and if so, get continue-on-fail (or debug/engineering-mode) data before analyzing; (2) when extracting data, explicitly distinguish "Pass," "Fail," and "not executed (no data)" — never treat "not executed" as "Pass."</span>
+          </p>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">常見誤區：混用 Trim 前後的資料</span><span class="en">Common Pitfall: Mixing Pre- and Post-Trim Data</span></span>
+          <p>
+            <span class="zh">部分測項的量測值只有在<strong>電路完成 trim／校準之後</strong>才有物理意義（如 bandgap trim 後的參考電壓、振盪器 trim 後的頻率）；trim 前與 trim 後的同一個測項，代表完全不同的東西，不能混在一起做相關性或 Cpk 分析。資料收集前必須先確認：這個測項的數值是 trim 前還是 trim 後？跨站比較時，兩邊是否都基於同一個 trim 狀態（同一次 trim、同一組 trim code）？沒先釐清就直接拿來算 r，很容易把「trim 前的雜訊」跟「trim 後的真實表現」混在一起，得出失真甚至方向相反的結論。</span>
+            <span class="en">Some test items' measured values are only physically meaningful <strong>after the circuit has been trimmed/calibrated</strong> (e.g., a bandgap's reference voltage after trim, an oscillator's frequency after trim); the same item pre-trim and post-trim represents two completely different things and shouldn't be mixed together for correlation or Cpk analysis. Before collecting data, confirm: is this item's value pre-trim or post-trim? When comparing across stages, are both sides based on the same trim state (the same trim pass, the same trim codes)? Skipping this check and computing r directly is a good way to blend "pre-trim noise" with "post-trim real performance" and get a distorted, sometimes inverted, conclusion.</span>
           </p>
         </div>
       </section>
