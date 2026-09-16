@@ -272,12 +272,33 @@
   .pill.danger{background:var(--danger-soft);color:var(--danger);}
   .pill.good{background:var(--good-soft);color:var(--good);}
 
-  figure{margin:20px 0;max-width:100%;}
+  figure{margin:20px 0;max-width:100%;position:relative;}
   figure svg{max-width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:4px;}
   .pipeline-link{cursor:pointer;}
   .pipeline-link rect{transition:stroke-width .12s ease;}
   .pipeline-link:hover rect, .pipeline-link:focus-visible rect{stroke-width:3.5;}
   .pipeline-link:focus-visible{outline:none;}
+
+  .fig-zoom{
+    position:absolute;top:10px;right:10px;width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:6px;border:1px solid var(--border);background:var(--surface);
+    color:var(--ink-soft);cursor:pointer;font-size:14px;line-height:1;
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+  }
+  .fig-zoom:hover{color:var(--accent-strong);border-color:var(--accent);}
+  .fig-zoom:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:28px;z-index:200;}
+  .lightbox[hidden]{display:none;}
+  .lightbox-inner{position:relative;max-width:min(1400px,95vw);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;}
+  .lightbox-inner svg{width:100%;height:auto;display:block;background:var(--surface);}
+  .lightbox-close{
+    position:absolute;top:10px;right:10px;width:32px;height:32px;
+    border-radius:50%;border:1px solid var(--border);background:var(--surface-2);
+    color:var(--ink);cursor:pointer;font-size:16px;line-height:1;
+  }
+  .lightbox-close:hover{color:var(--accent-strong);border-color:var(--accent);}
   figcaption{font-size:13px;color:var(--ink-faint);margin-top:8px;max-width:70ch;}
 
   .field-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:16px 0;max-width:800px;}
@@ -297,8 +318,8 @@
   <header class="masthead">
     <div class="masthead-top">
       <span class="eyebrow">
-        <span class="zh">方法論文件 · Methodology SOP</span>
-        <span class="en">Methodology Document · SOP</span>
+        <span class="zh">方法論文件 · Methodology SOP · Created by @MasaTu</span>
+        <span class="en">Methodology Document · SOP · Created by @MasaTu</span>
       </span>
       <div class="controls">
         <div class="find-box">
@@ -422,6 +443,7 @@
           <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it.</span>
         </p>
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 1320 260" role="img" aria-label="process flow including optional phase 7">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">PROCESS FLOW</text>
             <g font-family="Source Serif 4">
@@ -642,6 +664,7 @@
         </div>
 
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 860 1010" role="img" aria-label="decision flowchart with hard gates">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">DECISION FLOW</text>
             <g font-family="Source Serif 4" fill="var(--ink)">
@@ -832,6 +855,7 @@
           <span class="en">Bin-level data only tells you whether a value crossed the spec limit, not how far from the limit it sits or whether that distance is shrinking. Two dies that both "Pass at WT and FT" can be indistinguishable at the Bin level — one with wide margin, one sitting right against the FT limit — yet the latter is exactly the high-risk population most likely to escape after downstream process drift or environmental stress (packaging, burn-in, temperature cycling).</span>
         </p>
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 640 400" role="img" aria-label="bin-level vs parameter-level comparison">
             <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
               <line x1="70" y1="330" x2="590" y2="330" stroke="var(--border)" stroke-width="1.5"/>
@@ -927,6 +951,7 @@
           </li>
         </ol>
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 680 340" role="img" aria-label="correlation matrix network diagram">
             <g font-family="Source Serif 4" fill="var(--ink)">
               <text x="10" y="20" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">CORRELATION MATRIX</text>
@@ -1013,6 +1038,7 @@
           <span class="en">This check is independent of the correlation coefficient and linearity validation. Any outlier flagged by any of these methods should send the candidate back for review, rather than being smoothed away by a reassuringly high aggregate r.</span>
         </p>
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 560 320" role="img" aria-label="outlier detection diagram">
             <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
               <line x1="60" y1="260" x2="520" y2="260" stroke="var(--border)" stroke-width="1.5"/>
@@ -1065,6 +1091,7 @@
           </div>
         </div>
         <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="0 0 640 380" role="img" aria-label="tightened upstream limit diagram">
             <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
               <line x1="70" y1="330" x2="590" y2="330" stroke="var(--border)" stroke-width="1.5"/>
@@ -1376,6 +1403,13 @@
     <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-16 15:51</span>
     <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-16 15:51</span>
   </footer>
+</div>
+
+<div id="lightbox" class="lightbox" hidden>
+  <div class="lightbox-inner">
+    <button type="button" class="lightbox-close" aria-label="Close / 關閉">✕</button>
+    <div id="lightboxContent"></div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -1719,6 +1753,43 @@
   prevBtn.addEventListener('click', goPrev);
 
   window.__sopFind = { clear: clearHighlights };
+})();
+</script>
+
+<script>
+(function(){
+  var lightbox = document.getElementById('lightbox');
+  var content = document.getElementById('lightboxContent');
+  var closeBtn = lightbox.querySelector('.lightbox-close');
+  if (!lightbox || !content) return;
+
+  function openFor(svg){
+    content.textContent = '';
+    content.appendChild(svg.cloneNode(true));
+    lightbox.hidden = false;
+  }
+  function close(){
+    lightbox.hidden = true;
+    content.textContent = '';
+  }
+
+  document.querySelectorAll('.fig-zoom').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var svg = btn.closest('figure').querySelector('svg');
+      if (svg) openFor(svg);
+    });
+  });
+
+  closeBtn.addEventListener('click', close);
+  lightbox.addEventListener('click', function(e){
+    if (e.target === lightbox) close();
+  });
+  content.addEventListener('click', function(e){
+    if (e.target.closest('a')) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !lightbox.hidden) close();
+  });
 })();
 </script>
 </body>
