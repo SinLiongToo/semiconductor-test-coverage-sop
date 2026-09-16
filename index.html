@@ -430,6 +430,7 @@
               <tr><td class="mono">Die-level 追溯</td><td><span class="zh">透過 Wafer ID + X,Y 座標或封裝序號，將同一顆 die 在 WT 與 FT 的資料點對點配對。</span><span class="en">Die-level traceability — pairing the same die's WT and FT data point-to-point via Wafer ID + X,Y coordinates or package serial number.</span></td></tr>
               <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
               <tr><td class="mono">Gauge R&amp;R / MSA</td><td><span class="zh">Measurement System Analysis，量化量測系統本身貢獻的變異（repeatability + reproducibility）佔總變異的比例，用以判斷一組量測數據是否值得信任。</span><span class="en">Measurement System Analysis — quantifies how much of total variance comes from the measurement system itself (repeatability + reproducibility), used to judge whether a set of measurements can be trusted.</span></td></tr>
+              <tr><td class="mono">FMEA / RPN</td><td><span class="zh">Failure Mode and Effects Analysis，針對每個失效模式評估嚴重度（Severity）、發生機率（Occurrence）、偵測能力（Detection），三者相乘得出 RPN（Risk Priority Number）；移除測項會直接調高相關失效模式的 Detection 分數，是 Phase 4 決策時必須交叉檢查的項目。</span><span class="en">Failure Mode and Effects Analysis — scores each failure mode on Severity, Occurrence, and Detection, whose product gives the RPN (Risk Priority Number); removing a test item directly raises the Detection score for the failure modes it caught, which Phase 4 decisions must cross-check against.</span></td></tr>
               <tr><td class="mono">CQC</td><td><span class="zh">Customer Quality Complaint，客戶端提出的品質相關客訴事件。</span><span class="en">Customer Quality Complaint — a quality-related complaint raised by a customer.</span></td></tr>
               <tr><td class="mono">8D</td><td><span class="zh">Eight Disciplines，八步驟結構化問題解決方法（團隊、問題描述、圍堵、根因、矯正措施、驗證、預防再發、團隊肯定），業界常用於處理客訴／品質異常的正式根因分析。</span><span class="en">Eight Disciplines — a structured 8-step problem-solving method (team, problem description, containment, root cause, corrective action, verification, prevent recurrence, team recognition), commonly used for formal root-cause analysis of complaints/quality excursions.</span></td></tr>
               <tr><td class="mono">Fault coverage（Stuck-at／Delay）</td><td><span class="zh">數位電路測試向量能偵測到的邏輯故障比例；stuck-at fault（節點卡死於 0 或 1）與 delay／transition fault（訊號切換延遲異常）是兩種基本 fault model，涵蓋率不足時代表向量集合本身有漏洞，跟跨站冗餘是不同層次的問題。</span><span class="en">The proportion of logic faults a digital test vector set can detect; stuck-at faults (a node frozen at 0 or 1) and delay/transition faults (abnormal switching delay) are two basic fault models — insufficient coverage means the vector set itself has a hole, a different layer of problem from cross-stage redundancy.</span></td></tr>
@@ -1340,6 +1341,20 @@
             <span class="en">If the candidate involves removing a temperature corner (Phase 0 §3.3), the "Parameter-level requirement" column above also requires the §6.3 temperature-linearity/TC model validation to pass before the Tier's requirement is considered met; pure cross-stage candidates are unaffected.</span>
           </p>
         </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">標準測試程式 Release 流程與設計端 Review</span><span class="en">Standard Test-Program Release Process &amp; Designer Review</span></span>
+          <p>
+            <span class="zh">無論落在哪個 Tier，只要決策結果是移除或抽測（不是純保留），都必須走組織既有的<strong>標準測試程式 Release 流程</strong>完成正式簽核——包含版本控管、release checklist，以及相關電路設計端（designer）的 review，不能只靠測試工程內部拍板。設計端的角色特別重要：他們才真正掌握這個參數在電路裡的失效模式與嚴重度，Phase 0 §3.1「物理關聯 spec 參數」的判斷，最終也需要設計端確認，不是測試工程單方面認定。Tier A／B 建議設計端全程參與；Tier C 至少需要書面簽核，不可省略。</span>
+            <span class="en">Regardless of Tier, any decision to remove or sample-test (not simply keep) must go through the organization's existing <strong>standard test-program release process</strong> with formal sign-off — version control, a release checklist, and review by the relevant circuit designer(s), not just a call made internally by test engineering. The designer's role matters specifically because they know the parameter's real failure modes and severity within the circuit; the "physically-linked spec parameter" judgment from Phase 0 §3.1 ultimately needs designer confirmation too, not a unilateral call from test engineering. Tier A/B should have designers involved throughout; Tier C still needs written sign-off at minimum, never skipped.</span>
+          </p>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">與 FMEA 交叉檢查</span><span class="en">Cross-Check Against FMEA</span></span>
+          <p>
+            <span class="zh">正式簽核前，建議把這次移除決策放進（或對照既有的）<strong>FMEA（Failure Mode and Effects Analysis）</strong>：把「移除這個測項」當作一個變更事件，重新檢視受影響失效模式的嚴重度（Severity）、發生機率（Occurrence）與偵測能力（Detection）——尤其是 Detection 分數，移除測項等於直接調高了某個失效模式的 Detection 分數（偵測能力下降）。若因此讓 RPN（Risk Priority Number）超出可接受門檻，即使 Phase 3 統計證據再乾淨，也不應該核准移除。FMEA 與本 SOP 的風險分級是互補、不是取代關係：Phase 3–4 的統計方法回答「有沒有證據支持移除」，FMEA 回答「移除後對整體產品失效模式風險的影響有多大」，兩者都要通過才能進入 Phase 5。</span>
+            <span class="en">Before formal sign-off, the removal decision should be folded into (or checked against) the existing <strong>FMEA (Failure Mode and Effects Analysis)</strong>: treat "removing this test" as a change event, and re-examine the Severity, Occurrence, and Detection scores for the failure modes it affects — Detection especially, since removing a test directly raises the Detection score (lower detection capability) for whatever failure mode it was catching. If that pushes the RPN (Risk Priority Number) past an acceptable threshold, the removal shouldn't be approved no matter how clean the Phase 3 statistical evidence looks. FMEA and this SOP's risk tiering are complementary, not substitutes: Phase 3–4's statistics answer "is there evidence supporting removal," FMEA answers "how much does removal change the product's overall failure-mode risk" — both need to pass before moving into Phase 5.</span>
+          </p>
+        </div>
       </section>
 
       <section id="phase5">
@@ -1368,8 +1383,8 @@
         <h2><span class="num">9</span><span class="zh">Phase 6 — 正式變更、文件化與回退機制</span><span class="en">Phase 6 — Formal Change, Documentation &amp; Rollback</span></h2>
         <ul>
           <li>
-            <span class="zh">Pilot 期間無異常 → 提報正式 ECN／測試流程變更，附上 Phase 3 的統計證據（Bin-level 表 + Parameter-level 圖表）與 Phase 5 的 pilot 紀錄。</span>
-            <span class="en">No anomalies during the pilot → file a formal ECN / test flow change, attaching the Phase 3 statistical evidence (Bin-level table + Parameter-level charts) and the Phase 5 pilot record.</span>
+            <span class="zh">Pilot 期間無異常 → 提報正式 ECN／測試流程變更，附上 Phase 3 的統計證據（Bin-level 表 + Parameter-level 圖表）、Phase 5 的 pilot 紀錄，以及 Phase 4 要求的設計端 Review 簽核與 FMEA RPN 結果——這裡走的就是 Phase 4 §7 訂下的標準測試程式 Release 流程，不是另一套審核。</span>
+            <span class="en">No anomalies during the pilot → file a formal ECN / test flow change, attaching the Phase 3 statistical evidence (Bin-level table + Parameter-level charts), the Phase 5 pilot record, and the designer-review sign-off and FMEA RPN result that Phase 4 required — this is the same standard test-program release process Phase 4 §7 established, not a separate approval track.</span>
           </li>
           <li>
             <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件），一旦觸發即自動恢復該測項，不需重新走完整審核流程；「客戶端出現對應 fail mode」的具體查證程序見 Phase 7。</span>
@@ -1476,6 +1491,9 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">溫度線性驗證結論</span><span class="en">Temp-linearity conclusion</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Tier</b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">決策（保留/抽測/移除）</span><span class="en">Decision (Keep/Sample/Remove)</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">FMEA RPN（移除前 → 移除後）</span><span class="en">FMEA RPN (before → after removal)</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Designer Review 簽核人</span><span class="en">Designer review sign-off</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">測試程式 Release 單號</span><span class="en">Test-program release ticket no.</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">核准人</span><span class="en">Approver</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">下次覆核日期</span><span class="en">Next review date</span></b></div>
         </div>
