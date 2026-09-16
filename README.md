@@ -2,9 +2,11 @@
 
 半導體 WT／FT 跨站測項冗餘分析方法論 — 判斷哪些測項可以從後站移除或降頻抽測，同時給出可交代給稽核的統計依據，而不是憑「幾百顆沒看到 fail」就下結論。
 
+**線上版（GitHub Pages）：** https://sinliongtoo.github.io/semiconductor-test-coverage-sop/
+
 ## 內容
 
-- [`跨站測試覆蓋優化SOP.html`](./跨站測試覆蓋優化SOP.html) — 單一自包含 HTML 文件，離線可開，內容涵蓋：
+- [`index.html`](./index.html) — 單一自包含 HTML 文件，離線可開，內容涵蓋：
   - **Phase 0 前置強制檢查**：規格／驗證標準強制項目、零覆蓋守則、溫度 corner 移除的前提條件
   - **Phase 1–2**：測試對應矩陣（Test Mapping Matrix）、STDF 資料萃取與 die-level 追溯
   - **Phase 3 統計分析**：Bin-level（屬性資料）、Parameter-level（變數資料）、溫度 Corner 線性（TC 模型）三條證據線，含樣本數公式與推導依據
@@ -13,7 +15,7 @@
 
 ## 怎麼用
 
-直接用瀏覽器開啟 `跨站測試覆蓋優化SOP.html`，不需要伺服器或安裝任何東西。
+直接用瀏覽器開啟 `index.html`，不需要伺服器或安裝任何東西；或直接開上面的線上版連結。
 
 頁面右上角有幾個控制項：
 
