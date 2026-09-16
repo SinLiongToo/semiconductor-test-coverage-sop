@@ -824,6 +824,60 @@
             <span class="en"><strong>Cross-stage, same-temperature</strong> pairs (e.g., WT-RT vs FT-RT) are the standard case that (a)–(d) already cover. Any pair in the matrix with low correlation — same-stage or cross-stage — is disqualified as a removal candidate and does not proceed to Phase 4.</span>
           </li>
         </ol>
+        <figure>
+          <svg viewBox="0 0 680 340" role="img" aria-label="correlation matrix network diagram">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <text x="10" y="20" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">CORRELATION MATRIX</text>
+
+              <!-- cross-stage same-temp edges (accent) -->
+              <g stroke="var(--accent)" stroke-width="2">
+                <line x1="130" y1="70" x2="550" y2="70"/>
+                <line x1="130" y1="160" x2="550" y2="160"/>
+                <line x1="130" y1="250" x2="550" y2="250"/>
+              </g>
+
+              <!-- same-stage cross-temp edges (warn), bowed outward -->
+              <g stroke="var(--warn)" stroke-width="2" fill="none">
+                <path d="M130,70 Q95,115 130,160"/>
+                <path d="M130,160 Q95,205 130,250"/>
+                <path d="M130,70 Q60,160 130,250"/>
+                <path d="M550,70 Q585,115 550,160"/>
+                <path d="M550,160 Q585,205 550,250"/>
+                <path d="M550,70 Q620,160 550,250"/>
+              </g>
+
+              <!-- nodes -->
+              <g>
+                <circle cx="130" cy="70" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+                <circle cx="130" cy="160" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+                <circle cx="130" cy="250" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+                <circle cx="550" cy="70" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+                <circle cx="550" cy="160" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+                <circle cx="550" cy="250" r="30" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2"/>
+              </g>
+              <g text-anchor="middle" font-size="13" font-weight="600">
+                <text x="130" y="65">WT</text><text x="130" y="80" font-size="11" fill="var(--ink-soft)">RT</text>
+                <text x="130" y="155">WT</text><text x="130" y="170" font-size="11" fill="var(--ink-soft)">HT</text>
+                <text x="130" y="245">WT</text><text x="130" y="260" font-size="11" fill="var(--ink-soft)">LT</text>
+                <text x="550" y="65">FT</text><text x="550" y="80" font-size="11" fill="var(--ink-soft)">RT</text>
+                <text x="550" y="155">FT</text><text x="550" y="170" font-size="11" fill="var(--ink-soft)">HT</text>
+                <text x="550" y="245">FT</text><text x="550" y="260" font-size="11" fill="var(--ink-soft)">LT</text>
+              </g>
+
+              <!-- legend -->
+              <g font-size="12">
+                <line x1="60" y1="305" x2="100" y2="305" stroke="var(--accent)" stroke-width="3"/>
+                <text x="108" y="309"><tspan class="zh">跨站同溫度 → §6.2(a)–(d) 標準路徑</tspan><tspan class="en">Cross-stage, same temp → §6.2(a)–(d)</tspan></text>
+                <line x1="60" y1="325" x2="100" y2="325" stroke="var(--warn)" stroke-width="3"/>
+                <text x="108" y="329"><tspan class="zh">同站跨溫度 → 需另過 §6.3 線性驗證</tspan><tspan class="en">Same-stage, cross temp → also needs §6.3</tspan></text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">每個參數最多有六個量測點；藍色邊代表 (a)–(d) 處理的跨站同溫配對，橘色邊代表必須額外通過 §6.3 線性驗證的同站跨溫配對 —— 兩種邊都要算進相關矩陣，不能只看藍色的那三條。</span>
+            <span class="en">Each parameter has up to six measurement points. Blue edges are the cross-stage, same-temperature pairs handled by (a)–(d); orange edges are same-stage, cross-temperature pairs that must additionally clear the §6.3 linearity validation — both edge types belong in the correlation matrix, not just the three blue ones.</span>
+          </figcaption>
+        </figure>
 
         <h4><span class="zh">(f) Outlier Detection — 個體層級異常偵測</span><span class="en">(f) Outlier Detection — Individual-Level Anomaly Screening</span></h4>
         <p>
@@ -856,6 +910,114 @@
           <span class="zh">這條檢查獨立於相關係數與線性驗證：任何一種方法標記出的 outlier 都應該讓該候選回頭複查，而不是被一個看起來很高的整體 r 值掩蓋過去。</span>
           <span class="en">This check is independent of the correlation coefficient and linearity validation. Any outlier flagged by any of these methods should send the candidate back for review, rather than being smoothed away by a reassuringly high aggregate r.</span>
         </p>
+        <figure>
+          <svg viewBox="0 0 560 320" role="img" aria-label="outlier detection diagram">
+            <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
+              <line x1="60" y1="260" x2="520" y2="260" stroke="var(--border)" stroke-width="1.5"/>
+              <line x1="60" y1="30" x2="60" y2="260" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="290" y="292" text-anchor="middle" font-family="Source Serif 4" font-size="12.5" fill="var(--ink-soft)"><tspan class="zh">前站量測值</tspan><tspan class="en">Upstream measured value</tspan></text>
+              <text x="22" y="145" transform="rotate(-90 22 145)" text-anchor="middle" font-family="Source Serif 4" font-size="12.5" fill="var(--ink-soft)"><tspan class="zh">後站量測值</tspan><tspan class="en">Downstream measured value</tspan></text>
+            </g>
+            <line x1="80" y1="220" x2="480" y2="70" stroke="var(--accent)" stroke-width="2"/>
+            <g fill="var(--ink-soft)">
+              <circle cx="100" cy="210" r="4.5"/>
+              <circle cx="140" cy="190" r="4.5"/>
+              <circle cx="180" cy="180" r="4.5"/>
+              <circle cx="220" cy="165" r="4.5"/>
+              <circle cx="260" cy="160" r="4.5"/>
+              <circle cx="300" cy="140" r="4.5"/>
+              <circle cx="340" cy="120" r="4.5"/>
+              <circle cx="400" cy="100" r="4.5"/>
+              <circle cx="440" cy="90" r="4.5"/>
+              <circle cx="460" cy="78" r="4.5"/>
+            </g>
+            <g>
+              <circle cx="220" cy="90" r="7" fill="var(--danger)"/>
+              <circle cx="220" cy="90" r="14" fill="none" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <circle cx="380" cy="190" r="7" fill="var(--danger)"/>
+              <circle cx="380" cy="190" r="14" fill="none" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="3,3"/>
+            </g>
+            <g font-family="Source Serif 4" font-size="11.5">
+              <text x="240" y="70" fill="var(--danger)" font-weight="600"><tspan class="zh">NNR／DPAT／Mahalanobis</tspan><tspan class="en">NNR / DPAT / Mahalanobis</tspan></text>
+              <text x="240" y="86" fill="var(--danger)" font-weight="600"><tspan class="zh">標記為異常</tspan><tspan class="en">flagged as anomalies</tspan></text>
+              <text x="60" y="20" fill="var(--ink-soft)"><tspan class="zh">整體迴歸 r 仍然很高 —— 兩個離群點被十顆 inlier 稀釋掉了</tspan><tspan class="en">Aggregate regression r still looks high — two outliers get diluted by ten inliers</tspan></text>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">整體趨勢線與相關係數看起來很乾淨，但兩顆明顯偏離趨勢的 die 不會拉低整體 r 太多——這正是需要獨立的個體層級異常偵測（NNR／DPAT／Mahalanobis）的原因。</span>
+            <span class="en">The overall trend line and correlation coefficient look clean, but two dies sitting well off the trend won't drag the aggregate r down by much — exactly why an independent, individual-level anomaly check (NNR/DPAT/Mahalanobis) is needed.</span>
+          </figcaption>
+        </figure>
+
+        <h4><span class="zh">(g) 主動收緊前站 Limit（Guardbanding）作為 Enabler</span><span class="en">(g) Actively Tightening the Upstream Limit as an Enabler</span></h4>
+        <p>
+          <span class="zh">有時候相關性不是天生就「夠高」，但仍然可以透過<strong>收緊前站（如 WT）的測試 limit</strong>，主動換取移除後站測試的空間。原理：用迴歸模型從前站量測值推算後站預期值，再加上預測區間（prediction interval）的安全緩衝；只要收緊後的前站 limit 距離這個緩衝夠遠，通過收緊後前站測試的 die，其後站預測值就能以目標信心水準保證落在後站 spec 之內。</span>
+          <span class="en">Sometimes the raw correlation isn't naturally "high enough" on its own, but removal headroom can still be actively created by <strong>tightening the upstream (e.g., WT) test limit</strong>. The principle: use the regression model to project the expected downstream value from the upstream measurement, then add a safety buffer sized by the prediction interval. As long as the tightened upstream limit sits far enough beyond that buffer, any die passing the tightened upstream test is guaranteed — at the target confidence level — to land inside the downstream spec.</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">收緊後前站 limit（guardband）</span><span class="en">Guardbanded upstream limit</span></div>
+          <div class="eq">\[ L_{\text{upstream}}' = f^{-1}(L_{\text{downstream}}) \mp z \cdot \sigma_{\text{residual}} \]</div>
+          <div class="note">
+            <span class="zh">f⁻¹ 是迴歸模型的反函數（把後站 limit 換算回對應的前站值），z 依目標信心水準選擇（如 99.7% 取 z=3），σ_residual 是迴歸殘差標準差；「∓」的方向依 limit 是上限或下限而定。</span>
+            <span class="en">f⁻¹ is the inverse of the regression model (mapping the downstream limit back to the corresponding upstream value); z is chosen by the target confidence level (e.g., z=3 for ~99.7%); σ_residual is the regression's residual standard deviation. The sign of "∓" depends on whether the limit is an upper or lower bound.</span>
+          </div>
+        </div>
+        <figure>
+          <svg viewBox="0 0 640 380" role="img" aria-label="tightened upstream limit diagram">
+            <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
+              <line x1="70" y1="330" x2="590" y2="330" stroke="var(--border)" stroke-width="1.5"/>
+              <line x1="70" y1="40" x2="70" y2="330" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="330" y="362" text-anchor="middle" font-family="Source Serif 4" font-size="13" fill="var(--ink-soft)"><tspan class="zh">前站量測值</tspan><tspan class="en">Upstream measured value</tspan></text>
+              <text x="26" y="185" transform="rotate(-90 26 185)" text-anchor="middle" font-family="Source Serif 4" font-size="13" fill="var(--ink-soft)"><tspan class="zh">後站量測值</tspan><tspan class="en">Downstream measured value</tspan></text>
+            </g>
+            <line x1="70" y1="90" x2="590" y2="90" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <text x="494" y="84" font-family="IBM Plex Mono" font-size="10.5" fill="var(--danger)">FT limit</text>
+
+            <rect x="380" y="40" width="80" height="290" fill="var(--warn-soft)" fill-opacity="0.6"/>
+            <line x1="460" y1="40" x2="460" y2="330" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <line x1="380" y1="40" x2="380" y2="330" stroke="var(--danger)" stroke-width="2.5"/>
+
+            <g font-family="Source Serif 4" font-size="10.5">
+              <text x="464" y="54" fill="var(--warn)"><tspan class="zh">原始 WT limit</tspan><tspan class="en">Original WT limit</tspan></text>
+              <text x="290" y="54" text-anchor="middle" fill="var(--danger)"><tspan class="zh">收緊後 WT limit</tspan><tspan class="en">Tightened WT limit</tspan></text>
+            </g>
+
+            <g fill="var(--good)">
+              <circle cx="150" cy="270" r="5"/>
+              <circle cx="190" cy="290" r="5"/>
+              <circle cx="220" cy="255" r="5"/>
+              <circle cx="260" cy="275" r="5"/>
+              <circle cx="300" cy="240" r="5"/>
+              <circle cx="330" cy="260" r="5"/>
+            </g>
+            <g fill="var(--warn)">
+              <circle cx="400" cy="240" r="5"/>
+              <circle cx="430" cy="200" r="5"/>
+              <circle cx="410" cy="120" r="5"/>
+              <circle cx="445" cy="100" r="5"/>
+            </g>
+
+            <g font-family="Source Serif 4" font-size="12">
+              <rect x="90" y="150" width="190" height="46" rx="4" fill="var(--good-soft)" stroke="var(--good)" stroke-width="1"/>
+              <text x="100" y="168" fill="var(--good)" font-weight="600" font-size="11"><tspan class="zh">保留良率 Kept yield</tspan><tspan class="en">Kept yield</tspan></text>
+              <text x="100" y="184" fill="var(--ink-soft)" font-size="11"><tspan class="zh">預測值穩定 &lt; FT limit，安全移除</tspan><tspan class="en">Predicted value stays &lt; FT limit, safe to remove</tspan></text>
+
+              <rect x="310" y="250" width="220" height="60" rx="4" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1"/>
+              <text x="320" y="268" fill="var(--warn)" font-weight="600" font-size="11"><tspan class="zh">犧牲良率區</tspan><tspan class="en">Sacrificed yield zone</tspan></text>
+              <text x="320" y="284" fill="var(--ink-soft)" font-size="11"><tspan class="zh">原本會通過 WT，現在前站直接判退</tspan><tspan class="en">Would have passed old WT limit,</tspan></text>
+              <text x="320" y="298" fill="var(--ink-soft)" font-size="11"><tspan class="zh"> </tspan><tspan class="en">now rejected upstream instead</tspan></text>
+              <line x1="400" y1="250" x2="415" y2="200" stroke="var(--warn)" stroke-width="1" stroke-dasharray="2,3"/>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">收緊後的 WT limit（紅色實線）比原始 limit（橘色虛線）更嚴格；中間的橘色帶是「犧牲良率區」—— 這些 die 本來會通過原始 WT，現在改在前站直接判退，換取後站測試可以安全移除。</span>
+            <span class="en">The tightened WT limit (solid red) is stricter than the original limit (dashed orange). The orange band between them is the "sacrificed yield zone" — dies that would have passed the original WT limit are now rejected upstream instead, in exchange for being able to safely remove the downstream test.</span>
+          </figcaption>
+        </figure>
+        <p>
+          <span class="zh">這個做法不是免費的：收緊 limit 會讓原本在舊 limit 內、新 limit 外的 die 在前站就被判退，即使它們原本在後站測試也會 Pass。決策時必須把「犧牲的前站良率成本」跟「移除後站測試省下的 test time」放在同一個 ROI 天平上比較（見 Phase 4 ROI 參考），而不是只看統計上站不站得住腳。當相關性 r 已經很高、殘差很小時，收緊的幅度通常很小、犧牲的良率可忽略；相關性普通時，才需要認真評估這筆交易划不划算。</span>
+          <span class="en">This isn't free: tightening the limit means dies that would have passed the old limit but fall outside the new one get rejected upstream — even though they would have passed the downstream test. The decision must weigh "upstream yield sacrificed" against "test time saved by removing the downstream test" on the same ROI scale (see the Phase 4 ROI reference), not just whether the statistics hold up. When r is already high and the residual is small, the required tightening is usually tiny and the sacrificed yield negligible; when correlation is only moderate, this trade-off needs careful evaluation before committing to it.</span>
+        </p>
 
         <h3><span class="zh">6.3 溫度 Corner 冗餘分析（線性／TC 模型）</span><span class="en">6.3 Temperature-Corner Redundancy (Linearity / TC Model)</span></h3>
         <p>
@@ -883,8 +1045,8 @@
             <span class="en">Bin-level: Incremental Catch = 0 over the observation window, with sample size meeting the confidence level required for that Tier (see the table in 6.1).</span>
           </li>
           <li>
-            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內；相關矩陣中同站跨溫與跨站同溫配對皆已檢視（§6.2(e)）；殘差通過個體層級異常偵測，無 NNR／DPAT／雙變量離群點（§6.2(f)）。</span>
-            <span class="en">Parameter-level: r ≥ the Tier's r_min; no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range; every same-stage cross-temperature and cross-stage same-temperature pair in the correlation matrix has been reviewed (§6.2(e)); residuals pass individual-level outlier detection with no NNR/DPAT/bivariate outliers (§6.2(f)).</span>
+            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min（若原始 r 不足，可改用 §6.2(g) 收緊前站 limit 後重新滿足此條件）；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內；相關矩陣中同站跨溫與跨站同溫配對皆已檢視（§6.2(e)）；殘差通過個體層級異常偵測，無 NNR／DPAT／雙變量離群點（§6.2(f)）。</span>
+            <span class="en">Parameter-level: r ≥ the Tier's r_min (if the raw r falls short, §6.2(g)'s tightened upstream limit can be used to satisfy this condition instead); no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range; every same-stage cross-temperature and cross-stage same-temperature pair in the correlation matrix has been reviewed (§6.2(e)); residuals pass individual-level outlier detection with no NNR/DPAT/bivariate outliers (§6.2(f)).</span>
           </li>
           <li>
             <span class="zh">溫度 Corner 線性（僅溫度 corner 候選適用）：線性假設經迴歸驗證成立，未測 corner 的預測區間距 spec limit 仍有足夠 margin。</span>
@@ -940,8 +1102,8 @@
         <div class="callout">
           <span class="tag"><span class="zh">ROI 參考</span><span class="en">ROI Reference</span></span>
           <p>
-            <span class="zh">移除／降頻的財務效益 = 節省的 test time × tester 分攤成本 × 年產量；應與該測項一旦漏測造成的客訴／RMA／信賴度成本一併放入決策紀錄，供覆核與稽核追溯。</span>
-            <span class="en">Financial benefit of removal/sampling = time saved × allocated tester cost × annual volume. Log this alongside the potential complaint/RMA/reliability cost of an escape, for review and audit traceability.</span>
+            <span class="zh">移除／降頻的財務效益 = 節省的 test time × tester 分攤成本 × 年產量；應與該測項一旦漏測造成的客訴／RMA／信賴度成本一併放入決策紀錄，供覆核與稽核追溯。若原始相關性 r 未達 r_min，可評估 §6.2(g) 收緊前站 limit 的方案：把「犧牲的前站良率」也換算成成本，一併放進同一個 ROI 天平比較。</span>
+            <span class="en">Financial benefit of removal/sampling = time saved × allocated tester cost × annual volume. Log this alongside the potential complaint/RMA/reliability cost of an escape, for review and audit traceability. If the raw correlation r falls short of r_min, consider the §6.2(g) tightened-upstream-limit option: convert the sacrificed upstream yield into a cost too, and weigh it on the same ROI scale.</span>
           </p>
         </div>
         <div class="callout warn">
@@ -1055,6 +1217,7 @@
           <li><span class="zh">Nearest Neighbor Residual（NNR）— 以晶圓上鄰近 die 的平滑預測值篩選空間異常，常見於 Good-Die-in-Bad-Neighborhood 篩選文獻。</span><span class="en">Nearest Neighbor Residual (NNR) — screens spatial anomalies using a smoothed prediction from neighboring die on the wafer map; widely discussed in Good-Die-in-Bad-Neighborhood screening literature.</span></li>
           <li><span class="zh">Dynamic Part Average Testing（DPAT）— AEC-Q001 PAT 概念的延伸，以每 lot／wafer 自身分布動態計算限制而非固定 spec limit。</span><span class="en">Dynamic Part Average Testing (DPAT) — an extension of the AEC-Q001 PAT concept that computes limits dynamically from each lot/wafer's own distribution rather than a fixed spec limit.</span></li>
           <li><span class="zh">Mahalanobis, P. C. (1936) — 多變量離群偵測的基礎距離量測，將 z-score 概念推廣到相關變數的聯合分布。</span><span class="en">Mahalanobis, P. C. (1936) — the foundational distance measure for multivariate outlier detection, generalizing the z-score concept to the joint distribution of correlated variables.</span></li>
+          <li><span class="zh">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity，guardband／收緊 limit 決策規則的參考依據。</span><span class="en">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity, a reference for guardband/limit-tightening decision rules.</span></li>
           <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
