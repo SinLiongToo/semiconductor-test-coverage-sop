@@ -608,6 +608,13 @@
             <span class="en">Add a "Spec source" column to the Phase 1 test mapping matrix and tag each item against the corresponding customer spec clause or standard section. When no explicit source can be found, default to "evaluable" rather than "mandated," but record the verification steps taken in the decision log.</span>
           </p>
         </div>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">⚠ 沒寫在 spec 書上，不代表不是 spec 參數</span><span class="en">⚠ Not in the Spec Sheet Doesn't Mean Not a Spec Parameter</span></span>
+          <p>
+            <span class="zh">Spec 書只定義「客戶端量得到」的參數（如 pin 腳上的 VOH、IDDQ），但這些參數是由電路內部的某個節點或機制「產生」出來的——兩者之間存在必然的物理／電路關係（例如某內部 bias 電流或 reference 電壓直接決定了外部某個 spec 參數的中心值與變異）。這類內部測項即使從未出現在 spec 書、PPAP 或驗證標準的條文裡，一旦被移除，等同間接拿掉了對客戶 spec 參數的保證。因此判斷「是否強制」時，不能只查「這個測項名稱有沒有出現在 spec 文件裡」，還要往回問一句：<strong>這個測項量到的東西，是不是某個 spec 參數背後的物理成因？</strong>如果是，就應該比照 §3.1 的強制項目處理，需要電路設計端（而非只有測試工程）一起確認才能核准移除。</span>
+            <span class="en">The spec sheet only defines parameters the customer can measure (e.g., VOH, IDDQ at a pin), but those parameters are physically produced by some internal circuit node or mechanism — a necessary physical/circuit relationship connects the two (an internal bias current or reference voltage, for instance, may directly set the center value and variation of an external spec parameter). Such internal test items may never appear in the spec sheet, PPAP, or qualification standard's text, yet removing one is effectively removing the guarantee behind a spec'd parameter. So don't just check "does this item's name appear in the spec document" — also ask: <strong>is what this item measures the physical cause behind some spec parameter?</strong> If so, treat it the same as a §3.1 mandated item, and get sign-off from circuit design (not test engineering alone) before approving its removal.</span>
+          </p>
+        </div>
 
         <h3><span class="zh">3.2 零覆蓋守則</span><span class="en">3.2 Zero-Coverage Guard</span></h3>
         <p>
@@ -661,6 +668,18 @@
             <span class="zh">應先改善量測系統（如更換探針卡、調整測試條件、提高儀器解析度），而不是急著用「相關性不夠」的結論來保留或移除測項 —— 因為那個結論本身可能只是雜訊，不是物理事實。</span>
             <span class="en">Fix the measurement system first (a different probe card, adjusted test conditions, higher-resolution instrumentation) — don't rush to use a "correlation isn't high enough" conclusion to keep or remove a test, because that conclusion might just be noise, not physics.</span>
           </p>
+        </div>
+        <p>
+          <span class="zh">上面的 %R&amp;R 門檻要「信任」，本身也需要足夠的重複測試次數才能估得準 —— 這裡常用<strong>反查 Chi-Square（reverse chi-square）</strong>的方法：母體變異 σ² 的信賴區間可以用樣本變異 s²（n 次重複量測算出）與卡方分布連結；要反過來問「要多少次重複量測，才能讓估出來的 σ 夠精準」，就是把這個關係式倒過來解 n。</span>
+          <span class="en">Trusting the %R&amp;R threshold above requires enough repeat measurements to estimate it precisely in the first place — a common method here is <strong>reverse (inverse) chi-square</strong> sample sizing: the confidence interval for a population variance σ² connects to the sample variance s² (from n repeat measurements) via the chi-square distribution. Asking "how many repeats do I need for a precise-enough σ estimate" means solving that relationship backward for n.</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">σ 的信賴區間（卡方分布）</span><span class="en">Confidence interval for σ (chi-square distribution)</span></div>
+          <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
+          <div class="note">
+            <span class="zh">「反查」的做法：先定義可接受的精確度（例如希望有 90% 信心，估出的 s 落在真實 σ 的 ±25% 以內），再從小的 n 開始代入上式檢查，找到第一個滿足精確度需求的 n —— 這正是 Gauge R&amp;R、Cpk 信賴區間等方法回答「重複量測要做幾次」的標準做法，也和 §6.2(d)／§11.3 統計容忍區間的 k-factor 查表背後是同一套數學（k-factor 本身就是從 t 分布與卡方分布組合推導出來的）。實務上多半直接用統計軟體或查表求解，不需要手動反解。</span>
+            <span class="en">The "reverse" approach: define the acceptable precision first (e.g., 90% confidence that the estimated s falls within ±25% of the true σ), then plug in increasing n until this inequality is satisfied — that's the standard way Gauge R&amp;R studies, Cpk confidence intervals, and similar methods answer "how many repeat measurements do I need?" It shares the same underlying math as the §6.2(d)/§11.3 statistical-tolerance-interval k-factor tables (those k-factors are themselves derived by combining the t-distribution with the chi-square distribution). In practice this is solved with statistical software or lookup tables rather than by hand.</span>
+          </div>
         </div>
 
         <figure>
@@ -772,6 +791,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">對應理由</span><span class="en">Mapping rationale</span></b><br><span class="zh">電性等效 / 邏輯等效 / 製程等效</span><span class="en">Electrical / logic / process equivalence</span></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">初步 Tier</span><span class="en">Initial Tier</span></b><br><span class="zh">A / B / C（見 Phase 4）</span><span class="en">A / B / C (see Phase 4)</span></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">規格來源</span><span class="en">Spec Source</span></b><br><span class="zh">客戶條款／標準條文，或「無」（見 Phase 0）</span><span class="en">Customer clause / standard section, or "none" (see Phase 0)</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">物理關聯 Spec 參數</span><span class="en">Physically-Linked Spec Parameter</span></b><br><span class="zh">若為內部節點，寫出它決定哪個 spec 參數（見 Phase 0 §3.1）</span><span class="en">If an internal node, name the spec parameter it physically determines (see Phase 0 §3.1)</span></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">溫度 Corner 候選</span><span class="en">Temp-Corner Candidate</span></b><br><span class="zh">是／否（見 Phase 0 §3.3）</span><span class="en">Yes / No (see Phase 0 §3.3)</span></div>
         </div>
         <div class="callout warn">
@@ -931,8 +951,8 @@
 
         <h4><span class="zh">(d) 變數抽樣法所需樣本數遠小於屬性抽樣</span><span class="en">(d) Variables Sampling Needs Far Fewer Samples Than Attribute Sampling</span></h4>
         <p>
-          <span class="zh">這是 Parameter-level 分析背後的統計原理：屬性資料（Pass/Fail）每顆只回傳 1 bit 資訊，要把「零事件」轉換成低 DPPM 等級的信心上界，天然需要極大樣本；變數資料（實際量測值）每顆回傳連續資訊（均值與變異數都在估計中被使用），可用<strong>統計容忍區間（statistical tolerance interval）</strong>方法，以遠小的樣本數（實務上常見 n = 30～200 等級）對母體比例做同等信心水準的宣稱。方法與 k-factor 查表請參考 ASTM E2586 / ISO 16269-6（見附錄）。</span>
-          <span class="en">This is the statistical principle behind Parameter-level analysis: attribute data (Pass/Fail) carries only 1 bit per unit, so converting a zero-event observation into a low-DPPM confidence bound inherently requires a huge sample. Variables data (actual measured values) carries continuous information per unit — both mean and variance are used in the estimate — so a <strong>statistical tolerance interval</strong> method can make an equivalent-confidence population claim with a far smaller sample (commonly n = 30–200 in practice). See ASTM E2586 / ISO 16269-6 for the method and k-factor tables (Appendix).</span>
+          <span class="zh">這是 Parameter-level 分析背後的統計原理：屬性資料（Pass/Fail）每顆只回傳 1 bit 資訊，要把「零事件」轉換成低 DPPM 等級的信心上界，天然需要極大樣本；變數資料（實際量測值）每顆回傳連續資訊（均值與變異數都在估計中被使用），可用<strong>統計容忍區間（statistical tolerance interval）</strong>方法，以遠小的樣本數（實務上常見 n = 30～200 等級）對母體比例做同等信心水準的宣稱。方法與 k-factor 查表請參考 ASTM E2586 / ISO 16269-6（見附錄）；k-factor 背後「用卡方分布反查所需樣本數」的推導方式，見 §3.4 的反查 Chi-Square 說明。</span>
+          <span class="en">This is the statistical principle behind Parameter-level analysis: attribute data (Pass/Fail) carries only 1 bit per unit, so converting a zero-event observation into a low-DPPM confidence bound inherently requires a huge sample. Variables data (actual measured values) carries continuous information per unit — both mean and variance are used in the estimate — so a <strong>statistical tolerance interval</strong> method can make an equivalent-confidence population claim with a far smaller sample (commonly n = 30–200 in practice). See ASTM E2586 / ISO 16269-6 for the method and k-factor tables (Appendix); for how those k-factors trace back to reverse-solving the chi-square relationship for sample size, see §3.4's reverse chi-square note.</span>
         </p>
 
         <h4><span class="zh">(e) 全矩陣相關性 — 同站跨溫度 vs 跨站同溫度</span><span class="en">(e) Full Correlation Matrix — Same-Stage Cross-Temperature vs. Cross-Stage Same-Temperature</span></h4>
@@ -1380,6 +1400,10 @@
         <div class="formula">
           <div class="label"><span class="zh">馬氏距離（多變量離群偵測）</span><span class="en">Mahalanobis distance (multivariate outlier detection)</span></div>
           <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">σ 信賴區間 / 反查 Chi-Square 樣本數</span><span class="en">CI for σ / reverse chi-square sample size</span></div>
+          <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
         </div>
 
         <h3><span class="zh">11.4 延伸參考</span><span class="en">11.4 Further References</span></h3>
