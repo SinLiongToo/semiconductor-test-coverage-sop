@@ -291,8 +291,8 @@
 
   .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:28px;z-index:200;}
   .lightbox[hidden]{display:none;}
-  .lightbox-inner{position:relative;max-width:min(1400px,95vw);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;}
-  .lightbox-inner svg{width:100%;height:auto;display:block;background:var(--surface);}
+  .lightbox-inner{position:relative;width:min(1400px,95vw);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;box-sizing:border-box;}
+  .lightbox-inner svg{width:100%;height:auto;display:block;background:var(--surface);min-width:0;}
   .lightbox-close{
     position:absolute;top:10px;right:10px;width:32px;height:32px;
     border-radius:50%;border:1px solid var(--border);background:var(--surface-2);
