@@ -443,8 +443,8 @@
       <section id="overview">
         <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
         <p>
-          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性），先擋掉不該評估的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。</span>
-          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10.</span>
+          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要（或只需少量）資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性、數位 fault coverage 與應力條件查證），先擋掉不該評估、或地基本身就有破洞的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。</span>
+          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need little to no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity, digital fault-coverage and stress-condition verification) to screen out candidates that should never be evaluated, or whose foundation already has a hole; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10.</span>
         </p>
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
@@ -691,6 +691,29 @@
           </div>
         </div>
 
+        <h3><span class="zh">3.5 數位邏輯 Fault Coverage 與應力條件查證</span><span class="en">3.5 Digital Fault Coverage &amp; Stress Condition Verification</span></h3>
+        <p>
+          <span class="zh">Phase 7 §10 描述的四種客訴情境中，「數位邏輯 fault coverage 不足」與「原始測試內容應力不夠」這兩種，本質上不是「移除了不該移除的測項」，而是<strong>從一開始覆蓋規劃就有缺口</strong>。與其等客訴發生才在 Phase 7 回頭查，更好的做法是在 Phase 0 先驗證這兩件事：任何 fault coverage 或應力條件未達標的產品／測項，直接排除在本輪 TTR 候選範圍之外，等基礎覆蓋補齊了再重新評估。</span>
+          <span class="en">Two of the four complaint scenarios in Phase 7 §10 — insufficient digital-logic fault coverage and insufficient stress in the original test content — aren't really cases of "removing something that shouldn't have been removed." They're gaps that existed in the coverage plan from the start. Rather than waiting for a complaint and tracing it back through Phase 7, it's better to verify both of these in Phase 0: any product/test item whose fault coverage or stress conditions fall short of target is excluded from this round's TTR candidacy outright, until the underlying coverage gap is closed.</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>數位邏輯 Fault Coverage：</strong>查該測試程式對應的 ATPG／fault simulation 報告，確認 stuck-at 與 delay／transition fault coverage 是否達到組織內部訂定的目標值。未達標的測項或整個測試程式，代表向量集合本身有漏洞 —— 這類候選直接排除在 TTR 評估之外，先由 DFT／設計驗證團隊補強向量或 fault model，覆蓋率達標後才重新納入候選。</span>
+            <span class="en"><strong>Digital fault coverage:</strong> check the ATPG/fault-simulation report for the test program in question, confirming stuck-at and delay/transition fault coverage meet the organization's internal target. An item or an entire program that falls short means the vector set itself has a hole — exclude such candidates from TTR evaluation outright; have the DFT/design-verification team strengthen the vectors or fault model first, and only re-admit the candidate once coverage meets target.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>應力條件：</strong>檢查目前的電壓／溫度／頻率等應力範圍，是否有文件依據（如可靠度驗證報告、歷史 field return 分析）支持它足以激發已知的 latent defect 機制，而不是憑經驗法則沿用舊的 guardband。若某參數的覆蓋完全仰賴一個從未被驗證過是否足夠的應力條件，在確認應力條件本身站得住腳之前，不應該把它當成「已充分驗證、可以評估移除重複測項」的基礎。</span>
+            <span class="en"><strong>Stress conditions:</strong> check whether the current voltage/temperature/frequency stress range has documented backing (a reliability qualification report, historical field-return analysis) confirming it's sufficient to excite known latent-defect mechanisms — not just an old guardband carried forward by convention. If a parameter's coverage relies entirely on a stress condition that's never actually been validated as adequate, don't treat it as a solid enough foundation to start evaluating redundant-test removal until the stress condition itself has been confirmed.</span>
+          </li>
+        </ul>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">與 Phase 7 的關聯</span><span class="en">How This Connects to Phase 7</span></span>
+          <p>
+            <span class="zh">這條守則是 Phase 7 §10 情境 1、2（fault coverage 不足、應力不夠）的主動版本 —— 與其等客訴發生後才在 §10 回頭查證，這裡先把關，降低同樣的缺口日後變成客訴、甚至要走 8D 的機率。這裡的查證不是要做一次完整的可靠度驗證，而是先確認「地基」沒有已知的破洞，才值得投入 Phase 1–6 的冗餘分析 —— Phase 0 沒先把關，後面統計證據做得再嚴謹，也救不回一開始就沒被涵蓋到的失效模式。</span>
+            <span class="en">This gate is the proactive counterpart to Phase 7 §10's scenarios 1 and 2 (insufficient fault coverage, insufficient stress) — screening for them here, rather than waiting to trace them back through §10 after a complaint, reduces the chance the same gap later surfaces as a complaint or an 8D. This isn't meant to be a full reliability qualification — it's a check that the "foundation" has no known holes before investing in the Phase 1–6 redundancy analysis. If Phase 0 doesn't catch this first, no amount of downstream statistical rigor can recover a failure mode that was never covered to begin with.</span>
+          </p>
+        </div>
+
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
           <svg viewBox="-90 0 950 1010" role="img" aria-label="decision flowchart with hard gates and field-complaint feedback loop">
@@ -742,7 +765,7 @@
               <rect x="40" y="490" width="360" height="80" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
               <text x="220" y="522" text-anchor="middle" font-size="13"><tspan class="zh">Phase 3：Bin-level + Parameter-level</tspan><tspan class="en">Phase 3: Bin-level + Parameter-level</tspan></text>
               <text x="220" y="542" text-anchor="middle" font-size="13"><tspan class="zh">統計驗證</tspan><tspan class="en">statistical validation</tspan></text>
-              <text x="220" y="560" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">前提：量測系統有效（§3.4）；適用時另含 §6.3</tspan><tspan class="en">Requires §3.4 valid measurement system; §6.3 when applicable</tspan></text>
+              <text x="220" y="560" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)"><tspan class="zh">前提：候選已通過 §3.1–3.5；適用時另含 §6.3</tspan><tspan class="en">Requires candidate cleared §3.1–3.5; §6.3 when applicable</tspan></text>
 
               <!-- Diamond 4: all evidence pass -->
               <polygon points="220,590 400,640 220,690 40,640" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
@@ -784,8 +807,8 @@
             </g>
           </svg>
           <figcaption>
-            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立一個菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。左側紅色虛線是額外的回饋迴路：即使順利走到 Phase 6 正式移除，日後若客訴查證（Phase 7 §10）發現問題不是誤移除、而是原本的覆蓋規劃本身就有缺口（例如數位 fault coverage 沒做夠、應力不足、封裝相關的未知因子），就不能只回退單一測項，必須回到最上面的候選測項、從 Phase 0 重新走一次。</span>
-            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity is what makes the fourth checkpoint trustworthy in the first place, so it's noted inside the Phase 3 box rather than as its own diamond. Failing any checkpoint routes to "Keep" rather than advancing to the next stage. The red dashed loop on the left is an additional feedback path: even after a clean run all the way to Phase 6's formal removal, if a later complaint investigation (Phase 7 §10) finds the problem wasn't a wrong removal but a genuine gap in the original coverage plan (e.g., digital fault coverage was never adequate, stress was insufficient, or an unknown package-related factor), a single test restoration isn't enough — the whole process restarts from the candidate item at Phase 0.</span>
+            <span class="zh">四個檢核點中，前三個是 Phase 0 的硬性守則（不需統計資料即可判斷），第四個是 Phase 3 統計證據線是否全數通過 —— 而 Phase 0 §3.4 的量測系統有效性、§3.5 的 fault coverage／應力條件查證，是能不能信任第四個檢核點的前提，所以標在 Phase 3 方框內而非另立菱形。任一檢核點失敗都導向「保留」，而非繼續往下一階段推進。左側紅色虛線是額外的回饋迴路：即使順利走到 Phase 6 正式移除，日後若客訴查證（Phase 7 §10）發現問題不是誤移除、而是原本的覆蓋規劃本身就有缺口（例如數位 fault coverage 沒做夠、應力不足、封裝相關的未知因子），就不能只回退單一測項，必須回到最上面的候選測項、從 Phase 0 重新走一次。</span>
+            <span class="en">Of the four checkpoints, the first three are Phase 0's hard gates (decidable without any statistical data); the fourth checks whether all Phase 3 evidence lines passed. Phase 0 §3.4's measurement-system validity and §3.5's fault-coverage/stress-condition verification are what make the fourth checkpoint trustworthy in the first place, so they're noted inside the Phase 3 box rather than as their own diamonds. Failing any checkpoint routes to "Keep" rather than advancing to the next stage. The red dashed loop on the left is an additional feedback path: even after a clean run all the way to Phase 6's formal removal, if a later complaint investigation (Phase 7 §10) finds the problem wasn't a wrong removal but a genuine gap in the original coverage plan (e.g., digital fault coverage was never adequate, stress was insufficient, or an unknown package-related factor), a single test restoration isn't enough — the whole process restarts from the candidate item at Phase 0.</span>
           </figcaption>
         </figure>
       </section>
@@ -809,6 +832,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">物理關聯 Spec 參數</span><span class="en">Physically-Linked Spec Parameter</span></b><br><span class="zh">若為內部節點，寫出它決定哪個 spec 參數（見 Phase 0 §3.1）</span><span class="en">If an internal node, name the spec parameter it physically determines (see Phase 0 §3.1)</span></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">溫度 Corner 候選</span><span class="en">Temp-Corner Candidate</span></b><br><span class="zh">是／否（見 Phase 0 §3.3）</span><span class="en">Yes / No (see Phase 0 §3.3)</span></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Trim 相關／整站移除候選</span><span class="en">Trim-Related / Whole-Station Candidate</span></b><br><span class="zh">是／否；若是，是否涉及 trim 溫度係數</span><span class="en">Yes / No; if yes, does it involve the trim's temperature coefficient</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Fault Coverage／應力條件已查證</span><span class="en">Fault Coverage / Stress Verified</span></b><br><span class="zh">是／否（見 Phase 0 §3.5）；未達標則不列入本輪候選</span><span class="en">Yes / No (see Phase 0 §3.5); if not, excluded from this round's candidacy</span></div>
         </div>
         <div class="callout warn">
           <span class="tag"><span class="zh">常見誤區</span><span class="en">Common Pitfall</span></span>
@@ -1372,12 +1396,12 @@
             <span class="en"><strong>If no corresponding test item exists at all (a genuine coverage gap) →</strong> this is more serious than a wrong removal — it means the flow never covered this fail mode. The right response depends on what kind of gap it is; it isn't always as simple as "add one test":</span>
             <ul>
               <li>
-                <span class="zh"><strong>數位邏輯 fault coverage 不足</strong>（如 stuck-at、delay／transition fault 沒被涵蓋）→ 問題出在比本 SOP 更底層的地方：測試向量／ATPG 產生時的 fault model 本身就沒涵蓋到。不能只在既有測項裡找哪個被拿掉，必須退回最原始的 fault coverage review，重新評估 fault model 與向量集合是否足夠——這已經超出「跨站冗餘」的範疇。</span>
-                <span class="en"><strong>Insufficient digital-logic fault coverage</strong> (e.g., stuck-at or delay/transition faults never covered) → the problem sits below this SOP's layer entirely: the fault model used to generate test vectors/ATPG never covered it. Don't just look for which existing item was removed — go back to a from-scratch fault-coverage review of the fault model and vector set; this is outside the scope of "cross-stage redundancy."</span>
+                <span class="zh"><strong>數位邏輯 fault coverage 不足</strong>（如 stuck-at、delay／transition fault 沒被涵蓋）→ 問題出在比本 SOP 更底層的地方：測試向量／ATPG 產生時的 fault model 本身就沒涵蓋到。不能只在既有測項裡找哪個被拿掉，必須退回最原始的 fault coverage review，重新評估 fault model 與向量集合是否足夠——這已經超出「跨站冗餘」的範疇。<strong>這正是 Phase 0 §3.5 本該主動查證、卻沒查到的缺口</strong>，事後也要回頭檢討 §3.5 的查證程序哪裡漏了。</span>
+                <span class="en"><strong>Insufficient digital-logic fault coverage</strong> (e.g., stuck-at or delay/transition faults never covered) → the problem sits below this SOP's layer entirely: the fault model used to generate test vectors/ATPG never covered it. Don't just look for which existing item was removed — go back to a from-scratch fault-coverage review of the fault model and vector set; this is outside the scope of "cross-stage redundancy." <strong>This is exactly the gap Phase 0 §3.5 was supposed to catch proactively and didn't</strong> — afterward, also review where §3.5's verification procedure fell short.</span>
               </li>
               <li>
-                <span class="zh"><strong>原始測試內容的應力（stress）不足</strong>，無法激發 latent defect（如電壓／溫度／頻率範圍不夠）→ 這不是「被移除」的覆蓋，而是「原本就不夠強」的覆蓋，出貨後在客戶端長期使用的應力下才被激發。處置方向是加嚴或新增應力條件（如提高電壓 guardband、延長 burn-in），而不是恢復某個被移除的測項。</span>
-                <span class="en"><strong>Insufficient stress in the original test content</strong> to excite a latent defect (e.g., too narrow a voltage/temperature/frequency range) → this isn't coverage that was removed, it's coverage that was never strong enough to begin with, only excited later under the customer's real-world usage stress. The fix is tightening or adding stress conditions (e.g., a wider voltage guardband, longer burn-in), not restoring some removed item.</span>
+                <span class="zh"><strong>原始測試內容的應力（stress）不足</strong>，無法激發 latent defect（如電壓／溫度／頻率範圍不夠）→ 這不是「被移除」的覆蓋，而是「原本就不夠強」的覆蓋，出貨後在客戶端長期使用的應力下才被激發。處置方向是加嚴或新增應力條件（如提高電壓 guardband、延長 burn-in），而不是恢復某個被移除的測項。<strong>同樣屬於 Phase 0 §3.5 應力條件查證本該攔下的缺口</strong>，也要一併檢討查證程序。</span>
+                <span class="en"><strong>Insufficient stress in the original test content</strong> to excite a latent defect (e.g., too narrow a voltage/temperature/frequency range) → this isn't coverage that was removed, it's coverage that was never strong enough to begin with, only excited later under the customer's real-world usage stress. The fix is tightening or adding stress conditions (e.g., a wider voltage guardband, longer burn-in), not restoring some removed item. <strong>This also falls under what Phase 0 §3.5's stress-condition verification was supposed to catch</strong> — review that verification procedure too.</span>
               </li>
               <li>
                 <span class="zh"><strong>Assembly／封裝後造成的客訴</strong> → 雖然發生在 electrical coverage flow 的末端、甚至在電性測試範圍之外，做 TTR 決策時仍需一併考慮：某些電性測項雖然主要目的不是測封裝，卻可能間接捕捉到封裝異常造成的電性徵狀（如接合不良造成的漏電流異常）——若只因統計上看起來冗餘就移除，等於也拿掉了這層間接防護。這類根因需要跟封裝／組裝工程協同調查，不是單靠電性測試資料能完全定位的。</span>
