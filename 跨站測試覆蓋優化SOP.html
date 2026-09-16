@@ -118,7 +118,24 @@
   .ctrl-btn:hover{border-color:var(--accent);color:var(--accent-strong);}
   .ctrl-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-  .find-box{display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:3px 4px 3px 12px;}
+  .find-box{position:relative;display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:3px 4px 3px 12px;}
+  .find-results{
+    position:absolute;top:calc(100% + 6px);right:0;
+    width:360px;max-width:min(360px,calc(100vw - 32px));max-height:360px;overflow-y:auto;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 12px 28px rgba(0,0,0,.28);padding:4px;z-index:50;
+  }
+  .find-result-item{
+    display:block;width:100%;text-align:left;padding:8px 10px;margin:1px 0;
+    border:none;border-radius:6px;background:transparent;color:var(--ink);
+    font-family:var(--font-body);font-size:13px;line-height:1.45;cursor:pointer;
+  }
+  .find-result-item:hover{background:var(--accent-soft);}
+  .find-result-item.is-current{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent);}
+  .find-result-loc{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+  .find-result-snippet{color:var(--ink-soft);}
+  .find-result-snippet mark{background:var(--warn-soft);color:var(--ink);border-radius:2px;padding:0 1px;}
+  .find-result-empty{padding:10px 12px;font-size:13px;color:var(--ink-faint);}
   .find-box input[type="search"]{
     border:none;background:transparent;outline:none;color:var(--ink);
     font-family:var(--font-mono);font-size:12.5px;width:120px;max-width:32vw;
@@ -276,8 +293,8 @@
   <header class="masthead">
     <div class="masthead-top">
       <span class="eyebrow">
-        <span class="zh">內部方法論文件 · Methodology SOP</span>
-        <span class="en">Internal Methodology Document · SOP</span>
+        <span class="zh">方法論文件 · Methodology SOP</span>
+        <span class="en">Methodology Document · SOP</span>
       </span>
       <div class="controls">
         <div class="find-box">
@@ -285,6 +302,7 @@
           <button type="button" id="findPrev" class="find-nav" aria-label="Previous match">↑</button>
           <button type="button" id="findNext" class="find-nav" aria-label="Next match">↓</button>
           <span id="findCount" class="find-count">0/0</span>
+          <div id="findResults" class="find-results" hidden></div>
         </div>
         <button type="button" id="themeToggle" class="ctrl-btn">🌙 <span class="zh">深色</span><span class="en">Dark</span></button>
         <button type="button" id="langToggle" class="ctrl-btn">EN</button>
@@ -296,7 +314,8 @@
       <span class="en">A decision process for WT/FT cross-stage test redundancy analysis and Test Time Reduction — extending from Bin-level judgment to Parameter-level statistical validation, with sample-size science and ready-to-use templates.</span>
     </p>
     <div class="doc-fields">
-      <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>TBD-____</b></div>
+      <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
+      <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
       <div><span class="zh">版次</span><span class="en">Revision</span><b><span class="zh">Rev. A（草案）</span><span class="en">Rev. A (Draft)</span></b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
@@ -1351,11 +1370,14 @@
   var prevBtn = document.getElementById('findPrev');
   var nextBtn = document.getElementById('findNext');
   var countEl = document.getElementById('findCount');
+  var resultsPanel = document.getElementById('findResults');
+  var findBox = document.querySelector('.find-box');
   var main = document.querySelector('main');
   if (!input || !main) return;
 
   var marks = [];
   var current = -1;
+  var headingCache = null;
 
   function clearHighlights(){
     var existing = main.querySelectorAll('mark.find-hl');
@@ -1368,6 +1390,8 @@
     marks = [];
     current = -1;
     updateCount();
+    resultsPanel.hidden = true;
+    resultsPanel.textContent = '';
   }
 
   function isVisible(el){
@@ -1381,6 +1405,7 @@
     var q = input.value.trim();
     if (!q) return;
     var qLower = q.toLowerCase();
+    headingCache = Array.prototype.slice.call(main.querySelectorAll('h2, h3, h4'));
 
     var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
       acceptNode: function(node){
@@ -1417,7 +1442,86 @@
     });
 
     current = marks.length ? 0 : -1;
+    buildResultsPanel(q);
     highlightCurrent();
+  }
+
+  function getContextHeadingText(mark){
+    if (!headingCache) return '';
+    var found = null;
+    for (var i = 0; i < headingCache.length; i++){
+      var pos = mark.compareDocumentPosition(headingCache[i]);
+      if (pos & Node.DOCUMENT_POSITION_PRECEDING) { found = headingCache[i]; }
+      else if (pos & Node.DOCUMENT_POSITION_FOLLOWING) { break; }
+    }
+    if (!found) return '';
+    var lang = document.documentElement.getAttribute('data-lang');
+    var span = found.querySelector(lang === 'en' ? '.en' : '.zh');
+    return (span ? span.textContent : found.textContent).trim();
+  }
+
+  function buildSnippetInto(target, mark){
+    var src = mark.closest('.zh, .en') || mark.parentElement;
+    var full = src ? src.textContent : mark.textContent;
+    var matchText = mark.textContent;
+    var idx = full.indexOf(matchText);
+    if (idx === -1) { target.appendChild(document.createTextNode(full.slice(0, 140))); return; }
+    var pad = 44;
+    var start = Math.max(0, idx - pad);
+    var end = Math.min(full.length, idx + matchText.length + pad);
+    if (start > 0) target.appendChild(document.createTextNode('…'));
+    target.appendChild(document.createTextNode(full.slice(start, idx)));
+    var hl = document.createElement('mark');
+    hl.textContent = matchText;
+    target.appendChild(hl);
+    target.appendChild(document.createTextNode(full.slice(idx + matchText.length, end)));
+    if (end < full.length) target.appendChild(document.createTextNode('…'));
+  }
+
+  function buildResultsPanel(q){
+    resultsPanel.textContent = '';
+    if (!marks.length) {
+      var lang = document.documentElement.getAttribute('data-lang');
+      var empty = document.createElement('div');
+      empty.className = 'find-result-empty';
+      empty.textContent = lang === 'en' ? ('No matches for “' + q + '”') : ('找不到「' + q + '」');
+      resultsPanel.appendChild(empty);
+      resultsPanel.hidden = false;
+      return;
+    }
+    marks.forEach(function(m, i){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'find-result-item';
+      item.dataset.index = String(i);
+      var loc = document.createElement('span');
+      loc.className = 'find-result-loc';
+      loc.textContent = getContextHeadingText(m);
+      var snip = document.createElement('span');
+      snip.className = 'find-result-snippet';
+      buildSnippetInto(snip, m);
+      item.appendChild(loc);
+      item.appendChild(snip);
+      item.addEventListener('click', function(){
+        current = i;
+        highlightCurrent();
+      });
+      resultsPanel.appendChild(item);
+    });
+    resultsPanel.hidden = false;
+    markResultsCurrent();
+  }
+
+  function markResultsCurrent(){
+    var items = resultsPanel.querySelectorAll('.find-result-item');
+    items.forEach(function(item, i){
+      if (i === current) {
+        item.classList.add('is-current');
+        item.scrollIntoView({block: 'nearest'});
+      } else {
+        item.classList.remove('is-current');
+      }
+    });
   }
 
   function expandAncestors(el){
@@ -1443,6 +1547,7 @@
       m.scrollIntoView({block: 'center', behavior: 'smooth'});
     }
     updateCount();
+    markResultsCurrent();
   }
 
   function updateCount(){
@@ -1465,6 +1570,9 @@
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(runSearch, 200);
   });
+  input.addEventListener('focus', function(){
+    if (marks.length || (input.value.trim() && resultsPanel.childElementCount)) resultsPanel.hidden = false;
+  });
   input.addEventListener('keydown', function(e){
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -1474,6 +1582,9 @@
       clearHighlights();
       input.blur();
     }
+  });
+  document.addEventListener('click', function(e){
+    if (findBox && !findBox.contains(e.target)) resultsPanel.hidden = true;
   });
   nextBtn.addEventListener('click', goNext);
   prevBtn.addEventListener('click', goPrev);
