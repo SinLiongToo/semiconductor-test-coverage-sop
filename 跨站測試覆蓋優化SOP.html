@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>跨站測試覆蓋優化 SOP</title>
+<style>
+  :root{
+    --bg:#eef2f1;
+    --surface:#ffffff;
+    --surface-2:#e3eae8;
+    --ink:#16211f;
+    --ink-soft:#48605c;
+    --ink-faint:#7c908c;
+    --border:#d1dcd9;
+    --accent:#0b6e8f;
+    --accent-strong:#063f52;
+    --accent-soft:#dfeef3;
+    --good:#2f7a45;
+    --good-soft:#e5f2e6;
+    --warn:#9c6a17;
+    --warn-soft:#f6ecd4;
+    --danger:#9c3b30;
+    --danger-soft:#f5e0dc;
+    --font-display:'Big Shoulders Display','Arial Narrow',sans-serif;
+    --font-body:'Source Serif 4',Georgia,'Times New Roman',serif;
+    --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1614;
+      --surface:#161f1d;
+      --surface-2:#1c2725;
+      --ink:#e7ece9;
+      --ink-soft:#a9bab5;
+      --ink-faint:#7c8f8a;
+      --border:#2a3634;
+      --accent:#5bbcdd;
+      --accent-strong:#9adcf0;
+      --accent-soft:#152c34;
+      --good:#74c37e;
+      --good-soft:#17281a;
+      --warn:#dcab53;
+      --warn-soft:#2c230f;
+      --danger:#e28779;
+      --danger-soft:#2e1814;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1614;
+    --surface:#161f1d;
+    --surface-2:#1c2725;
+    --ink:#e7ece9;
+    --ink-soft:#a9bab5;
+    --ink-faint:#7c8f8a;
+    --border:#2a3634;
+    --accent:#5bbcdd;
+    --accent-strong:#9adcf0;
+    --accent-soft:#152c34;
+    --good:#74c37e;
+    --good-soft:#17281a;
+    --warn:#dcab53;
+    --warn-soft:#2c230f;
+    --danger:#e28779;
+    --danger-soft:#2e1814;
+  }
+
+  /* language toggle */
+  :root[data-lang="en"] .zh{display:none;}
+  :root:not([data-lang="en"]) .en{display:none;}
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.7;
+    padding:0 20px;
+  }
+  .page{max-width:1180px;margin:0 auto;padding-block:32px 80px;}
+
+  h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;text-wrap:balance;color:var(--ink);}
+  a{color:var(--accent);}
+  code, .mono{font-family:var(--font-mono);}
+
+  /* ---- masthead ---- */
+  .masthead{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:6px solid var(--accent);
+    border-radius:4px;
+    padding:28px 32px;
+    margin-bottom:28px;
+  }
+  .masthead-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
+  .masthead .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .controls{display:flex;gap:8px;flex-wrap:wrap;}
+  .ctrl-btn{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.04em;
+    padding:7px 14px;
+    border-radius:99px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--ink-soft);
+    cursor:pointer;
+    line-height:1.3;
+  }
+  .ctrl-btn:hover{border-color:var(--accent);color:var(--accent-strong);}
+  .ctrl-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .find-box{display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:3px 4px 3px 12px;}
+  .find-box input[type="search"]{
+    border:none;background:transparent;outline:none;color:var(--ink);
+    font-family:var(--font-mono);font-size:12.5px;width:120px;max-width:32vw;
+  }
+  .find-box input[type="search"]::placeholder{color:var(--ink-faint);}
+  .find-nav{
+    width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+    border:none;border-radius:50%;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:12px;
+  }
+  .find-nav:hover{background:var(--accent-soft);color:var(--accent-strong);}
+  .find-count{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);min-width:34px;text-align:center;}
+  mark.find-hl{background:var(--warn-soft);color:var(--ink);border-radius:2px;padding:0 1px;}
+  mark.find-hl.find-current{background:var(--accent);color:var(--surface);}
+
+  .collapsible-h{cursor:pointer;user-select:none;}
+  main section > h2.collapsible-h:hover{color:var(--accent-strong);}
+  .collapse-arrow{display:inline-block;font-size:.62em;color:var(--accent);transition:transform .15s ease;transform:rotate(0deg);}
+  .collapsible-h.is-collapsed .collapse-arrow{transform:rotate(-90deg);}
+  .collapse-body.collapsed{display:none;}
+  .masthead h1{
+    font-size:clamp(28px,4.4vw,42px);
+    line-height:1.08;
+    margin:6px 0 4px;
+  }
+  .masthead .sub{
+    color:var(--ink-soft);
+    font-size:16px;
+    max-width:64ch;
+    margin-bottom:20px;
+  }
+  .doc-fields{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:3px;
+    overflow:hidden;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+  }
+  .doc-fields div{background:var(--surface-2);padding:8px 12px;}
+  .doc-fields span{display:block;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-bottom:3px;}
+  .doc-fields b{color:var(--ink);font-weight:600;}
+
+  /* ---- layout ---- */
+  .body-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start;}
+  @media (max-width:900px){.body-grid{grid-template-columns:1fr;}}
+
+  nav.toc{position:sticky;top:20px;align-self:start;}
+  @media (max-width:900px){nav.toc{display:none;}}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--border);}
+  nav.toc li{margin:0;}
+  nav.toc a{
+    display:block;
+    padding:7px 0 7px 14px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid transparent;
+    margin-left:-2px;
+  }
+  nav.toc a:hover{color:var(--accent);border-left-color:var(--accent);}
+  nav.toc .toc-title{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding-left:14px;margin-bottom:6px;}
+
+  details.toc-m{display:none;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:24px;}
+  @media (max-width:900px){details.toc-m{display:block;}}
+  details.toc-m summary{padding:12px 16px;font-family:var(--font-mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);cursor:pointer;}
+  details.toc-m ol{list-style:none;margin:0;padding:0 16px 16px;}
+  details.toc-m a{display:block;padding:5px 0;font-size:14px;color:var(--ink-soft);text-decoration:none;}
+
+  main section{margin-bottom:52px;scroll-margin-top:20px;}
+  main section > h2{
+    font-size:clamp(21px,2.6vw,27px);
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    border-bottom:1px solid var(--border);
+    padding-bottom:10px;
+    margin-bottom:18px;
+  }
+  main section > h2 .num{font-family:var(--font-mono);color:var(--accent);font-size:.62em;font-weight:600;}
+  h3{font-size:18.5px;margin:26px 0 10px;color:var(--accent-strong);}
+  h4{font-size:15.5px;margin:18px 0 8px;color:var(--ink);}
+  p{max-width:70ch;margin:0 0 14px;}
+  p.lead{font-size:17.5px;color:var(--ink-soft);}
+  ul,ol{max-width:70ch;padding-left:22px;margin:0 0 14px;}
+  li{margin-bottom:6px;}
+  strong{color:var(--ink);}
+
+  .callout{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:4px;
+    padding:14px 18px;
+    margin:16px 0;
+    max-width:70ch;
+  }
+  .callout.warn{border-left-color:var(--warn);}
+  .callout.danger{border-left-color:var(--danger);}
+  .callout .tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px;}
+  .callout.warn .tag{color:var(--warn);}
+  .callout.danger .tag{color:var(--danger);}
+  .callout p{margin-bottom:0;font-size:14.5px;}
+
+  /* formula card */
+  .formula{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:16px 20px;
+    margin:16px 0;
+    max-width:70ch;
+  }
+  .formula .label{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;}
+  .formula .eq{font-size:16px;color:var(--accent-strong);overflow-x:auto;padding:6px 0 2px;}
+  .formula .eq .katex-display{margin:0;}
+  .formula .eq .katex{font-size:1.08em;}
+  .formula .note{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
+  .formula .note .katex{font-size:1.05em;}
+
+  /* tables */
+  .twrap{overflow-x:auto;margin:16px 0;}
+  table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px;}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--surface-2);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  td{background:var(--surface);}
+  td.num, th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--font-mono);}
+  tr.tier-a td:first-child{border-left:3px solid var(--danger);}
+  tr.tier-b td:first-child{border-left:3px solid var(--warn);}
+  tr.tier-c td:first-child{border-left:3px solid var(--good);}
+
+  .pill{display:inline-block;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-strong);}
+  .pill.warn{background:var(--warn-soft);color:var(--warn);}
+  .pill.danger{background:var(--danger-soft);color:var(--danger);}
+  .pill.good{background:var(--good-soft);color:var(--good);}
+
+  figure{margin:20px 0;max-width:100%;}
+  figure svg{max-width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:4px;}
+  figcaption{font-size:13px;color:var(--ink-faint);margin-top:8px;max-width:70ch;}
+
+  .field-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:16px 0;max-width:800px;}
+  .field-list div{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:9px 12px;}
+  .field-list span{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+  .field-list b{font-size:13.5px;}
+
+  footer.doc-end{margin-top:60px;padding-top:18px;border-top:1px solid var(--border);font-size:12.5px;color:var(--ink-faint);font-family:var(--font-mono);}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="masthead-top">
+      <span class="eyebrow">
+        <span class="zh">內部方法論文件 · Methodology SOP</span>
+        <span class="en">Internal Methodology Document · SOP</span>
+      </span>
+      <div class="controls">
+        <div class="find-box">
+          <input type="search" id="findInput" placeholder="Find / 搜尋" aria-label="Find in document">
+          <button type="button" id="findPrev" class="find-nav" aria-label="Previous match">↑</button>
+          <button type="button" id="findNext" class="find-nav" aria-label="Next match">↓</button>
+          <span id="findCount" class="find-count">0/0</span>
+        </div>
+        <button type="button" id="themeToggle" class="ctrl-btn">🌙 <span class="zh">深色</span><span class="en">Dark</span></button>
+        <button type="button" id="langToggle" class="ctrl-btn">EN</button>
+      </div>
+    </div>
+    <h1><span class="zh">跨站測試覆蓋優化 SOP</span><span class="en">Cross-Stage Test Coverage Optimization SOP</span></h1>
+    <p class="sub">
+      <span class="zh">WT／FT 跨站測項冗餘分析與 Test Time Reduction 決策流程 — 從 Bin-level 判定延伸至 Parameter-level 統計驗證，附樣本數科學依據與範本表格。</span>
+      <span class="en">A decision process for WT/FT cross-stage test redundancy analysis and Test Time Reduction — extending from Bin-level judgment to Parameter-level statistical validation, with sample-size science and ready-to-use templates.</span>
+    </p>
+    <div class="doc-fields">
+      <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>TBD-____</b></div>
+      <div><span class="zh">版次</span><span class="en">Revision</span><b><span class="zh">Rev. A（草案）</span><span class="en">Rev. A (Draft)</span></b></div>
+      <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
+      <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
+      <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
+      <div><span class="zh">下次覆核</span><span class="en">Next Review</span><b><span class="zh">依 Pilot 週期而定</span><span class="en">Per pilot cycle</span></b></div>
+    </div>
+  </header>
+
+  <details class="toc-m">
+    <summary><span class="zh">目錄</span><span class="en">Contents</span></summary>
+    <ol>
+      <li><a href="#purpose"><span class="zh">0 · 目的與範圍</span><span class="en">0 · Purpose &amp; Scope</span></a></li>
+      <li><a href="#definitions"><span class="zh">1 · 名詞定義</span><span class="en">1 · Definitions</span></a></li>
+      <li><a href="#overview"><span class="zh">2 · 流程總覽</span><span class="en">2 · Process Overview</span></a></li>
+      <li><a href="#phase1"><span class="zh">3 · Phase 1 測項盤點與配對</span><span class="en">3 · Phase 1 Test Inventory &amp; Mapping</span></a></li>
+      <li><a href="#phase2"><span class="zh">4 · Phase 2 資料萃取與追溯</span><span class="en">4 · Phase 2 Data Extraction &amp; Traceability</span></a></li>
+      <li><a href="#phase3"><span class="zh">5 · Phase 3 統計分析方法</span><span class="en">5 · Phase 3 Statistical Methods</span></a></li>
+      <li><a href="#phase4"><span class="zh">6 · Phase 4 風險分級與決策</span><span class="en">6 · Phase 4 Risk Tiering &amp; Decision</span></a></li>
+      <li><a href="#phase5"><span class="zh">7 · Phase 5 Pilot 導入與監控</span><span class="en">7 · Phase 5 Pilot Rollout &amp; Monitoring</span></a></li>
+      <li><a href="#phase6"><span class="zh">8 · Phase 6 正式變更與回退</span><span class="en">8 · Phase 6 Formal Change &amp; Rollback</span></a></li>
+      <li><a href="#appendix"><span class="zh">9 · 附錄</span><span class="en">9 · Appendix</span></a></li>
+    </ol>
+  </details>
+
+  <div class="body-grid">
+    <nav class="toc">
+      <div class="toc-title"><span class="zh">目錄</span><span class="en">Contents</span></div>
+      <ol>
+        <li><a href="#purpose"><span class="zh">0 · 目的與範圍</span><span class="en">0 · Purpose &amp; Scope</span></a></li>
+        <li><a href="#definitions"><span class="zh">1 · 名詞定義</span><span class="en">1 · Definitions</span></a></li>
+        <li><a href="#overview"><span class="zh">2 · 流程總覽</span><span class="en">2 · Overview</span></a></li>
+        <li><a href="#phase1"><span class="zh">3 · 測項盤點與配對</span><span class="en">3 · Inventory &amp; Mapping</span></a></li>
+        <li><a href="#phase2"><span class="zh">4 · 資料萃取與追溯</span><span class="en">4 · Data &amp; Traceability</span></a></li>
+        <li><a href="#phase3"><span class="zh">5 · 統計分析方法</span><span class="en">5 · Statistical Methods</span></a></li>
+        <li><a href="#phase4"><span class="zh">6 · 風險分級與決策</span><span class="en">6 · Risk &amp; Decision</span></a></li>
+        <li><a href="#phase5"><span class="zh">7 · Pilot 導入與監控</span><span class="en">7 · Pilot &amp; Monitoring</span></a></li>
+        <li><a href="#phase6"><span class="zh">8 · 正式變更與回退</span><span class="en">8 · Change &amp; Rollback</span></a></li>
+        <li><a href="#appendix"><span class="zh">9 · 附錄</span><span class="en">9 · Appendix</span></a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <section id="purpose">
+        <h2><span class="num">0</span><span class="zh">目的與範圍</span><span class="en">Purpose &amp; Scope</span></h2>
+        <p class="lead">
+          <span class="zh">當同一顆 die 在 WT（CP）與 FT 兩站、甚至在 RT／HT／LT 多個溫度 corner 下被重複測試相同或高度相關的項目時，若能證明「後站不會抓到前站漏抓的 fail」，即可將該測項自後站移除或降頻抽測，達成 Test Time Reduction（TTR）。</span>
+          <span class="en">When the same die is tested for identical or highly correlated items at both WT (CP) and FT — often across multiple temperature corners (RT/HT/LT) — proving that "the downstream stage never catches a fail the upstream stage missed" lets that test be removed or sampled downstream, achieving Test Time Reduction (TTR).</span>
+        </p>
+        <p>
+          <span class="zh">本文件的目的是把這個判斷「模板化、流程化」，避免僅憑幾百顆樣本「沒看到 fail」就下結論的常見統計誤區。核心主張：<strong>只看 Bin（Pass／Fail）層級不夠</strong>，必須下探到 <strong>Parameter（實際量測值）層級</strong>，才能看見「兩站都 Pass，但 margin 正在被吃掉」的隱性風險，也才能用遠小於 Bin-level 所需的樣本數，取得具科學依據的結論。</span>
+          <span class="en">This document turns that judgment into a repeatable template and process, avoiding the common statistical fallacy of concluding "safe to remove" from a few hundred zero-fail samples. Core argument: <strong>Bin-level (Pass/Fail) data alone is not enough</strong> — analysis must go down to the <strong>Parameter level (actual measured values)</strong> to expose the hidden risk of "both stages Pass, but margin is eroding," and to reach a scientifically defensible conclusion with a far smaller sample size than Bin-level analysis requires.</span>
+        </p>
+        <div class="callout">
+          <span class="tag"><span class="zh">適用範圍</span><span class="en">Scope</span></span>
+          <p>
+            <span class="zh">本 SOP 適用於同一顆 die／同一 unit 在不同測試站別（WT↔FT）或同站不同溫度 corner 間，測試邏輯或量測參數具有實質重疊的候選測項評估。不適用於製程站之間（如 WAT／E-test 與 WT）的相關性分析，該類分析目的與統計假設不同，需另訂流程。</span>
+            <span class="en">This SOP applies to evaluating candidate test items where the same die/unit is tested with substantially overlapping logic or measured parameters across stages (WT↔FT) or across temperature corners at the same stage. It does not apply to correlation analysis between process-control stages (e.g., WAT/E-test and WT) — those have different objectives and statistical assumptions and require a separate procedure.</span>
+          </p>
+        </div>
+      </section>
+
+      <section id="definitions">
+        <h2><span class="num">1</span><span class="zh">名詞定義</span><span class="en">Definitions</span></h2>
+        <div class="twrap">
+          <table>
+            <thead><tr><th><span class="zh">詞彙</span><span class="en">Term</span></th><th><span class="zh">定義</span><span class="en">Definition</span></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">WT / CP</td><td><span class="zh">Wafer Test／Circuit Probe，晶圓階段測試。</span><span class="en">Wafer Test / Circuit Probe — die-level test performed at the wafer stage.</span></td></tr>
+              <tr><td class="mono">FT</td><td><span class="zh">Final Test，封裝後終測。</span><span class="en">Final Test — post-package test.</span></td></tr>
+              <tr><td class="mono">RT / HT / LT</td><td><span class="zh">常溫／高溫／低溫測試 corner。</span><span class="en">Room / High / Low temperature test corners.</span></td></tr>
+              <tr><td class="mono">Bin-level</td><td><span class="zh">僅記錄該測項 Pass／Fail 與 Bin 碼的屬性資料（attribute data）。</span><span class="en">Attribute data recording only Pass/Fail and bin code for a test item.</span></td></tr>
+              <tr><td class="mono">Parameter-level</td><td><span class="zh">記錄該測項實際量測數值（如電壓、電流、頻率）的連續資料（variables data），可回推分布、margin、趨勢。</span><span class="en">Variables data recording the actual measured value (voltage, current, frequency, etc.), enabling analysis of distribution, margin, and trend.</span></td></tr>
+              <tr><td class="mono">Incremental Catch</td><td><span class="zh">前站 Pass、但後站該測項判定為 Fail 的顆數 —— 是「該測項仍有價值、不可移除」的直接證據。</span><span class="en">Units that Pass upstream but Fail this item downstream — direct evidence the test still adds value and should not be removed.</span></td></tr>
+              <tr><td class="mono">Escape Rate</td><td><span class="zh">若移除後站測項，實際會被漏測的不良率估計值，常以 DPPM 表示。</span><span class="en">The estimated defect rate that would escape undetected if the downstream test were removed, typically expressed in DPPM.</span></td></tr>
+              <tr><td class="mono">DPPM</td><td><span class="zh">Defects Per Million，百萬顆中的不良數。</span><span class="en">Defects Per Million — defective units per million.</span></td></tr>
+              <tr><td class="mono">Redundancy Index</td><td><span class="zh">= 1 − (Incremental Fail 數／該測項總 Fail 數)，越接近 1 代表後站該測項越冗餘。</span><span class="en">= 1 − (incremental fails / total fails for that item); closer to 1 means the downstream test is more redundant.</span></td></tr>
+              <tr><td class="mono">Guardband / Margin</td><td><span class="zh">量測值與 spec limit 之間的距離，常以 σ 為單位表示（距離幾個標準差）。</span><span class="en">Distance between a measured value and its spec limit, typically expressed in σ (standard deviations).</span></td></tr>
+              <tr><td class="mono">Cpk / Ppk</td><td><span class="zh">製程能力指數，衡量分布相對 spec limit 的集中與偏移程度。</span><span class="en">Process capability index, measuring how tightly and centrally a distribution sits within its spec limits.</span></td></tr>
+              <tr><td class="mono">PAT</td><td><span class="zh">Part Average Testing，以群體統計分布動態收緊 spec limit 的方法（參考 AEC-Q001）。</span><span class="en">Part Average Testing — dynamically tightens spec limits based on the population's statistical distribution (see AEC-Q001).</span></td></tr>
+              <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
+              <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
+              <tr><td class="mono">Die-level 追溯</td><td><span class="zh">透過 Wafer ID + X,Y 座標或封裝序號，將同一顆 die 在 WT 與 FT 的資料點對點配對。</span><span class="en">Die-level traceability — pairing the same die's WT and FT data point-to-point via Wafer ID + X,Y coordinates or package serial number.</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="overview">
+        <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
+        <p>
+          <span class="zh">整體流程分六個 Phase，前一 Phase 的輸出是後一 Phase 的輸入；Phase 3 是本 SOP 的統計核心，刻意把 Bin-level 與 Parameter-level 拆成兩條並行證據線。</span>
+          <span class="en">The process runs across six phases, each phase's output feeding the next. Phase 3 is the statistical core of this SOP, deliberately splitting Bin-level and Parameter-level analysis into two parallel lines of evidence.</span>
+        </p>
+        <figure>
+          <svg viewBox="0 0 980 260" role="img" aria-label="six-phase process flow">
+            <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">PROCESS FLOW</text>
+            <g font-family="Source Serif 4">
+              <line x1="70" y1="140" x2="910" y2="140" stroke="var(--border)" stroke-width="2"/>
+              <!-- 1 -->
+              <g transform="translate(20,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">01</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">測項盤點</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與配對</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Test</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Inventory</text>
+                <text x="12" y="94" font-size="11" fill="var(--ink-faint)">Bin + Parameter</text>
+                <text x="12" y="109" font-size="11" fill="var(--ink-faint)">mapping</text>
+              </g>
+              <!-- 2 -->
+              <g transform="translate(180,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">02</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">資料萃取</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與 die 追溯</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Data</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Extraction</text>
+                <text x="12" y="94" font-size="11" fill="var(--ink-faint)">STDF PTR/FTR</text>
+                <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">WT↔FT 配對</text>
+                <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">WT↔FT pairing</text>
+              </g>
+              <!-- 3 -->
+              <g transform="translate(340,68)">
+                <rect x="0" y="0" width="140" height="144" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent-strong)">03</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">統計分析</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Statistical</text>
+                <text class="zh" x="12" y="68" font-size="12" fill="var(--ink-soft)">Bin-level 屬性</text>
+                <text class="en" x="12" y="68" font-size="12" fill="var(--ink-soft)">Bin-level attr.</text>
+                <text class="zh" x="12" y="84" font-size="12" fill="var(--ink-soft)">Parameter-level 變數</text>
+                <text class="en" x="12" y="84" font-size="12" fill="var(--ink-soft)">Parameter variables</text>
+                <text class="zh" x="12" y="108" font-size="11" fill="var(--accent-strong)" font-weight="600">核心 Phase</text>
+                <text class="en" x="12" y="108" font-size="11" fill="var(--accent-strong)" font-weight="600">Core Phase</text>
+                <text class="zh" x="12" y="124" font-size="11" fill="var(--ink-faint)">見 Section 5</text>
+                <text class="en" x="12" y="124" font-size="11" fill="var(--ink-faint)">See Section 5</text>
+              </g>
+              <!-- 4 -->
+              <g transform="translate(500,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">04</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">風險分級</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與決策</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Risk</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Tiering</text>
+                <text x="12" y="94" font-size="11" fill="var(--ink-faint)">Tier A/B/C</text>
+                <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">保留/抽測/移除</text>
+                <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">Keep/Sample/Remove</text>
+              </g>
+              <!-- 5 -->
+              <g transform="translate(660,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">05</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">Pilot 導入</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與 SPC 監控</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Pilot</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">&amp; SPC monitor</text>
+                <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">Skip-lot 觀察期</text>
+                <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Skip-lot window</text>
+              </g>
+              <!-- 6 -->
+              <g transform="translate(820,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="2"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--accent)">06</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">正式變更</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">與回退機制</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Formal</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Change/Rollback</text>
+                <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">文件化/覆核</text>
+                <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Docs / review</text>
+              </g>
+              <g fill="var(--ink-faint)">
+                <path d="M162,140 l10,-5 l0,10 z"/>
+                <path d="M322,140 l10,-5 l0,10 z"/>
+                <path d="M482,140 l10,-5 l0,10 z"/>
+                <path d="M642,140 l10,-5 l0,10 z"/>
+                <path d="M802,140 l10,-5 l0,10 z"/>
+              </g>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">Phase 3（統計分析）同時保留 Bin-level 與 Parameter-level 兩條證據線，兩者結論一致才進入 Phase 4 的分級決策。</span>
+            <span class="en">Phase 3 (Statistical Analysis) keeps both the Bin-level and Parameter-level evidence lines; only when both agree does the process move into Phase 4's tiered decision.</span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="phase1">
+        <h2><span class="num">3</span><span class="zh">Phase 1 — 測項盤點與配對</span><span class="en">Phase 1 — Test Inventory &amp; Mapping</span></h2>
+        <p>
+          <span class="zh">建立「測試對應矩陣」，列出 WT／FT、各溫度 corner 下的所有測項，並標註其類型。這一步決定了後面能不能做 Parameter-level 分析 —— <strong>純 Bin-only 的測項（如某些 digital functional test）天生沒有 parameter 可看，只能走 Bin-level 途徑；量測型測項（parametric）則兩條途徑都要走。</strong></span>
+          <span class="en">Build a "Test Mapping Matrix" listing every test item across WT/FT and all temperature corners, tagged by type. This step determines whether Parameter-level analysis is even possible downstream — <strong>purely Bin-only items (e.g., certain digital functional tests) have no parameter to examine and can only follow the Bin-level path; parametric items must follow both paths.</strong></span>
+        </p>
+        <div class="field-list">
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (WT)</b><br><span class="zh">對應 STDF Test Number</span><span class="en">Maps to STDF Test Number</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (FT)</b><br><span class="zh">對應 STDF Test Number</span><span class="en">Maps to STDF Test Number</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Name</b><br><span class="zh">量測項目名稱</span><span class="en">Measured item name</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Temp Corner</b><br>RT / HT / LT</div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Type</b><br>Bin-only / Parametric</div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Spec Limit</b><br><span class="zh">LSL / USL、單位</span><span class="en">LSL / USL, unit</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">對應理由</span><span class="en">Mapping rationale</span></b><br><span class="zh">電性等效 / 邏輯等效 / 製程等效</span><span class="en">Electrical / logic / process equivalence</span></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">初步 Tier</span><span class="en">Initial Tier</span></b><br><span class="zh">A / B / C（見 Phase 4）</span><span class="en">A / B / C (see Phase 4)</span></div>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">常見誤區</span><span class="en">Common Pitfall</span></span>
+          <p>
+            <span class="zh">兩測項「名稱相似、spec limit 相同」不代表等效 —— 務必確認量測電路路徑、負載條件、溫度 corner 是否真的一致，否則配對本身就不成立，後面的統計分析會建立在錯誤前提上。</span>
+            <span class="en">Two items with similar names and identical spec limits are not necessarily equivalent — always confirm the measurement circuit path, load conditions, and temperature corner truly match. Otherwise the pairing itself is invalid and every downstream statistical analysis rests on a false premise.</span>
+          </p>
+        </div>
+      </section>
+
+      <section id="phase2">
+        <h2><span class="num">4</span><span class="zh">Phase 2 — 資料萃取與 Die-level 追溯</span><span class="en">Phase 2 — Data Extraction &amp; Die-Level Traceability</span></h2>
+        <p>
+          <span class="zh">從 STDF 的 PTR（Parametric Test Record，量測值）與 FTR（Functional Test Record，pass/fail）萃取資料，並透過 Wafer ID + X,Y 座標（WT 端）對應到封裝序號／Lot-Unit ID（FT 端），做到 <strong>die-level 一對一配對</strong>，而不是只在 lot 層級做良率比較。</span>
+          <span class="en">Extract data from STDF's PTR (Parametric Test Record, measured values) and FTR (Functional Test Record, pass/fail), then map Wafer ID + X,Y coordinates (WT side) to package serial number / Lot-Unit ID (FT side) to achieve <strong>die-level one-to-one pairing</strong>, rather than a coarse lot-level yield comparison.</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh">沒有 die-level 追溯，就只能做 lot-level 的粗略良率相關性，無法算出「這一顆」在 WT 端的 margin 是否預示了它在 FT 端會出問題。</span>
+            <span class="en">Without die-level traceability, you're limited to a rough lot-level yield correlation — you cannot determine whether "this specific die's" WT margin predicted an FT problem.</span>
+          </li>
+          <li>
+            <span class="zh">建議資料涵蓋期間至少橫跨數個 lot、不同時段（避免單一批次的偶發現象被誤判為通則），並記錄晶圓廠／測試機台／探針卡等潛在共變因子。</span>
+            <span class="en">Data should span at least several lots across different time periods (so a one-off event in a single batch isn't mistaken for a general pattern), and should record potential confounders such as fab, tester, and probe card.</span>
+          </li>
+          <li>
+            <span class="zh">Parametric 測項務必保留<strong>原始量測值</strong>（非僅 Pass/Fail flag），這是 Phase 3 做 Parameter-level 分析的前提。</span>
+            <span class="en">Parametric items must retain the <strong>raw measured value</strong> (not just a Pass/Fail flag) — this is a prerequisite for the Phase 3 Parameter-level analysis.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="phase3">
+        <h2><span class="num">5</span><span class="zh">Phase 3 — 統計分析方法</span><span class="en">Phase 3 — Statistical Analysis Methods</span></h2>
+        <p class="lead">
+          <span class="zh">這是整份 SOP 的核心：Bin-level 分析回答「有沒有看到 fail」，Parameter-level 分析回答「margin 有沒有在流失」。兩者互補，而非其中一種可以取代另一種。</span>
+          <span class="en">This is the core of the SOP: Bin-level analysis answers "did we see a fail?"; Parameter-level analysis answers "is margin eroding?" The two are complementary — neither replaces the other.</span>
+        </p>
+
+        <h3><span class="zh">5.1 Bin-level（屬性資料）分析</span><span class="en">5.1 Bin-Level (Attribute Data) Analysis</span></h3>
+        <p>
+          <span class="zh">對候選 pair 統計 <strong>Incremental Catch</strong>：WT Pass、FT 該測項 Fail 的顆數。若在觀察樣本中 Incremental Catch = 0，只能說「在這個樣本數下沒觀察到」，還不能說「風險為零」—— 這正是 Bin-level 方法的統計弱點：它是二元資料（attribute data），要把「零事件」轉換成「風險上界」，需要非常大的樣本數。</span>
+          <span class="en">For each candidate pair, count <strong>Incremental Catch</strong>: units that Pass at WT but Fail this item at FT. An observed Incremental Catch of 0 only means "not observed at this sample size" — not "zero risk." This is the statistical weakness of Bin-level methods: because the data is binary (attribute data), converting a "zero-event" observation into a risk upper bound requires a very large sample size.</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">Zero-failure 信賴上界（Clopper-Pearson exact）</span><span class="en">Zero-failure confidence bound (Clopper–Pearson exact)</span></div>
+          <div class="eq">\[\begin{aligned} P(0\ \text{fails}\mid n,\,p) &= (1-p)^{n} \le \alpha \\[4pt] n &\ge \dfrac{\ln \alpha}{\ln(1-p_{\text{target}})} \;\approx\; \dfrac{3}{p_{\text{target}}} \end{aligned}\]</div>
+          <div class="note">
+            <span class="zh">α = 1 − 信心水準（95% CI 時 α = 0.05）。當 p_target 很小時，此式可近似為熟知的 \(n \approx \dfrac{3}{p_{\text{target}}}\)（Rule of Three）。</span>
+            <span class="en">α = 1 − confidence level (α = 0.05 for a 95% CI). When p_target is small, this reduces to the familiar approximation \(n \approx \dfrac{3}{p_{\text{target}}}\) (Rule of Three).</span>
+          </div>
+        </div>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">目標 incremental escape rate</span><span class="en">Target incremental escape rate</span></th>
+              <th class="num"><span class="zh">95% 信心所需 n（近似）</span><span class="en">Required n at 95% conf. (approx.)</span></th>
+              <th class="num"><span class="zh">99% 信心所需 n（近似）</span><span class="en">Required n at 99% conf. (approx.)</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td>100 DPPM</td><td class="num">≈ 30,000</td><td class="num">≈ 46,000</td></tr>
+              <tr><td>50 DPPM</td><td class="num">≈ 60,000</td><td class="num">≈ 92,000</td></tr>
+              <tr><td>10 DPPM</td><td class="num">≈ 300,000</td><td class="num">≈ 460,000</td></tr>
+              <tr><td>5 DPPM</td><td class="num">≈ 600,000</td><td class="num">≈ 920,000</td></tr>
+              <tr><td>1 DPPM</td><td class="num">≈ 3,000,000</td><td class="num">≈ 4,600,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">為什麼常被誤用</span><span class="en">Why This Gets Misused</span></span>
+          <p>
+            <span class="zh">很多 TTR 提案只用幾百到幾千顆「零 fail」就主張可移除，但對照上表，這樣的樣本數大約只能支撐「escape rate 低於數千 DPPM」的信心水準 —— 對大多數量產品要求的 DPPM 等級而言遠遠不夠。這也是為什麼必須引入 Parameter-level 分析：它用連續資料，能以小得多的樣本數建立有效的統計論證。</span>
+            <span class="en">Many TTR proposals claim "safe to remove" from a few hundred to a few thousand zero-fail units. But per the table above, that sample size only supports confidence in an escape rate below a few thousand DPPM — far short of the DPPM levels most production parts require. This is exactly why Parameter-level analysis is necessary: it uses continuous data to build a valid statistical case with a much smaller sample.</span>
+          </p>
+        </div>
+
+        <h3><span class="zh">5.2 Parameter-level（變數資料）分析 —— 本 SOP 的重點</span><span class="en">5.2 Parameter-Level (Variables Data) Analysis — The Focus of This SOP</span></h3>
+        <p>
+          <span class="zh">Bin-level 只看「有沒有跨過 spec limit」，看不到「距離 spec limit 還有多遠、這個距離是不是在縮小」。同樣是「WT、FT 都 Pass」的兩顆 die，一顆 margin 很寬、一顆貼著 FT limit，Bin-level 資料完全無法區分，但這正是後續製程漂移或環境應力（如封裝、burn-in、溫度循環）造成漏測的高風險族群。</span>
+          <span class="en">Bin-level data only tells you whether a value crossed the spec limit, not how far from the limit it sits or whether that distance is shrinking. Two dies that both "Pass at WT and FT" can be indistinguishable at the Bin level — one with wide margin, one sitting right against the FT limit — yet the latter is exactly the high-risk population most likely to escape after downstream process drift or environmental stress (packaging, burn-in, temperature cycling).</span>
+        </p>
+        <figure>
+          <svg viewBox="0 0 640 400" role="img" aria-label="bin-level vs parameter-level comparison">
+            <g font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">
+              <line x1="70" y1="330" x2="590" y2="330" stroke="var(--border)" stroke-width="1.5"/>
+              <line x1="70" y1="40" x2="70" y2="330" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="300" y="368" text-anchor="middle" fill="var(--ink-soft)" font-family="Source Serif 4" font-size="13"><tspan class="zh">WT 量測值</tspan><tspan class="en">WT measured value</tspan></text>
+              <text x="26" y="185" transform="rotate(-90 26 185)" text-anchor="middle" fill="var(--ink-soft)" font-family="Source Serif 4" font-size="13"><tspan class="zh">FT 量測值</tspan><tspan class="en">FT measured value</tspan></text>
+            </g>
+            <line x1="480" y1="40" x2="480" y2="330" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <text x="484" y="54" font-family="IBM Plex Mono" font-size="10.5" fill="var(--warn)">WT limit</text>
+            <line x1="70" y1="90" x2="590" y2="90" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <text x="494" y="84" font-family="IBM Plex Mono" font-size="10.5" fill="var(--danger)">FT limit</text>
+            <g fill="var(--good)">
+              <circle cx="180" cy="270" r="5"/>
+              <circle cx="210" cy="250" r="5"/>
+              <circle cx="160" cy="290" r="5"/>
+              <circle cx="240" cy="230" r="5"/>
+              <circle cx="195" cy="300" r="5"/>
+              <circle cx="270" cy="260" r="5"/>
+              <circle cx="150" cy="240" r="5"/>
+            </g>
+            <g fill="var(--danger)">
+              <circle cx="330" cy="115" r="6"/>
+              <circle cx="360" cy="105" r="6"/>
+              <circle cx="300" cy="125" r="6"/>
+            </g>
+            <g font-family="Source Serif 4" font-size="12.5">
+              <rect x="90" y="150" width="180" height="46" rx="4" fill="var(--good-soft)" stroke="var(--good)" stroke-width="1"/>
+              <text x="100" y="168" fill="var(--good)" font-weight="600" font-size="11"><tspan class="zh">Bin-level：兩站皆 Pass</tspan><tspan class="en">Bin-level: both Pass</tspan></text>
+              <text x="100" y="184" fill="var(--ink-soft)" font-size="11"><tspan class="zh">判定為「安全冗餘」</tspan><tspan class="en">Read as "safe redundancy"</tspan></text>
+
+              <rect x="320" y="180" width="230" height="60" rx="4" fill="var(--danger-soft)" stroke="var(--danger)" stroke-width="1"/>
+              <text x="330" y="198" fill="var(--danger)" font-weight="600" font-size="11"><tspan class="zh">Parameter-level：margin 持續</tspan><tspan class="en">Parameter-level: margin keeps</tspan></text>
+              <text x="330" y="213" fill="var(--danger)" font-weight="600" font-size="11"><tspan class="zh">逼近 FT limit</tspan><tspan class="en">closing in on FT limit</tspan></text>
+              <text x="330" y="230" fill="var(--ink-soft)" font-size="11"><tspan class="zh">Bin 一樣是 Pass，但此群不建議移除</tspan><tspan class="en">Bin says Pass, but don't remove this cluster</tspan></text>
+              <line x1="345" y1="180" x2="345" y2="128" stroke="var(--danger)" stroke-width="1" stroke-dasharray="2,3"/>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">兩群 die 在 Bin-level 上完全相同（WT、FT 皆 Pass），但 Parameter-level 才看得出右上角這群的 FT margin 正在被壓縮 —— 這正是只看 Bin 會漏掉的風險。</span>
+            <span class="en">Both clusters look identical at the Bin level (Pass at WT and FT), but only Parameter-level analysis reveals that the upper-right cluster's FT margin is being compressed — exactly the risk a Bin-only view would miss.</span>
+          </figcaption>
+        </figure>
+
+        <h4><span class="zh">(a) 相關性驗證 — Pearson / Fisher z</span><span class="en">(a) Correlation Validation — Pearson / Fisher z</span></h4>
+        <p>
+          <span class="zh">對同一 parameter 在 WT、FT 兩站的量測值做相關係數 r 檢定，確認兩站量測確實反映同一物理量，且相關性穩定高於可接受下限 r_min（而非只看單次樣本的 r 剛好夠高）。</span>
+          <span class="en">Test the correlation coefficient r between WT and FT measured values for the same parameter, confirming the two stages truly reflect the same physical quantity and that the correlation reliably exceeds an acceptable floor r_min (not just that a single sample's r happens to clear the bar).</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">相關係數所需樣本數（Fisher z-transform，Cohen 1988）</span><span class="en">Sample size for a correlation coefficient (Fisher z-transform, Cohen 1988)</span></div>
+          <div class="eq">\[\begin{aligned} z(r) &= \tfrac{1}{2}\ln\!\left(\dfrac{1+r}{1-r}\right) \\[4pt] n &= \left(\dfrac{z_\alpha + z_\beta}{\,z(r_{\text{obs}}) - z(r_{\min})\,}\right)^{2} + 3 \end{aligned}\]</div>
+          <div class="note">
+            <span class="zh">示意計算：欲以 95% 單尾信心、80% 檢定力，證明觀察到的 \(r=0.90\) 顯著高於門檻 \(r_{\min}=0.70\) → \(z_\alpha=1.645,\ z_\beta=0.842\) → <strong>\(n \approx 20\)</strong>（實務建議抓 30–50 顆含餘裕）。相較 Bin-level 動輒數十萬顆，這是 Parameter-level 方法在樣本數上的決定性優勢。</span>
+            <span class="en">Worked example: to show, at 95% one-sided confidence and 80% power, that an observed \(r=0.90\) is significantly above a threshold \(r_{\min}=0.70\) → \(z_\alpha=1.645,\ z_\beta=0.842\) → <strong>\(n \approx 20\)</strong> (30–50 recommended in practice for margin). Compared with the hundreds of thousands Bin-level analysis often needs, this is the decisive sample-size advantage of the Parameter-level method.</span>
+          </div>
+        </div>
+
+        <h4><span class="zh">(b) Margin-to-limit（guardband）趨勢分析</span><span class="en">(b) Margin-to-Limit (Guardband) Trend Analysis</span></h4>
+        <p>
+          <span class="zh">將每顆量測值換算成「距離 spec limit 幾個 σ」，畫出 WT margin 與 FT margin 的散佈圖與時間趨勢（如圖 5.2）。重點不是平均值夠不夠遠，而是<strong>尾端（tail）</strong>有沒有子族群持續逼近 limit —— 這類子族群常與特定站位、特定 lot、特定測試機台相關，Bin-level 的加總統計會把它們平均掉而看不見。</span>
+          <span class="en">Convert each measured value into "distance from the spec limit in σ," then plot WT margin against FT margin and its trend over time (see Fig. 5.2). What matters isn't whether the average sits far enough away, but whether a <strong>tail</strong> sub-population keeps closing in on the limit — such sub-populations often correlate with a specific site, lot, or tester, and get averaged away and hidden in aggregate Bin-level statistics.</span>
+        </p>
+
+        <h4><span class="zh">(c) Cpk／Ppk 站間比較</span><span class="en">(c) Cross-Stage Cpk/Ppk Comparison</span></h4>
+        <div class="formula">
+          <div class="label"><span class="zh">製程能力指數</span><span class="en">Process capability index</span></div>
+          <div class="eq">\[ C_{pk} = \min\!\left(\dfrac{USL-\mu}{3\sigma},\ \dfrac{\mu-LSL}{3\sigma}\right) \]</div>
+          <div class="note">
+            <span class="zh">比較 Cpk(WT) 與 Cpk(FT)：若兩者一致，代表 WT 端的良好表現可預測 FT 表現；若 Cpk(FT) 明顯低於 Cpk(WT)（分布在封裝、burn-in 或溫度應力後變寬或偏移），代表存在 WT 無法代表的站間效應，<strong>不建議移除 FT 測項</strong>，無論 Bin-level 資料看起來多乾淨。</span>
+            <span class="en">Compare Cpk(WT) with Cpk(FT): if they agree, good WT performance predicts good FT performance. If Cpk(FT) is notably lower than Cpk(WT) — the distribution widened or shifted after packaging, burn-in, or thermal stress — a stage effect exists that WT cannot represent, and <strong>the FT test should not be removed</strong>, no matter how clean the Bin-level data looks.</span>
+          </div>
+        </div>
+
+        <h4><span class="zh">(d) 變數抽樣法所需樣本數遠小於屬性抽樣</span><span class="en">(d) Variables Sampling Needs Far Fewer Samples Than Attribute Sampling</span></h4>
+        <p>
+          <span class="zh">這是 Parameter-level 分析背後的統計原理：屬性資料（Pass/Fail）每顆只回傳 1 bit 資訊，要把「零事件」轉換成低 DPPM 等級的信心上界，天然需要極大樣本；變數資料（實際量測值）每顆回傳連續資訊（均值與變異數都在估計中被使用），可用<strong>統計容忍區間（statistical tolerance interval）</strong>方法，以遠小的樣本數（實務上常見 n = 30～200 等級）對母體比例做同等信心水準的宣稱。方法與 k-factor 查表請參考 ASTM E2586 / ISO 16269-6（見附錄）。</span>
+          <span class="en">This is the statistical principle behind Parameter-level analysis: attribute data (Pass/Fail) carries only 1 bit per unit, so converting a zero-event observation into a low-DPPM confidence bound inherently requires a huge sample. Variables data (actual measured values) carries continuous information per unit — both mean and variance are used in the estimate — so a <strong>statistical tolerance interval</strong> method can make an equivalent-confidence population claim with a far smaller sample (commonly n = 30–200 in practice). See ASTM E2586 / ISO 16269-6 for the method and k-factor tables (Appendix).</span>
+        </p>
+
+        <h3><span class="zh">5.3 判讀準則</span><span class="en">5.3 Interpretation Criteria</span></h3>
+        <p><span class="zh">兩條證據線都要通過，才視為統計上站得住腳：</span><span class="en">Both evidence lines must pass before the conclusion is statistically sound:</span></p>
+        <ol>
+          <li>
+            <span class="zh">Bin-level：觀察期間內 Incremental Catch = 0，且樣本數達到該 Tier 要求的信心水準（見 5.1 表）。</span>
+            <span class="en">Bin-level: Incremental Catch = 0 over the observation window, with sample size meeting the confidence level required for that Tier (see the table in 5.1).</span>
+          </li>
+          <li>
+            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內。</span>
+            <span class="en">Parameter-level: r ≥ the Tier's r_min; no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range.</span>
+          </li>
+        </ol>
+        <p>
+          <span class="zh">任一條件不成立 → 保留該測項，進入下一輪觀察期；兩者皆成立 → 進入 Phase 4 依風險分級決定移除策略。</span>
+          <span class="en">If either condition fails → keep the test and continue observing; if both hold → proceed to Phase 4 to decide the removal strategy by risk tier.</span>
+        </p>
+      </section>
+
+      <section id="phase4">
+        <h2><span class="num">6</span><span class="zh">Phase 4 — 風險分級與決策準則</span><span class="en">Phase 4 — Risk Tiering &amp; Decision Rules</span></h2>
+        <p>
+          <span class="zh">不是所有測項都要求同一信心水準。建議依「測項性質」與「終端應用」（消費性電子 vs. 車用／醫療等高可靠度應用，後者風險容忍度應大幅收緊）分三級：</span>
+          <span class="en">Not every test item warrants the same confidence level. Tier by test nature and end application (consumer electronics vs. automotive/medical high-reliability applications, where risk tolerance should be tightened substantially):</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th>Tier</th>
+              <th><span class="zh">典型測項</span><span class="en">Typical items</span></th>
+              <th><span class="zh">Bin-level 要求</span><span class="en">Bin-level requirement</span></th>
+              <th><span class="zh">Parameter-level 要求</span><span class="en">Parameter-level requirement</span></th>
+              <th><span class="zh">可行決策</span><span class="en">Feasible decision</span></th>
+            </tr></thead>
+            <tbody>
+              <tr class="tier-a">
+                <td><span class="pill danger"><span class="zh">A · 高可靠度關鍵</span><span class="en">A · High-Reliability Critical</span></span></td>
+                <td><span class="zh">耐壓、漏電流上限、ESD 相關</span><span class="en">Voltage withstand, leakage current limit, ESD-related</span></td>
+                <td><span class="zh">長期零 Incremental Catch（建議涵蓋完整產品生命週期樣本）</span><span class="en">Long-term zero Incremental Catch (cover the full product lifecycle sample)</span></td>
+                <td><span class="zh">r ≥ 0.95 且全程無 margin 趨近案例</span><span class="en">r ≥ 0.95, no margin-closing-in cases throughout</span></td>
+                <td><span class="zh">原則保留；至多降頻抽測（如 1-in-5），不建議全移除</span><span class="en">Retain in principle; at most sample (e.g., 1-in-5) — full removal not recommended</span></td>
+              </tr>
+              <tr class="tier-b">
+                <td><span class="pill warn"><span class="zh">B · 參數漂移型</span><span class="en">B · Parametric-Drift Type</span></span></td>
+                <td><span class="zh">Vth／Idsat／Freq bin 等</span><span class="en">Vth/Idsat/Freq bin, etc.</span></td>
+                <td><span class="zh">近 12 個月零 Incremental Catch</span><span class="en">Zero Incremental Catch over the trailing 12 months</span></td>
+                <td>r ≥ 0.85, |Cpk(FT) − Cpk(WT)| &lt; 0.2</td>
+                <td><span class="zh">Skip-lot 抽測 + SPC 監控，6 個月 pilot 後再評估移除</span><span class="en">Skip-lot sampling + SPC monitoring; reassess after a 6-month pilot</span></td>
+              </tr>
+              <tr class="tier-c">
+                <td><span class="pill good"><span class="zh">C · 純功能重複</span><span class="en">C · Pure Functional Duplicate</span></span></td>
+                <td><span class="zh">Digital scan／IO loopback 等邏輯完全等效項目</span><span class="en">Fully logic-equivalent items, e.g. digital scan / IO loopback</span></td>
+                <td><span class="zh">零 Incremental Catch（較短驗證窗即可）</span><span class="en">Zero Incremental Catch (a shorter validation window suffices)</span></td>
+                <td><span class="zh">不適用（非量測型）</span><span class="en">N/A (non-measurement type)</span></td>
+                <td><span class="zh">可直接移除，建議保留低頻 health-check</span><span class="en">Can be removed directly; keep a low-frequency health-check</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <span class="tag"><span class="zh">ROI 參考</span><span class="en">ROI Reference</span></span>
+          <p>
+            <span class="zh">移除／降頻的財務效益 = 節省的 test time × tester 分攤成本 × 年產量；應與該測項一旦漏測造成的客訴／RMA／信賴度成本一併放入決策紀錄，供覆核與稽核追溯。</span>
+            <span class="en">Financial benefit of removal/sampling = time saved × allocated tester cost × annual volume. Log this alongside the potential complaint/RMA/reliability cost of an escape, for review and audit traceability.</span>
+          </p>
+        </div>
+      </section>
+
+      <section id="phase5">
+        <h2><span class="num">7</span><span class="zh">Phase 5 — Pilot 導入與監控</span><span class="en">Phase 5 — Pilot Rollout &amp; Monitoring</span></h2>
+        <p>
+          <span class="zh">即使統計驗證通過，也不建議直接 100% 移除，先以可回退的方式導入：</span>
+          <span class="en">Even after statistical validation passes, avoid an outright 100% removal — roll out in a reversible way first:</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>Skip-lot / Skip-test：</strong>先以固定比例（如 1-in-N）抽測取代全測，而非直接關閉，觀察 3–6 個月的實際 escape 狀況。</span>
+            <span class="en"><strong>Skip-lot / Skip-test:</strong> Replace full testing with a fixed sampling ratio (e.g., 1-in-N) first, rather than switching the test off outright, and observe actual escape behavior for 3–6 months.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>SPC 監控：</strong>對該測項的 margin／Cpk 建立管制圖，設定觸發線；一旦趨勢異常，自動恢復 100% 測試。</span>
+            <span class="en"><strong>SPC monitoring:</strong> Build control charts for the item's margin/Cpk with trigger limits; automatically restore 100% testing if the trend goes out of control.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策。</span>
+            <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="phase6">
+        <h2><span class="num">8</span><span class="zh">Phase 6 — 正式變更、文件化與回退機制</span><span class="en">Phase 6 — Formal Change, Documentation &amp; Rollback</span></h2>
+        <ul>
+          <li>
+            <span class="zh">Pilot 期間無異常 → 提報正式 ECN／測試流程變更，附上 Phase 3 的統計證據（Bin-level 表 + Parameter-level 圖表）與 Phase 5 的 pilot 紀錄。</span>
+            <span class="en">No anomalies during the pilot → file a formal ECN / test flow change, attaching the Phase 3 statistical evidence (Bin-level table + Parameter-level charts) and the Phase 5 pilot record.</span>
+          </li>
+          <li>
+            <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件），一旦觸發即自動恢復該測項，不需重新走完整審核流程。</span>
+            <span class="en">Maintain a list of rollback trigger conditions (e.g., the corresponding fail mode appears in the field, an SPC control chart goes out of limits, a yield excursion), so hitting any of them automatically restores the test without a full re-approval cycle.</span>
+          </li>
+          <li>
+            <span class="zh">所有決策需留存於變更歷史紀錄（見附錄範本），供未來稽核與新進工程師追溯決策脈絡。</span>
+            <span class="en">Every decision must be retained in the change history log (see Appendix template) so future audits and new engineers can trace the reasoning.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="appendix">
+        <h2><span class="num">9</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+
+        <h3><span class="zh">9.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">9.1 Template Fields — Test Mapping Table</span></h3>
+        <div class="field-list">
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (WT / FT)</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Name</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Temp Corner</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Type</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Spec Limit / Unit</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">對應理由</span><span class="en">Mapping rationale</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Tier 分級</span><span class="en">Tier</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">備註</span><span class="en">Notes</span></b></div>
+        </div>
+
+        <h3><span class="zh">9.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">9.2 Template Fields — Risk &amp; Decision Log</span></h3>
+        <div class="field-list">
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">候選測項</span><span class="en">Candidate test item</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">分析日期</span><span class="en">Analysis date</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">樣本期間 / 顆數</span><span class="en">Sample period / count</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Incremental Catch <span class="zh">數</span><span class="en">count</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">相關係數 r</span><span class="en">Correlation coefficient r</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Margin 趨勢結論</span><span class="en">Margin trend conclusion</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b>Tier</b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">決策（保留/抽測/移除）</span><span class="en">Decision (Keep/Sample/Remove)</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">核准人</span><span class="en">Approver</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">下次覆核日期</span><span class="en">Next review date</span></b></div>
+        </div>
+
+        <h3><span class="zh">9.3 公式參考卡</span><span class="en">9.3 Formula Reference Card</span></h3>
+        <div class="formula">
+          <div class="label"><span class="zh">Zero-failure 樣本數（95% CI）</span><span class="en">Zero-failure sample size (95% CI)</span></div>
+          <div class="eq">\[ n \ge \dfrac{\ln(0.05)}{\ln(1-p_{\text{target}})} \approx \dfrac{3}{p_{\text{target}}} \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">相關係數樣本數（Fisher z）</span><span class="en">Correlation sample size (Fisher z)</span></div>
+          <div class="eq">\[ n = \left(\dfrac{z_\alpha+z_\beta}{z(r_{\text{obs}})-z(r_{\min})}\right)^{2}+3 \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">製程能力指數</span><span class="en">Process capability index</span></div>
+          <div class="eq">\[ C_{pk} = \min\!\left(\dfrac{USL-\mu}{3\sigma},\ \dfrac{\mu-LSL}{3\sigma}\right) \]</div>
+        </div>
+
+        <h3><span class="zh">9.4 延伸參考</span><span class="en">9.4 Further References</span></h3>
+        <ul>
+          <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
+          <li>ASTM E2586 — Standard Practice for Calculating and Using Tolerance Factors for Statistical Tolerance Intervals.</li>
+          <li>ISO 16269-6:2014 — Statistical interpretation of data, Part 6: Determination of statistical tolerance intervals.</li>
+          <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
+          <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="doc-end">
+    <span class="zh">跨站測試覆蓋優化 SOP · Rev. A（草案，待正式核准與編號）</span>
+    <span class="en">Cross-Stage Test Coverage Optimization SOP · Rev. A (Draft, pending formal approval &amp; numbering)</span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script>
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\[", right: "\\]", display: true},
+        {left: "\\(", right: "\\)", display: false}
+      ],
+      throwOnError: false
+    });
+  }
+</script>
+<script>
+(function(){
+  function safeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function safeSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('themeToggle');
+  var langBtn = document.getElementById('langToggle');
+
+  var savedTheme = safeGet('sop-theme');
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    root.setAttribute('data-theme', savedTheme);
+  }
+  function isDark(){
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function renderTheme(){
+    var dark = isDark();
+    var zh = themeBtn.querySelector('.zh');
+    var en = themeBtn.querySelector('.en');
+    themeBtn.firstChild.nodeValue = dark ? '☀ ' : '🌙 ';
+    if (zh) zh.textContent = dark ? '淺色' : '深色';
+    if (en) en.textContent = dark ? 'Light' : 'Dark';
+  }
+  renderTheme();
+  themeBtn.addEventListener('click', function(){
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    safeSet('sop-theme', next);
+    renderTheme();
+  });
+
+  var savedLang = safeGet('sop-lang') || 'zh';
+  function applyLang(l){
+    root.setAttribute('data-lang', l);
+    root.setAttribute('lang', l === 'en' ? 'en' : 'zh-Hant');
+    document.title = l === 'en' ? 'Cross-Stage Test Coverage Optimization SOP' : '跨站測試覆蓋優化 SOP';
+    langBtn.textContent = l === 'en' ? '中文' : 'EN';
+  }
+  applyLang(savedLang);
+  langBtn.addEventListener('click', function(){
+    var next = root.getAttribute('data-lang') === 'en' ? 'zh' : 'en';
+    applyLang(next);
+    safeSet('sop-lang', next);
+    if (window.__sopFind) window.__sopFind.clear();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  // Make every h2/h3/h4 inside <main> collapsible: wrap the content that
+  // follows a heading (up to the next heading of the same or higher level)
+  // into a toggleable body.
+  var main = document.querySelector('main');
+  if (!main) return;
+  var headings = Array.prototype.slice.call(main.querySelectorAll('h2, h3, h4'));
+  headings.forEach(function(h){
+    var level = parseInt(h.tagName.charAt(1), 10);
+    var parent = h.parentNode;
+    var body = document.createElement('div');
+    body.className = 'collapse-body';
+    var node = h.nextSibling;
+    var toMove = [];
+    while (node) {
+      var next = node.nextSibling;
+      if (node.nodeType === 1 && /^H[234]$/.test(node.tagName)) {
+        var nLevel = parseInt(node.tagName.charAt(1), 10);
+        if (nLevel <= level) break;
+      }
+      toMove.push(node);
+      node = next;
+    }
+    toMove.forEach(function(n){ body.appendChild(n); });
+    parent.insertBefore(body, h.nextSibling);
+
+    h.classList.add('collapsible-h');
+    var arrow = document.createElement('span');
+    arrow.className = 'collapse-arrow';
+    arrow.textContent = '▾';
+    h.insertBefore(arrow, h.firstChild);
+
+    h.addEventListener('click', function(){
+      body.classList.toggle('collapsed');
+      h.classList.toggle('is-collapsed');
+    });
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var input = document.getElementById('findInput');
+  var prevBtn = document.getElementById('findPrev');
+  var nextBtn = document.getElementById('findNext');
+  var countEl = document.getElementById('findCount');
+  var main = document.querySelector('main');
+  if (!input || !main) return;
+
+  var marks = [];
+  var current = -1;
+
+  function clearHighlights(){
+    var existing = main.querySelectorAll('mark.find-hl');
+    existing.forEach(function(m){
+      var parent = m.parentNode;
+      if (!parent) return;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+    marks = [];
+    current = -1;
+    updateCount();
+  }
+
+  function isVisible(el){
+    var lang = document.documentElement.getAttribute('data-lang');
+    var hiddenClass = lang === 'en' ? '.zh' : '.en';
+    return !el.closest(hiddenClass);
+  }
+
+  function runSearch(){
+    clearHighlights();
+    var q = input.value.trim();
+    if (!q) return;
+    var qLower = q.toLowerCase();
+
+    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var el = node.parentElement;
+        if (!el || el.closest('script,style')) return NodeFilter.FILTER_REJECT;
+        if (!isVisible(el)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var nodes = [];
+    var n;
+    while ((n = walker.nextNode())) nodes.push(n);
+
+    nodes.forEach(function(node){
+      var text = node.nodeValue;
+      var lower = text.toLowerCase();
+      var idx = lower.indexOf(qLower);
+      if (idx === -1) return;
+      var frag = document.createDocumentFragment();
+      var lastIdx = 0;
+      while (idx !== -1) {
+        frag.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+        var mark = document.createElement('mark');
+        mark.className = 'find-hl';
+        mark.textContent = text.slice(idx, idx + q.length);
+        frag.appendChild(mark);
+        marks.push(mark);
+        lastIdx = idx + q.length;
+        idx = lower.indexOf(qLower, lastIdx);
+      }
+      frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+      node.parentNode.replaceChild(frag, node);
+    });
+
+    current = marks.length ? 0 : -1;
+    highlightCurrent();
+  }
+
+  function expandAncestors(el){
+    var node = el;
+    while (node && node !== main) {
+      if (node.classList && node.classList.contains('collapse-body') && node.classList.contains('collapsed')) {
+        node.classList.remove('collapsed');
+        var heading = node.previousElementSibling;
+        if (heading && heading.classList && heading.classList.contains('collapsible-h')) {
+          heading.classList.remove('is-collapsed');
+        }
+      }
+      node = node.parentElement;
+    }
+  }
+
+  function highlightCurrent(){
+    marks.forEach(function(m){ m.classList.remove('find-current'); });
+    if (current >= 0 && current < marks.length) {
+      var m = marks[current];
+      expandAncestors(m);
+      m.classList.add('find-current');
+      m.scrollIntoView({block: 'center', behavior: 'smooth'});
+    }
+    updateCount();
+  }
+
+  function updateCount(){
+    countEl.textContent = marks.length ? (current + 1) + '/' + marks.length : '0/0';
+  }
+
+  function goNext(){
+    if (!marks.length) return;
+    current = (current + 1) % marks.length;
+    highlightCurrent();
+  }
+  function goPrev(){
+    if (!marks.length) return;
+    current = (current - 1 + marks.length) % marks.length;
+    highlightCurrent();
+  }
+
+  var debounceTimer;
+  input.addEventListener('input', function(){
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(runSearch, 200);
+  });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) goPrev(); else goNext();
+    } else if (e.key === 'Escape') {
+      input.value = '';
+      clearHighlights();
+      input.blur();
+    }
+  });
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+
+  window.__sopFind = { clear: clearHighlights };
+})();
+</script>
+</body>
+</html>
