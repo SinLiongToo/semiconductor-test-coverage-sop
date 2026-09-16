@@ -182,7 +182,8 @@
   .doc-fields b{color:var(--ink);font-weight:600;}
 
   /* ---- layout ---- */
-  .body-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start;}
+  .body-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start;transition:grid-template-columns .18s ease;}
+  .body-grid.toc-collapsed{grid-template-columns:34px minmax(0,1fr);gap:16px;}
   @media (max-width:900px){.body-grid{grid-template-columns:1fr;}}
 
   nav.toc{position:sticky;top:20px;align-self:start;}
@@ -200,6 +201,15 @@
   }
   nav.toc a:hover{color:var(--accent);border-left-color:var(--accent);}
   nav.toc .toc-title{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding-left:14px;margin-bottom:6px;}
+  .toc-toggle{
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--border);border-radius:6px;background:var(--surface-2);
+    color:var(--ink-soft);cursor:pointer;font-size:13px;line-height:1;margin-bottom:12px;
+  }
+  .toc-toggle:hover{color:var(--accent-strong);border-color:var(--accent);}
+  .toc-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .body-grid.toc-collapsed nav.toc .toc-title,
+  .body-grid.toc-collapsed nav.toc ol{display:none;}
 
   details.toc-m{display:none;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:24px;}
   @media (max-width:900px){details.toc-m{display:block;}}
@@ -341,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-17 01:25</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-17 07:41</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -367,8 +377,9 @@
     </ol>
   </details>
 
-  <div class="body-grid">
+  <div class="body-grid" id="bodyGrid">
     <nav class="toc">
+      <button type="button" id="tocToggle" class="toc-toggle" aria-label="Collapse contents / 收合目錄">«</button>
       <div class="toc-title"><span class="zh">目錄</span><span class="en">Contents</span></div>
       <ol>
         <li><a href="#purpose"><span class="zh">0 · 目的與範圍</span><span class="en">0 · Purpose &amp; Scope</span></a></li>
@@ -1542,8 +1553,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-17 01:25</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-17 01:25</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-17 07:41</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-17 07:41</span>
   </footer>
 </div>
 
@@ -1931,6 +1942,32 @@
   });
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && !lightbox.hidden) close();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var bodyGrid = document.getElementById('bodyGrid');
+  var toggle = document.getElementById('tocToggle');
+  if (!bodyGrid || !toggle) return;
+  var KEY = 'sop-toc-collapsed';
+
+  function safeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function safeSet(k,v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+  function applyState(collapsed){
+    bodyGrid.classList.toggle('toc-collapsed', collapsed);
+    toggle.textContent = collapsed ? '»' : '«';
+    toggle.setAttribute('aria-label', collapsed ? 'Expand contents / 展開目錄' : 'Collapse contents / 收合目錄');
+  }
+
+  applyState(safeGet(KEY) === '1');
+
+  toggle.addEventListener('click', function(){
+    var collapsed = !bodyGrid.classList.contains('toc-collapsed');
+    applyState(collapsed);
+    safeSet(KEY, collapsed ? '1' : '0');
   });
 })();
 </script>
