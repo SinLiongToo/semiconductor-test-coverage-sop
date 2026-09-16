@@ -320,7 +320,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次</span><span class="en">Revision</span><b><span class="zh">Rev. A（草案）</span><span class="en">Rev. A (Draft)</span></b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-16 15:51</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -418,14 +418,15 @@
       <section id="overview">
         <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
         <p>
-          <span class="zh">整體流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護），先擋掉不該評估的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。</span>
-          <span class="en">The process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence.</span>
+          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性），先擋掉不該評估的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序。</span>
+          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity) to screen out candidates that should never be evaluated for removal; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it.</span>
         </p>
         <figure>
-          <svg viewBox="0 0 1140 260" role="img" aria-label="seven-phase process flow">
+          <svg viewBox="0 0 1320 260" role="img" aria-label="process flow including optional phase 7">
             <text x="10" y="24" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">PROCESS FLOW</text>
             <g font-family="Source Serif 4">
               <line x1="70" y1="140" x2="1070" y2="140" stroke="var(--border)" stroke-width="2"/>
+              <line x1="1100" y1="140" x2="1240" y2="140" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="6,5"/>
               <!-- 0 -->
               <a href="#phase0" class="pipeline-link">
               <title>Phase 0</title>
@@ -532,6 +533,22 @@
                 <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">Docs / review</text>
               </g>
               </a>
+              <!-- 7 (optional, event-triggered) -->
+              <a href="#phase7" class="pipeline-link">
+              <title>Phase 7 (Optional)</title>
+              <g transform="translate(1140,80)">
+                <rect x="0" y="0" width="140" height="120" rx="6" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="5,4"/>
+                <text x="12" y="26" font-family="IBM Plex Mono" font-size="20" font-weight="700" fill="var(--ink-faint)">07</text>
+                <text class="zh" x="12" y="50" font-size="13.5" fill="var(--ink)">客訴查證</text>
+                <text class="zh" x="12" y="68" font-size="13.5" fill="var(--ink)">（Optional）</text>
+                <text class="en" x="12" y="50" font-size="13.5" fill="var(--ink)">Complaint</text>
+                <text class="en" x="12" y="68" font-size="13.5" fill="var(--ink)">Verify (Opt.)</text>
+                <text class="zh" x="12" y="94" font-size="11" fill="var(--ink-faint)">CQC 觸發</text>
+                <text class="en" x="12" y="94" font-size="11" fill="var(--ink-faint)">CQC-triggered</text>
+                <text class="zh" x="12" y="109" font-size="11" fill="var(--ink-faint)">見 Section 10 →</text>
+                <text class="en" x="12" y="109" font-size="11" fill="var(--ink-faint)">See Section 10 →</text>
+              </g>
+              </a>
               <g fill="var(--ink-faint)">
                 <path d="M162,140 l10,-5 l0,10 z"/>
                 <path d="M322,140 l10,-5 l0,10 z"/>
@@ -539,12 +556,13 @@
                 <path d="M642,140 l10,-5 l0,10 z"/>
                 <path d="M802,140 l10,-5 l0,10 z"/>
                 <path d="M962,140 l10,-5 l0,10 z"/>
+                <path d="M1122,140 l10,-5 l0,10 z"/>
               </g>
             </g>
           </svg>
           <figcaption>
-            <span class="zh">橘框（Phase 0）代表不需資料就能判斷的硬性守則，藍框（Phase 3）代表本 SOP 的統計核心 —— 其餘 Phase 皆為一般流程步驟，刻意不特別上色。點擊任一方框可直接跳到對應章節。</span>
-            <span class="en">The orange box (Phase 0) marks the hard gates decidable without any data; the blue box (Phase 3) marks this SOP's statistical core — every other phase is a regular process step, deliberately left uncolored. Click any box to jump straight to its section.</span>
+            <span class="zh">橘框（Phase 0）代表不需資料就能判斷的硬性守則，藍框（Phase 3）代表本 SOP 的統計核心 —— 其餘 Phase 皆為一般流程步驟，刻意不特別上色。虛線框（Phase 7）不是順序上的第七步，而是客訴事件觸發時才啟動的旁支流程，故用虛線連接、標示 Optional。點擊任一方框可直接跳到對應章節。</span>
+            <span class="en">The orange box (Phase 0) marks the hard gates decidable without any data; the blue box (Phase 3) marks this SOP's statistical core — every other phase is a regular process step, deliberately left uncolored. The dashed box (Phase 7) isn't a sequential seventh step — it's a side process that only activates when a customer complaint triggers it, hence the dashed connector and "Optional" label. Click any box to jump straight to its section.</span>
           </figcaption>
         </figure>
       </section>
@@ -1355,8 +1373,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · Rev. A（草案，待正式核准與編號）</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Rev. A (Draft, pending formal approval &amp; numbering)</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-16 15:51</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-16 15:51</span>
   </footer>
 </div>
 
@@ -1457,6 +1475,16 @@
     arrow.textContent = '▾';
     h.insertBefore(arrow, h.firstChild);
 
+    // Default state: every top-level (h2) section starts collapsed except
+    // Phase 2, which stays open. Sub-headings (h3/h4) start expanded.
+    if (h.tagName === 'H2') {
+      var section = h.closest('section');
+      if (!section || section.id !== 'phase2') {
+        body.classList.add('collapsed');
+        h.classList.add('is-collapsed');
+      }
+    }
+
     h.addEventListener('click', function(){
       body.classList.toggle('collapsed');
       h.classList.toggle('is-collapsed');
@@ -1542,9 +1570,9 @@
       node.parentNode.replaceChild(frag, node);
     });
 
-    current = marks.length ? 0 : -1;
+    current = -1;
     buildResultsPanel(q);
-    highlightCurrent();
+    updateCount();
   }
 
   function getContextHeadingText(mark){
