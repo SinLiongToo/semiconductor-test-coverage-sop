@@ -382,6 +382,7 @@
               <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
               <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
               <tr><td class="mono">Die-level 追溯</td><td><span class="zh">透過 Wafer ID + X,Y 座標或封裝序號，將同一顆 die 在 WT 與 FT 的資料點對點配對。</span><span class="en">Die-level traceability — pairing the same die's WT and FT data point-to-point via Wafer ID + X,Y coordinates or package serial number.</span></td></tr>
+              <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -1018,6 +1019,13 @@
           <span class="zh">這個做法不是免費的：收緊 limit 會讓原本在舊 limit 內、新 limit 外的 die 在前站就被判退，即使它們原本在後站測試也會 Pass。決策時必須把「犧牲的前站良率成本」跟「移除後站測試省下的 test time」放在同一個 ROI 天平上比較（見 Phase 4 ROI 參考），而不是只看統計上站不站得住腳。當相關性 r 已經很高、殘差很小時，收緊的幅度通常很小、犧牲的良率可忽略；相關性普通時，才需要認真評估這筆交易划不划算。</span>
           <span class="en">This isn't free: tightening the limit means dies that would have passed the old limit but fall outside the new one get rejected upstream — even though they would have passed the downstream test. The decision must weigh "upstream yield sacrificed" against "test time saved by removing the downstream test" on the same ROI scale (see the Phase 4 ROI reference), not just whether the statistics hold up. When r is already high and the residual is small, the required tightening is usually tiny and the sacrificed yield negligible; when correlation is only moderate, this trade-off needs careful evaluation before committing to it.</span>
         </p>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">⚠ 風險：製程漂移會讓 guardband 失效</span><span class="en">⚠ Risk: Process Drift Can Invalidate the Guardband</span></span>
+          <p>
+            <span class="zh">收緊後的 limit，是根據「目前」的 Cpk／σ_residual 算出來的 guardband —— 這個假設不是永久成立的。一旦未來製程出現較大變異（Cpk 惡化、分布變寬或偏移），原本算好的緩衝可能不夠，而且因為後站測試已經移除，<strong>當下不會有任何機制能抓到這個 escape</strong>，等到問題被發現時，往往已經是一批甚至數批的 loss，遠比「多測一個已冗餬的測項」的成本高出許多。因此 §6.2(g) 的收緊 limit 方案，比單純的冗餘移除更依賴製程穩定度：<strong>除了大數據歷史分析之外，也必須掌握 PCM／WAT（製程監控／晶圓允收測試）與此參數的相關性</strong>，把它當作比 WT/FT 資料更早的製程異常訊號，並列為 Phase 5 SPC 監控清單中的必要項目，而不是選配。</span>
+            <span class="en">The tightened limit's guardband is sized from the "current" Cpk/σ_residual — that assumption does not hold forever. If the process later shows larger variation (Cpk degrades, the distribution widens or shifts), the buffer sized for the old distribution may no longer be enough — and because the downstream test has already been removed, <strong>there is no mechanism left to catch that escape in real time</strong>; by the time it's discovered, the loss is often a full lot or several lots deep, far more costly than simply keeping "one already-redundant test." Because of this, the §6.2(g) tightened-limit approach depends on process stability more heavily than plain redundancy removal: <strong>beyond historical big-data analysis, also track the correlation between this parameter and PCM/WAT (Process Control Monitor / Wafer Acceptance Test)</strong>, treat it as an earlier process-shift signal than WT/FT data, and make it a required — not optional — item on the Phase 5 SPC monitoring list.</span>
+          </p>
+        </div>
 
         <h3><span class="zh">6.3 溫度 Corner 冗餘分析（線性／TC 模型）</span><span class="en">6.3 Temperature-Corner Redundancy (Linearity / TC Model)</span></h3>
         <p>
@@ -1127,8 +1135,8 @@
             <span class="en"><strong>Skip-lot / Skip-test:</strong> Replace full testing with a fixed sampling ratio (e.g., 1-in-N) first, rather than switching the test off outright, and observe actual escape behavior for 3–6 months.</span>
           </li>
           <li>
-            <span class="zh"><strong>SPC 監控：</strong>對該測項的 margin／Cpk 建立管制圖，設定觸發線；一旦趨勢異常，自動恢復 100% 測試。</span>
-            <span class="en"><strong>SPC monitoring:</strong> Build control charts for the item's margin/Cpk with trigger limits; automatically restore 100% testing if the trend goes out of control.</span>
+            <span class="zh"><strong>SPC 監控：</strong>對該測項的 margin／Cpk 建立管制圖，設定觸發線；一旦趨勢異常，自動恢復 100% 測試。若該測項是透過 §6.2(g) 收緊前站 limit 才核准移除，<strong>PCM／WAT 與此參數的相關性監控為必要項目</strong>，不是選配 —— 製程層級的變異通常會先反映在 PCM/WAT，而不是等到 WT/FT 資料才看得出來。</span>
+            <span class="en"><strong>SPC monitoring:</strong> Build control charts for the item's margin/Cpk with trigger limits; automatically restore 100% testing if the trend goes out of control. If the item was approved for removal via the §6.2(g) tightened-upstream-limit route, <strong>monitoring the PCM/WAT correlation for this parameter is required, not optional</strong> — process-level variation typically shows up in PCM/WAT before it's visible in WT/FT data.</span>
           </li>
           <li>
             <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策。</span>
