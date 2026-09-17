@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-17 07:41</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-17 08:06</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -446,6 +446,8 @@
               <tr><td class="mono">8D</td><td><span class="zh">Eight Disciplines，八步驟結構化問題解決方法（團隊、問題描述、圍堵、根因、矯正措施、驗證、預防再發、團隊肯定），業界常用於處理客訴／品質異常的正式根因分析。</span><span class="en">Eight Disciplines — a structured 8-step problem-solving method (team, problem description, containment, root cause, corrective action, verification, prevent recurrence, team recognition), commonly used for formal root-cause analysis of complaints/quality excursions.</span></td></tr>
               <tr><td class="mono">Fault coverage（Stuck-at／Delay）</td><td><span class="zh">數位電路測試向量能偵測到的邏輯故障比例；stuck-at fault（節點卡死於 0 或 1）與 delay／transition fault（訊號切換延遲異常）是兩種基本 fault model，涵蓋率不足時代表向量集合本身有漏洞，跟跨站冗餘是不同層次的問題。</span><span class="en">The proportion of logic faults a digital test vector set can detect; stuck-at faults (a node frozen at 0 or 1) and delay/transition faults (abnormal switching delay) are two basic fault models — insufficient coverage means the vector set itself has a hole, a different layer of problem from cross-stage redundancy.</span></td></tr>
               <tr><td class="mono">Stop-on-fail / Continue-on-fail</td><td><span class="zh">測試程式的執行模式：前者一遇 fail 就中止該顆 die 的後續測試（後面測項無資料）；後者即使 fail 仍會繼續執行並記錄所有測項。</span><span class="en">Test-program execution modes: the former halts a die's remaining tests on the first fail (later items have no data); the latter keeps running and recording every item even after a fail.</span></td></tr>
+              <tr><td class="mono">VHV / VLV</td><td><span class="zh">Voltage High／Voltage Low，數位邏輯電路常用的高／低電壓應力測試條件，用來在不過度應力損壞良品的前提下激發 latent defect；合適範圍與電路本身的時序、漏電行為相關，應由設計端協助訂定。</span><span class="en">Voltage High / Voltage Low — high/low voltage stress test conditions commonly used for digital logic circuits, meant to excite latent defects without overstressing good units; the appropriate range depends on the circuit's own timing and leakage behavior and should be set with designer input.</span></td></tr>
+              <tr><td class="mono">Vmax / Vmin / Stress duration</td><td><span class="zh">應力測試的電壓上下限與持續時間，應對應到正式的應力／篩選規格文件（如 burn-in spec），而不是由測試工程憑經驗設定的數字。</span><span class="en">The upper/lower voltage bounds and duration of a stress test; these should trace to a formal stress/screening spec (e.g., a burn-in spec), not numbers set from test-engineering experience alone.</span></td></tr>
               <tr><td class="mono">Bump crack / Die crack</td><td><span class="zh">封裝／組裝過程或後續應力造成的機械性裂紋——bump crack 發生在銲球／凸塊接點，die crack 發生在晶粒本體。兩者常見於溫度循環、掉落測試等可靠度應力後才顯現，根因調查與驗證屬於封裝可靠度工程範疇，不在本 SOP 範圍內（見 §10）。</span><span class="en">Mechanical cracks from assembly/packaging or subsequent stress — a bump crack occurs at a solder-bump/bond joint, a die crack in the die body itself. Both often only surface after reliability stress (temperature cycling, drop test); root-cause investigation and requalification are package reliability engineering's domain, outside this SOP's scope (see §10).</span></td></tr>
               <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
@@ -717,6 +719,10 @@
           <li>
             <span class="zh"><strong>應力條件：</strong>檢查目前的電壓／溫度／頻率等應力範圍，是否有文件依據（如可靠度驗證報告、歷史 field return 分析）支持它足以激發已知的 latent defect 機制，而不是憑經驗法則沿用舊的 guardband。若某參數的覆蓋完全仰賴一個從未被驗證過是否足夠的應力條件，在確認應力條件本身站得住腳之前，不應該把它當成「已充分驗證、可以評估移除重複測項」的基礎。</span>
             <span class="en"><strong>Stress conditions:</strong> check whether the current voltage/temperature/frequency stress range has documented backing (a reliability qualification report, historical field-return analysis) confirming it's sufficient to excite known latent-defect mechanisms — not just an old guardband carried forward by convention. If a parameter's coverage relies entirely on a stress condition that's never actually been validated as adequate, don't treat it as a solid enough foundation to start evaluating redundant-test removal until the stress condition itself has been confirmed.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>應力參數本身要有 spec 依據，不是工程師憑經驗設的：</strong>應力時間（stress duration）、Vmax、Vmin 這些數字本身就該是一項 spec——查證時要確認的是「這些參數有沒有對應到正式的應力／篩選規格文件（如 burn-in spec、voltage stress spec）」，而不是只看數字表面上合不合理。對<strong>數位邏輯電路</strong>而言，VHV／VLV（高／低電壓應力）的合適範圍往往牽涉電路本身的時序與漏電行為，測試工程不一定有足夠資訊判斷「多高算過應力、多低算沒效果」——這部分務必找<strong>設計端（designer）</strong>一起確認，不要由測試端單方面設定。</span>
+            <span class="en"><strong>Stress parameters need their own spec, not ad-hoc engineering judgment:</strong> stress duration, Vmax, and Vmin should themselves be a spec — verification here means checking whether these parameters trace to a formal stress/screening spec document (e.g., a burn-in spec, a voltage-stress spec), not just whether the numbers look reasonable on their face. For <strong>digital logic circuits</strong>, the right VHV/VLV (high/low voltage stress) range often depends on the circuit's own timing and leakage behavior — test engineering doesn't always have enough visibility to judge "how high counts as overstress" versus "how low is ineffective." Always confirm this with the <strong>designer</strong>; don't let test engineering set it unilaterally.</span>
           </li>
         </ul>
         <div class="callout warn">
@@ -1553,8 +1559,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-17 07:41</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-17 07:41</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-17 08:06</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-17 08:06</span>
   </footer>
 </div>
 
