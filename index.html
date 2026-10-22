@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:04</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:12</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -1520,12 +1520,12 @@
               <tr>
                 <td><span class="pill warn"><span class="zh">量產爬坡（Ramp）</span><span class="en">Ramp</span></span></td>
                 <td><span class="zh">已有基準資料、良率趨穩，但穩定量產未滿 6 個月，或近期有製程／測試程式變更</span><span class="en">Baseline exists and yield is settling, but stable production is under 6 months, or there was a recent process/test-program change</span></td>
-                <td><span class="zh">只允許 wafer-level adaptive（§11.4 的 sentinel wafer 全測，其餘 wafer 依結果決定全測或精簡）；不做 die-level 分區 skip。</span><span class="en">Wafer-level adaptive only (§11.4 sentinel wafers run full test; remaining wafers go full or reduced based on the result); no die-level zonal skipping.</span></td>
+                <td><span class="zh">只允許 wafer-level adaptive（§11.5 的 sentinel wafer 全測，其餘 wafer 依結果決定全測或精簡）；不做 die-level 分區 skip。</span><span class="en">Wafer-level adaptive only (§11.5 sentinel wafers run full test; remaining wafers go full or reduced based on the result); no die-level zonal skipping.</span></td>
               </tr>
               <tr>
                 <td><span class="pill good"><span class="zh">成熟產品（Mature）</span><span class="en">Mature</span></span></td>
                 <td><span class="zh">穩定量產 ≥ 6–12 個月、主要參數 Cpk ≥ 1.33 且穩定、近 12 個月無相關 CQC、無未結的製程變更</span><span class="en">≥ 6–12 months of stable production, key-parameter Cpk ≥ 1.33 and stable, no related CQC in the trailing 12 months, no open process changes</span></td>
-                <td><span class="zh">可導入 die-level 分區 adaptive（§11.2–11.4）。</span><span class="en">Die-level zonal adaptive test may be introduced (§11.2–11.4).</span></td>
+                <td><span class="zh">可導入 die-level 分區 adaptive（§11.2–11.5）。</span><span class="en">Die-level zonal adaptive test may be introduced (§11.2–11.5).</span></td>
               </tr>
             </tbody>
           </table>
@@ -1535,19 +1535,180 @@
           <span class="en"><strong>Maturity isn't a permanent label:</strong> a process change (PCN), a fab change, a new probe-card type or test platform, a yield excursion, or a related CQC each automatically demote the product back to Ramp (or to NPI if serious); it can only be promoted again after rebuilding baseline data.</span>
         </p>
 
-        <h3><span class="zh">11.2 Zonal Yield 與 Bin Pareto — 找出「哪裡可以省」</span><span class="en">11.2 Zonal Yield &amp; Bin Pareto — Finding Where to Save</span></h3>
+        <h3><span class="zh">11.2 分區定義 — Radial、邊緣距離、扇區、列／行帶、Shot 位置</span><span class="en">11.2 Defining Zones — Radial, Edge Distance, Sector, Row/Column Bands, Shot Position</span></h3>
+        <p>
+          <span class="zh">分區方式同時決定「能省多少」與「需要多少樣本」：分區越細，省得越精準，但每區的 die 越少，每區要累積的 lot 就越多（見 §11.6）。原則：<strong>用最少的分區，抓住真實、統計上顯著的空間差異，且分區形狀要對應到實際的物理機制</strong>。</span>
+          <span class="en">The zoning scheme sets both how much you can save and how many samples you need: finer zones save more precisely, but each zone holds fewer die and so needs more lots accumulated (see §11.6). Principle: <strong>use the fewest zones that capture real, statistically significant spatial differences, and shape them to match an actual physical mechanism</strong>.</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">分區方式</span><span class="en">Scheme</span></th>
+              <th><span class="zh">座標定義</span><span class="en">Coordinate definition</span></th>
+              <th><span class="zh">對應物理機制</span><span class="en">Physical mechanism</span></th>
+              <th><span class="zh">何時使用</span><span class="en">When to use</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="zh">同心環（Radial）</span><span class="en">Radial rings</span></td>
+                <td><span class="zh">die 中心到晶圓中心的實際距離 \(r=\sqrt{(x\,p_x-x_0)^2+(y\,p_y-y_0)^2}\)，用 die pitch \(p_x,p_y\) 換成 mm，不要直接用 die index（die 多半不是正方形）</span><span class="en">Physical distance from die center to wafer center, \(r=\sqrt{(x\,p_x-x_0)^2+(y\,p_y-y_0)^2}\), converted to mm with die pitch \(p_x,p_y\) — not raw die index, since die are rarely square</span></td>
+                <td><span class="zh">膜厚、蝕刻、CMP、熱場的中心↔邊緣梯度</span><span class="en">Center-to-edge gradients in film thickness, etch, CMP, thermal</span></td>
+                <td><span class="zh">預設首選</span><span class="en">Default first choice</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh">邊緣距離（Edge distance）</span><span class="en">Edge distance</span></td>
+                <td><span class="zh">die 最外側角落到晶圓邊緣的距離（mm），或距邊緣第幾圈 die</span><span class="en">Distance (mm) from the die's outermost corner to the wafer edge, or how many die rows in from the edge</span></td>
+                <td><span class="zh">Edge bead、bevel、edge exclusion、緊鄰 partial die</span><span class="en">Edge bead, bevel, edge exclusion, adjacency to partial die</span></td>
+                <td><span class="zh">定義最外圈；比半徑更準，因為考慮了 die 角落的實際位置</span><span class="en">Defining the outermost ring; more accurate than radius because it accounts for where the die's corner actually sits</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh">角度扇區（Sector／Notch）</span><span class="en">Angular sector / notch</span></td>
+                <td>\(\theta=\operatorname{atan2}(y,x)\)<span class="zh">，切象限或 notch 側扇區</span><span class="en">, split into quadrants or a notch-side sector</span></td>
+                <td><span class="zh">晶圓在機台內的方向、chuck／clamp、氣流不對稱</span><span class="en">Wafer orientation in tools, chuck/clamp, gas-flow asymmetry</span></td>
+                <td><span class="zh">fail 分布不對稱、半徑解釋不了時</span><span class="en">When fails are asymmetric and radius doesn't explain them</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh">列／行帶（Row／Column sweep）</span><span class="en">Row / column bands</span></td>
+                <td><span class="zh">依 die row index 或 column index 切帶狀</span><span class="en">Bands by die row index or column index</span></td>
+                <td><span class="zh">微影掃描方向、探針步進順序、probe card 平整度、chuck 傾斜或溫度梯度</span><span class="en">Litho scan direction, probe stepping order, probe-card planarity, chuck tilt or temperature gradient</span></td>
+                <td><span class="zh">fail rate 對 row 或 column 有趨勢、且不是半徑造成的</span><span class="en">When fail rate trends with row or column in a way radius doesn't explain</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh">Shot 內位置（Reticle）</span><span class="en">In-shot position (reticle)</span></td>
+                <td>\((x \bmod S_x,\ y \bmod S_y)\)<span class="zh">，\(S_x,S_y\) 為每個 shot 的 die 數</span><span class="en">, where \(S_x,S_y\) are die per shot</span></td>
+                <td><span class="zh">Reticle 缺陷、鏡頭場位置效應</span><span class="en">Reticle defects, lens field-position effects</span></td>
+                <td><span class="zh">結果通常是「某個 shot 內位置永遠全測」，而不是一個環</span><span class="en">Usually results in "always full-test a specific in-shot position," not a ring</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 760 235" role="img" aria-label="four zoning schemes: radial rings, angular sector, row bands, in-shot position">
+            <defs>
+              <clipPath id="zoneClipC"><circle cx="475" cy="110" r="75"/></clipPath>
+              <clipPath id="zoneClipD"><circle cx="665" cy="110" r="75"/></clipPath>
+            </defs>
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <!-- (a) radial -->
+              <circle cx="95" cy="110" r="75" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+              <circle cx="95" cy="110" r="58" fill="var(--accent-soft)" stroke="var(--border)" stroke-width="1.2"/>
+              <circle cx="95" cy="110" r="32" fill="var(--good-soft)" stroke="var(--border)" stroke-width="1.2"/>
+              <!-- (b) sector -->
+              <circle cx="285" cy="110" r="75" fill="var(--good-soft)" stroke="var(--border)" stroke-width="1.5"/>
+              <path d="M285,110 L322.5,174.95 A75,75 0 0,1 247.5,174.95 Z" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+              <line x1="210" y1="110" x2="360" y2="110" stroke="var(--border)" stroke-dasharray="4,3"/>
+              <line x1="285" y1="35" x2="285" y2="185" stroke="var(--border)" stroke-dasharray="4,3"/>
+              <!-- (c) row / column bands -->
+              <g clip-path="url(#zoneClipC)">
+                <rect x="400" y="35" width="150" height="150" fill="var(--good-soft)"/>
+                <rect x="400" y="35" width="150" height="30" fill="var(--warn-soft)"/>
+                <g stroke="var(--border)" stroke-width="1">
+                  <line x1="400" y1="65" x2="550" y2="65"/><line x1="400" y1="95" x2="550" y2="95"/>
+                  <line x1="400" y1="125" x2="550" y2="125"/><line x1="400" y1="155" x2="550" y2="155"/>
+                </g>
+                <g stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3,4">
+                  <line x1="430" y1="35" x2="430" y2="185"/><line x1="460" y1="35" x2="460" y2="185"/>
+                  <line x1="490" y1="35" x2="490" y2="185"/><line x1="520" y1="35" x2="520" y2="185"/>
+                </g>
+              </g>
+              <circle cx="475" cy="110" r="75" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+              <!-- (d) in-shot position -->
+              <g clip-path="url(#zoneClipD)">
+                <rect x="590" y="35" width="150" height="150" fill="var(--good-soft)"/>
+                <g stroke="var(--border)" stroke-width="1">
+                  <line x1="620" y1="35" x2="620" y2="185"/><line x1="650" y1="35" x2="650" y2="185"/>
+                  <line x1="680" y1="35" x2="680" y2="185"/><line x1="710" y1="35" x2="710" y2="185"/>
+                  <line x1="590" y1="65" x2="740" y2="65"/><line x1="590" y1="95" x2="740" y2="95"/>
+                  <line x1="590" y1="125" x2="740" y2="125"/><line x1="590" y1="155" x2="740" y2="155"/>
+                </g>
+                <g fill="var(--warn)">
+                  <rect x="593" y="38" width="8" height="8"/><rect x="623" y="38" width="8" height="8"/><rect x="653" y="38" width="8" height="8"/><rect x="683" y="38" width="8" height="8"/><rect x="713" y="38" width="8" height="8"/>
+                  <rect x="593" y="68" width="8" height="8"/><rect x="623" y="68" width="8" height="8"/><rect x="653" y="68" width="8" height="8"/><rect x="683" y="68" width="8" height="8"/><rect x="713" y="68" width="8" height="8"/>
+                  <rect x="593" y="98" width="8" height="8"/><rect x="623" y="98" width="8" height="8"/><rect x="653" y="98" width="8" height="8"/><rect x="683" y="98" width="8" height="8"/><rect x="713" y="98" width="8" height="8"/>
+                  <rect x="593" y="128" width="8" height="8"/><rect x="623" y="128" width="8" height="8"/><rect x="653" y="128" width="8" height="8"/><rect x="683" y="128" width="8" height="8"/><rect x="713" y="128" width="8" height="8"/>
+                  <rect x="593" y="158" width="8" height="8"/><rect x="623" y="158" width="8" height="8"/><rect x="653" y="158" width="8" height="8"/><rect x="683" y="158" width="8" height="8"/><rect x="713" y="158" width="8" height="8"/>
+                </g>
+              </g>
+              <circle cx="665" cy="110" r="75" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+              <!-- notches -->
+              <g fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="1.2">
+                <path d="M89,185 L95,177 L101,185 Z"/><path d="M279,185 L285,177 L291,185 Z"/>
+                <path d="M469,185 L475,177 L481,185 Z"/><path d="M659,185 L665,177 L671,185 Z"/>
+              </g>
+              <g font-size="12.5" text-anchor="middle" fill="var(--ink)">
+                <text x="95" y="212"><tspan class="zh">(a) 同心環／邊緣距離</tspan><tspan class="en">(a) Radial / edge distance</tspan></text>
+                <text x="285" y="212"><tspan class="zh">(b) 角度扇區／notch</tspan><tspan class="en">(b) Angular sector / notch</tspan></text>
+                <text x="475" y="212"><tspan class="zh">(c) 列／行帶</tspan><tspan class="en">(c) Row / column bands</tspan></text>
+                <text x="665" y="212"><tspan class="zh">(d) Shot 內位置</tspan><tspan class="en">(d) In-shot position</tspan></text>
+              </g>
+              <text x="380" y="18" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">ZONING SCHEMES</text>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">四種分區方式。橘色是 fail rate 較高、維持完整 flow 的區域，綠色／藍色是可考慮精簡的區域。(a) 依半徑或距邊緣距離切環；(b) 依角度切出 notch 側或某象限；(c) 依 row 切帶（虛線表示同樣可依 column 切）；(d) 每個 reticle shot 內同一個位置的 die（橘色小方塊）固定全測。底部三角形是 notch。</span>
+            <span class="en">Four zoning schemes. Orange marks higher-fail-rate regions that keep the full flow; green/blue marks regions that may be reduced. (a) Rings by radius or edge distance; (b) a notch-side sector or quadrant by angle; (c) bands by row (dashed lines show the same can be done by column); (d) the die at the same position inside every reticle shot (small orange squares) always full-tested. The triangle at the bottom is the notch.</span>
+          </figcaption>
+        </figure>
+        <p>
+          <span class="zh"><strong>訂定分區的步驟</strong>（使用 NPI／Ramp 階段 continue-on-fail 的基準資料）：</span>
+          <span class="en"><strong>Steps to set the zones</strong> (using the continue-on-fail baseline data from the NPI/Ramp stage):</span>
+        </p>
+        <ol>
+          <li>
+            <span class="zh"><strong>畫 profile：</strong>把基準 lot 疊成 stacked map，分別畫出 fail rate（整體與逐測項）對半徑、邊緣距離、角度、row、column、shot 內位置的曲線。半徑建議先切成約 10 個等面積環，讓每個 bin 的 die 數相同、雜訊一致：</span>
+            <span class="en"><strong>Plot the profiles:</strong> stack the baseline lots into one map and plot fail rate (overall and per item) against radius, edge distance, angle, row, column, and in-shot position. For radius, start with about 10 equal-area rings so every bin holds the same die count and has comparable noise:</span>
+            <div class="formula">
+              <div class="label"><span class="zh">等面積環邊界</span><span class="en">Equal-area ring boundaries</span></div>
+              <div class="eq">\[ r_k = R\sqrt{k/K},\qquad k = 1,\dots,K \]</div>
+            </div>
+          </li>
+          <li>
+            <span class="zh"><strong>確認差異是真的：</strong>對每個維度做 pass/fail × bin 的卡方齊一性檢定；不顯著的維度就不要拿來切。由於同一片 wafer 上的 fail 會群聚（不獨立），以 die 數算的卡方會高估顯著性——另外要確認這個 pattern 在大多數 wafer／lot 上都重複出現（例如逐片比較邊緣與中心 fail rate，做 sign test）。</span>
+            <span class="en"><strong>Confirm the difference is real:</strong> run a chi-square homogeneity test on the pass/fail × bin table for each dimension; don't split on a dimension that isn't significant. Because fails cluster within a wafer (die aren't independent), a chi-square computed on die counts overstates significance — also confirm the pattern repeats on most wafers/lots (e.g., compare edge vs. center fail rate wafer by wafer with a sign test).</span>
+            <div class="formula">
+              <div class="label"><span class="zh">卡方齊一性檢定（2 × k 表）</span><span class="en">Chi-square homogeneity test (2 × k table)</span></div>
+              <div class="eq">\[ \chi^{2} = \sum_{\text{cells}}\dfrac{(O-E)^{2}}{E},\qquad df = k-1 \]</div>
+            </div>
+          </li>
+          <li>
+            <span class="zh"><strong>邊界設在轉折點：</strong>邊界放在 fail rate 開始顯著上升的位置，取整到整顆 die；落在邊界上的 die 一律歸入風險較高的那一區（保守原則）。</span>
+            <span class="en"><strong>Put boundaries at the knee:</strong> place each boundary where the fail rate starts to rise significantly, rounded to whole die; die sitting on a boundary always go to the higher-risk zone (conservative rule).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>合併到最少：</strong>相鄰、彼此沒有顯著差異的 bin 合併，最後通常只剩 2–3 個分區。</span>
+            <span class="en"><strong>Merge down to the minimum:</strong> merge neighboring bins with no significant difference between them; usually only 2–3 zones remain.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>用保留 lot 驗證：</strong>用沒參與定義分區的後續 lot 驗證，「哪一區比較乾淨」的排序必須重現；重現不了就是 overfitting。</span>
+            <span class="en"><strong>Validate on hold-out lots:</strong> check on later lots that weren't used to define the zones — the ranking of which zone is cleaner must reproduce; if it doesn't, the zones are overfit.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>凍結並版本控管：</strong>分區以 die 座標查表（X,Y → zone）的形式綁定產品與 wafer map 版本；die size、wafer map、晶圓尺寸或 notch 方向一變，就要重新定義。</span>
+            <span class="en"><strong>Freeze and version:</strong> store the zones as a die-coordinate lookup table (X,Y → zone) tied to the product and wafer-map version; any change in die size, wafer map, wafer size, or notch orientation requires redefining them.</span>
+          </li>
+        </ol>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">多 site 測試：別把 site 效應當成區域效應</span><span class="en">Multi-Site Testing: Don't Mistake Site Effects for Zone Effects</span></span>
+          <p>
+            <span class="zh">多 site probe card 下，每個 touchdown 的 site 編號與 die 位置有固定對應；若某個 site 有 contact 或儀器問題，它在 wafer map 上會呈現規則的列／行 pattern，看起來像是空間效應。訂分區前先做 site-to-site 比較（§3.4 量測系統有效性），排除 site 造成的 pattern，也不要定義出跟 site 排列重疊的分區。</span>
+            <span class="en">With a multi-site probe card, each touchdown's site number maps to die positions in a fixed way; if one site has a contact or instrument problem, it shows up on the wafer map as a regular row/column pattern that looks like a spatial effect. Run a site-to-site comparison (§3.4 measurement-system validity) before defining zones to rule out site-induced patterns, and never define a zone that overlaps the site layout.</span>
+          </p>
+        </div>
+
+        <h3><span class="zh">11.3 Zonal Yield 與 Bin Pareto — 找出「哪裡可以省」</span><span class="en">11.3 Zonal Yield &amp; Bin Pareto — Finding Where to Save</span></h3>
         <ul>
           <li>
-            <span class="zh"><strong>事先定義分區：</strong>常見做法是依半徑切成中心／中間／邊緣三個同心環（邊緣環通常是最外 1–2 圈 die 或依半徑百分比），必要時再加 notch 附近或 reticle shot 內位置。分區定義要在看資料之前訂好並納入版本控管——看完資料再「畫」出最好看的分區，等於在雜訊裡找規律（overfitting）。</span>
-            <span class="en"><strong>Define zones up front:</strong> the common approach is three concentric rings by radius — center / middle / edge (the edge ring is usually the outermost 1–2 rows of die, or a radius percentage) — optionally adding the notch area or position within the reticle shot. Fix the zone definition before looking at the data and put it under version control; drawing the best-looking zones after seeing the data is finding patterns in noise (overfitting).</span>
+            <span class="zh"><strong>分區先定好：</strong>依 §11.2 定義並凍結分區後才做以下統計；看完資料再「畫」出最好看的分區，等於在雜訊裡找規律（overfitting）。</span>
+            <span class="en"><strong>Zones come first:</strong> define and freeze the zones per §11.2 before running the statistics below; drawing the best-looking zones after seeing the data is finding patterns in noise (overfitting).</span>
           </li>
           <li>
             <span class="zh"><strong>逐區、逐測項統計：</strong>每個分區分別計算 zonal yield、各測項的 fail rate，以及該測項的 incremental catch（只有它抓到、其他測項都沒抓到的 fail）。典型結果是邊緣區 fail rate 較高、Pareto 也不同（膜厚、蝕刻、微影的邊緣效應），中心區則乾淨得多——這正是分區省時的空間。</span>
             <span class="en"><strong>Statistics per zone, per item:</strong> for each zone separately, compute zonal yield, each item's fail rate, and its incremental catch (fails only that item caught). The typical result is a higher fail rate and a different Pareto at the edge (film thickness, etch, and litho edge effects), with a much cleaner center — that difference is exactly where zonal savings come from.</span>
           </li>
           <li>
-            <span class="zh"><strong>Bin Pareto 判讀：</strong>在某分區佔 fail 大宗（如累計前 80%）的 bin 對應測項，就是該區的主要攔截者，維持全測；在該區 incremental catch 為零、且樣本數足夠的測項，才是該區的 skip 候選。樣本數要<strong>逐區</strong>計算（§6.1 的 zero-failure 公式套用在單一分區的 die 數上），不能用整片 wafer 的總數——小分區通常要累積更多 lot 才夠。</span>
-            <span class="en"><strong>Reading the bin Pareto:</strong> items behind the bins that make up most of a zone's fails (e.g., the top 80% cumulative) are that zone's main catchers — keep them on full test. Only items with zero incremental catch in that zone, backed by enough samples, are skip candidates there. Compute the sample size <strong>per zone</strong> (apply §6.1's zero-failure formula to that zone's die count alone), not from the whole-wafer total — small zones usually need more lots accumulated.</span>
+            <span class="zh"><strong>Bin Pareto 判讀：</strong>在某分區佔 fail 大宗（如累計前 80%）的 bin 對應測項，就是該區的主要攔截者，維持全測；在該區 incremental catch 為零、且樣本數足夠的測項，才是該區的 skip 候選。樣本數要<strong>逐區</strong>計算（§6.1 的 zero-failure 公式套用在單一分區的 die 數上），不能用整片 wafer 的總數——小分區通常要累積更多 lot 才夠；完整的樣本數設計見 §11.6。</span>
+            <span class="en"><strong>Reading the bin Pareto:</strong> items behind the bins that make up most of a zone's fails (e.g., the top 80% cumulative) are that zone's main catchers — keep them on full test. Only items with zero incremental catch in that zone, backed by enough samples, are skip candidates there. Compute the sample size <strong>per zone</strong> (apply §6.1's zero-failure formula to that zone's die count alone), not from the whole-wafer total — small zones usually need more lots accumulated. See §11.6 for the full sample-size design.</span>
           </li>
         </ul>
         <div class="callout warn">
@@ -1558,7 +1719,7 @@
           </p>
         </div>
 
-        <h3><span class="zh">11.3 CQC 位置 — 鎖定不可省的區域</span><span class="en">11.3 CQC Locations — Locking the Zones You Can't Skip</span></h3>
+        <h3><span class="zh">11.4 CQC 位置 — 鎖定不可省的區域</span><span class="en">11.4 CQC Locations — Locking the Zones You Can't Skip</span></h3>
         <ul>
           <li>
             <span class="zh"><strong>回推晶圓座標：</strong>用 §5 的 die-level 追溯，把每一顆 CQC／RMA 退貨 die 回推到 Wafer ID + X,Y，疊成一張累積客訴 wafer map（stacked map）。</span>
@@ -1581,7 +1742,7 @@
           </p>
         </div>
 
-        <h3><span class="zh">11.4 WT 執行機制 — 在 tester 上怎麼做</span><span class="en">11.4 Execution at WT — How It Runs on the Tester</span></h3>
+        <h3><span class="zh">11.5 WT 執行機制 — 在 tester 上怎麼做</span><span class="en">11.5 Execution at WT — How It Runs on the Tester</span></h3>
         <ol>
           <li>
             <span class="zh"><strong>Sentinel wafer：</strong>每個 lot 指定幾片 wafer（如第 1 片，加上 lot 中段與末段各 1 片）跑完整 flow（continue-on-fail），結果與產品基準比對：zonal yield、bin Pareto、主要參數 mean／σ、PAT outlier 數。全部在基準範圍內 → 其餘 wafer 才可使用 adaptive flow；任一超出 → 整個 lot 全測。</span>
@@ -1656,7 +1817,64 @@
           </figcaption>
         </figure>
 
-        <h3><span class="zh">11.5 品質守則 — 省時間但不犧牲品質</span><span class="en">11.5 Quality Safeguards — Saving Time Without Sacrificing Quality</span></h3>
+        <h3><span class="zh">11.6 樣本數設計 — 每個決策各需要多少樣本</span><span class="en">11.6 Sample Size — How Much Data Each Decision Needs</span></h3>
+        <p>
+          <span class="zh">Adaptive test 裡有五個不同的樣本數問題，各自回答不同的問題，不能共用同一個數字：</span>
+          <span class="en">Adaptive test involves five distinct sample-size questions, each answering something different — they can't share one number:</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">問題</span><span class="en">Question</span></th>
+              <th><span class="zh">公式</span><span class="en">Formula</span></th>
+              <th><span class="zh">範例</span><span class="en">Example</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="zh"><strong>(1) 分區資格：</strong>被 skip 測項在分區 z 的 incremental fail rate 是否低於目標 \(p\)？</span><span class="en"><strong>(1) Zone qualification:</strong> is the skipped item's incremental fail rate in zone z below target \(p\)?</span></td>
+                <td><span class="zh">零 fail：\(n_z \ge \ln\alpha/\ln(1-p) \approx 3/p\)；允許 k 顆 fail：\(p_{\text{UCL}} \approx \chi^{2}_{1-\alpha,\,2(k+1)}/(2n_z)\)</span><span class="en">Zero fails: \(n_z \ge \ln\alpha/\ln(1-p) \approx 3/p\); with k fails: \(p_{\text{UCL}} \approx \chi^{2}_{1-\alpha,\,2(k+1)}/(2n_z)\)</span></td>
+                <td><span class="zh">目標 50 DPPM → 該區需 ≈ 60,000 顆 die；若該區每片 300 顆 → 200 片 ≈ 8 個 25 片 lot（還要再加上下方的群聚修正）</span><span class="en">Target 50 DPPM → ≈ 60,000 die in that zone; at 300 die per wafer in the zone → 200 wafers ≈ 8 lots of 25 (before the clustering correction below)</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>(2) Monitor die（parametric SPC）：</strong>每片要幾顆才看得出被 skip 參數的平均值漂移 \(\delta\)？</span><span class="en"><strong>(2) Monitor die (parametric SPC):</strong> how many per wafer to detect a mean shift \(\delta\) in a skipped parameter?</span></td>
+                <td>\(n = \left((z_{\alpha}+z_{\beta})\,\sigma/\delta\right)^{2}\)</td>
+                <td><span class="zh">偵測 1σ 漂移、\(z_\alpha = 3\)（對應 3σ 管制圖）、檢定力 90%（\(z_\beta = 1.28\)）→ \(n \approx 18.3\)，取每片 19 顆，依面積分配到各精簡區、每區至少 5 顆</span><span class="en">Detect a 1σ shift, \(z_\alpha = 3\) (matching a 3σ control chart), 90% power (\(z_\beta = 1.28\)) → \(n \approx 18.3\), so 19 die per wafer, split across reduced zones by area with at least 5 per zone</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>(3) Monitor die（attribute）：</strong>被 skip 測項 fail rate 升到 \(p_{\text{exc}}\) 時，要幾顆才能抓到至少一顆 fail？</span><span class="en"><strong>(3) Monitor die (attribute):</strong> if the skipped item's fail rate rises to \(p_{\text{exc}}\), how many die to catch at least one fail?</span></td>
+                <td>\(m \ge \ln\beta/\ln(1-p_{\text{exc}})\)</td>
+                <td><span class="zh">\(p_{\text{exc}} = 1\%\)、\(\beta = 0.1\) → 每 lot 累積 ≈ 230 顆。比 (2) 多很多，而且要等真的出現 fail 才看得到——monitor die 應以 parametric 資料為主（同 §6.2(d) 的結論）</span><span class="en">\(p_{\text{exc}} = 1\%\), \(\beta = 0.1\) → ≈ 230 die accumulated per lot. Far more than (2), and it only sees the problem once fails actually appear — monitor die should rely mainly on parametric data (the same conclusion as §6.2(d))</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>(4) Sentinel wafer：</strong>每 lot 幾片才能抓到 lot 層級的異常？</span><span class="en"><strong>(4) Sentinel wafers:</strong> how many per lot to catch a lot-level anomaly?</span></td>
+                <td><span class="zh">若 lot 中比例 \(q\) 的 wafer 異常：\(P_{\text{detect}} \approx 1-(1-q)^{s}\)</span><span class="en">If a fraction \(q\) of the lot's wafers are abnormal: \(P_{\text{detect}} \approx 1-(1-q)^{s}\)</span></td>
+                <td><span class="zh">\(s = 3\)：\(q = 0.5\) 時 ≈ 88%，\(q = 0.3\) 時只有 ≈ 66%。Sentinel 只抓得到整 lot 的偏移；單片異常要靠 monitor die 與即時切回條件。槽位要分散（首／中／尾），因為批次機台有槽位效應</span><span class="en">\(s = 3\): ≈ 88% at \(q = 0.5\), only ≈ 66% at \(q = 0.3\). Sentinels only catch lot-wide shifts; single-wafer excursions rely on monitor die and the real-time switch-back triggers. Spread the slots (first/middle/last), since batch tools have slot-position effects</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>(5) Shadow run 長度：</strong>影子期間要累積多少「本來會被 skip」的 die？</span><span class="en"><strong>(5) Shadow-run length:</strong> how many would-be-skipped die must the shadow period accumulate?</span></td>
+                <td><span class="zh">同 (1)，套用在影子期間被判定為 skip 的 die 上，逐區計算</span><span class="en">Same as (1), applied per zone to the die the rules would have skipped during the shadow period</span></td>
+                <td><span class="zh">零漏抓且達到 (1) 的顆數，才切換成真的 skip</span><span class="en">Switch to real skipping only with zero misses and the count from (1) reached</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">同一片 wafer 上的 die 不獨立 — 有效樣本數會縮水</span><span class="en">Die on the Same Wafer Aren't Independent — the Effective Sample Shrinks</span></span>
+          <p>
+            <span class="zh">上表 (1) 假設每顆 die 互相獨立，但實際上 fail 會在同一片 wafer 上群聚（同一個製程異常一次影響一大片）。用設計效應（design effect）修正：</span>
+            <span class="en">Row (1) above assumes every die is independent, but in reality fails cluster within a wafer (one process excursion hits a whole area at once). Correct for it with the design effect:</span>
+          </p>
+          <div class="formula">
+            <div class="label"><span class="zh">有效樣本數</span><span class="en">Effective sample size</span></div>
+            <div class="eq">\[ n_{\text{eff}} = \dfrac{n}{\text{DEFF}},\qquad \text{DEFF} = 1+(m-1)\,\rho \]</div>
+            <div class="note">
+              <span class="zh">\(m\)：每片 wafer 在該區的 die 數；\(\rho\)：同片 wafer 內 fail 的組內相關係數（ICC），可從基準資料估計。即使 \(\rho\) 只有 0.01，\(m = 300\) 時 DEFF ≈ 4，需要的 die 數就變成 4 倍。實務上除了 die 總數，還要規定最少 wafer 數與 lot 數（例如 ≥ 30 片、來自 ≥ 10 個不同時期的 lot，建議起點），確保樣本涵蓋製程的正常變異。</span>
+              <span class="en">\(m\): die per wafer in that zone; \(\rho\): intra-wafer correlation of fails (ICC), estimated from baseline data. Even with \(\rho\) as small as 0.01, \(m = 300\) gives DEFF ≈ 4 — four times the die. In practice, on top of the total die count, require a minimum number of wafers and lots (e.g., ≥ 30 wafers from ≥ 10 lots spread over time, as a suggested starting point) so the sample covers the process's normal variation.</span>
+            </div>
+          </div>
+        </div>
+
+        <h3><span class="zh">11.7 品質守則 — 省時間但不犧牲品質</span><span class="en">11.7 Quality Safeguards — Saving Time Without Sacrificing Quality</span></h3>
         <div class="callout danger">
           <span class="tag"><span class="zh">零覆蓋守則以「每顆 die」為單位</span><span class="en">The Zero-Coverage Guard Applies Per Die</span></span>
           <p>
@@ -1760,6 +1978,19 @@
           <div class="eq">\[ \text{DPPM}_{\text{escape}} \approx 10^{6}\sum_{z} f_z\, s_z\, p_{z,\text{UCL}} \qquad \Delta TT \approx \sum_{z} f_z\, s_z\, t_{\text{skip}} \]</div>
         </div>
 
+        <div class="formula">
+          <div class="label"><span class="zh">等面積環邊界（分區定義）</span><span class="en">Equal-area ring boundaries (zone definition)</span></div>
+          <div class="eq">\[ r_k = R\sqrt{k/K},\qquad k = 1,\dots,K \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">允許 k 顆 fail 的 fail rate 信賴上界</span><span class="en">Fail-rate upper confidence bound with k fails</span></div>
+          <div class="eq">\[ p_{\text{UCL}} \approx \dfrac{\chi^{2}_{1-\alpha,\,2(k+1)}}{2n} \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">有效樣本數（晶圓內群聚修正）</span><span class="en">Effective sample size (intra-wafer clustering)</span></div>
+          <div class="eq">\[ n_{\text{eff}} = \dfrac{n}{1+(m-1)\,\rho} \]</div>
+        </div>
+
         <h3><span class="zh">12.4 延伸參考</span><span class="en">12.4 Further References</span></h3>
         <ul>
           <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
@@ -1779,8 +2010,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:04</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:04</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:12</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:12</span>
   </footer>
 </div>
 
