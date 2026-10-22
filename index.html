@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:12</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:24</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -1491,6 +1491,13 @@
           <span class="zh">Phase 4 的「抽測／移除」是對整個母體的靜態決策——同一個測項對每顆 die 一視同仁。Adaptive Test 則是在 WT 依據證據（產品成熟度、晶圓區域良率與 bin Pareto、客訴歷史位置、同 lot 前段 wafer 的結果）對不同 wafer、不同區域的 die 套用不同的測試內容：證據顯示低風險的區域跑精簡 flow 節省 test time 與成本，高風險區域維持全測。核心原則：<strong>Adaptive Test 只能把測試從「有證據證明低風險」的 die 身上拿掉，不能把風險平均攤到整片 wafer 上</strong>。</span>
           <span class="en">Phase 4's "sample/remove" is a static, whole-population decision — every die is treated the same for a given item. Adaptive Test instead uses evidence at WT (product maturity, zonal yield and bin Pareto, the wafer locations of past customer complaints, results from earlier wafers in the same lot) to apply different test content to different wafers and different regions of a wafer: regions the evidence shows are low-risk run a reduced flow to save test time and cost, high-risk regions keep the full flow. Core principle: <strong>Adaptive Test may only take tests away from die that evidence shows are low-risk — it must never spread the risk evenly across the whole wafer</strong>.</span>
         </p>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">本章數字僅為示範起點</span><span class="en">Numbers in This Section Are Illustrative Starting Points</span></span>
+          <p>
+            <span class="zh">本章出現的門檻與數量（如 NPI 的 30 lots、Cpk ≥ 1.33、6–12 個月、±1–2 顆緩衝 die、每片 19 顆 monitor die、每 lot 3 片 sentinel、≥ 30 片／≥ 10 lots、50 DPPM 等）都是為了說明方法而給的示範值，<strong>不是經過驗證的標準</strong>。實際數字必須由該產品的基準資料、客戶 DPPM 要求與 FMEA 推導，並在決策紀錄中寫明來源；§11.8 有一個完整的示範計算可參考。</span>
+            <span class="en">The thresholds and quantities in this section (e.g., 30 lots for NPI, Cpk ≥ 1.33, 6–12 months, a ±1–2 die buffer, 19 monitor die per wafer, 3 sentinel wafers per lot, ≥ 30 wafers / ≥ 10 lots, 50 DPPM) are example values given to explain the method, <strong>not validated standards</strong>. Real values must be derived from the product's baseline data, the customer's DPPM requirement, and the FMEA, with their source recorded in the decision log; §11.8 walks through a complete illustrative calculation.</span>
+          </p>
+        </div>
         <div class="callout">
           <span class="tag"><span class="zh">與 Phase 0–7 的關係</span><span class="en">How This Relates to Phase 0–7</span></span>
           <p>
@@ -1908,6 +1915,99 @@
             <span class="en"><strong>Customer agreement:</strong> many automotive and high-reliability customers treat an adaptive flow as a test-flow change requiring advance notice or approval (PCN); confirm the customer agreement before the pilot.</span>
           </li>
         </ul>
+
+        <h3><span class="zh">11.8 完整範例（示範數字）— 從分區到年省成本</span><span class="en">11.8 Worked Example (Illustrative Numbers) — From Zones to Annual Savings</span></h3>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">注意：以下全部是虛構的示範數字</span><span class="en">Warning: Every Number Below Is Made Up for Illustration</span></span>
+          <p>
+            <span class="zh">這個範例的產品、晶圓尺寸、die 數、fail 數、ρ、σ、test time、tester 費率、escape 目標，全部是為了示範計算流程而假設的，<strong>不是建議值，也不能直接套用</strong>。實際導入時，每一個數字都要換成該產品自己的基準資料、客戶合約的 DPPM 要求與組織的成本數字，並經過 Phase 4 的設計端 review 與簽核。</span>
+            <span class="en">The product, wafer size, die counts, fail counts, ρ, σ, test time, tester rate, and escape target in this example are all assumptions made to demonstrate the calculation flow — <strong>they are not recommendations and must not be copied directly</strong>. For a real rollout, every number must be replaced with that product's own baseline data, the customer contract's DPPM requirement, and the organization's own cost figures, and go through Phase 4 designer review and sign-off.</span>
+          </p>
+        </div>
+        <p>
+          <span class="zh"><strong>假設情境：</strong>產品 X，300 mm 晶圓，die 5 × 5 mm，每片約 2,500 顆 good-die 候選；候選 skip 測項為 RO_FREQ（ring oscillator 頻率，Tier B，parametric，test time 120 ms／die），FT 有高相關測項覆蓋同一失效模式（滿足 §11.7 的逐顆零覆蓋守則）。</span>
+          <span class="en"><strong>Scenario:</strong> Product X, 300 mm wafer, 5 × 5 mm die, about 2,500 candidate die per wafer. The skip candidate is RO_FREQ (ring-oscillator frequency, Tier B, parametric, 120 ms per die); a highly correlated FT item covers the same failure mode (satisfying §11.7's per-die zero-coverage guard).</span>
+        </p>
+        <ol>
+          <li>
+            <span class="zh"><strong>成熟度（§11.1）：</strong>穩定量產 14 個月、RO_FREQ Cpk = 1.6 且穩定、近 12 個月無相關 CQC → <strong>Mature</strong>，可做 die-level 分區。</span>
+            <span class="en"><strong>Maturity (§11.1):</strong> 14 months of stable production, RO_FREQ Cpk = 1.6 and stable, no related CQC in 12 months → <strong>Mature</strong>; die-level zoning allowed.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>分區（§11.2）：</strong>基準資料 40 lots × 25 片 = 1,000 片（continue-on-fail）。半徑 profile 在 r ≈ 120 mm 處明顯轉折，60 mm 以內又更乾淨；角度、row／column、shot 位置都沒有顯著差異 → 只用同心環切三區：</span>
+            <span class="en"><strong>Zones (§11.2):</strong> baseline of 40 lots × 25 wafers = 1,000 wafers (continue-on-fail). The radius profile has a clear knee at r ≈ 120 mm and is cleaner still inside 60 mm; angle, row/column, and shot position show no significant difference → radial rings only, three zones:</span>
+            <div class="twrap">
+              <table>
+                <thead><tr>
+                  <th><span class="zh">分區</span><span class="en">Zone</span></th>
+                  <th><span class="zh">半徑</span><span class="en">Radius</span></th>
+                  <th><span class="zh">die／片（\(m\)）</span><span class="en">Die/wafer (\(m\))</span></th>
+                  <th>\(f_z\)</th>
+                  <th><span class="zh">RO_FREQ incremental fail（1,000 片）</span><span class="en">RO_FREQ incremental fails (1,000 wafers)</span></th>
+                </tr></thead>
+                <tbody>
+                  <tr><td><span class="zh">中心</span><span class="en">Center</span></td><td>&lt; 60 mm</td><td>450</td><td>0.18</td><td><span class="zh">0／450,000</span><span class="en">0 / 450,000</span></td></tr>
+                  <tr><td><span class="zh">中間</span><span class="en">Middle</span></td><td>60–120 mm</td><td>1,350</td><td>0.54</td><td><span class="zh">2／1,350,000</span><span class="en">2 / 1,350,000</span></td></tr>
+                  <tr><td><span class="zh">邊緣</span><span class="en">Edge</span></td><td>&gt; 120 mm</td><td>700</td><td>0.28</td><td><span class="zh">38／700,000（≈ 54 DPPM，出現在 31／40 個 lot）</span><span class="en">38 / 700,000 (≈ 54 DPPM, seen in 31 of 40 lots)</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <span class="zh">邊緣區 fail 在大多數 lot 都重複出現，是真實差異 → 邊緣區維持完整 flow。</span>
+            <span class="en">Edge fails recur in most lots, so the difference is real → the edge zone keeps the full flow.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>CQC 鎖定（§11.4）：</strong>20 個月前有 1 顆 RMA die 追溯到中間區右上方，8D 已結案，但鎖定區不會自動解除 → 該點周圍 7 × 7 = 49 顆 die 永久完整 flow。</span>
+            <span class="en"><strong>CQC lock (§11.4):</strong> one RMA die from 20 months ago traced to the upper right of the middle zone; the 8D is closed, but a locked zone doesn't unlock automatically → the 7 × 7 = 49 die around it stay on the full flow permanently.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>分區資格（§11.6 (1)，含群聚修正）：</strong>由基準資料估得 \(\rho = 0.005\)，α = 0.05：</span>
+            <span class="en"><strong>Zone qualification (§11.6 (1), with clustering correction):</strong> baseline data gives \(\rho = 0.005\); α = 0.05:</span>
+            <div class="twrap">
+              <table>
+                <thead><tr>
+                  <th><span class="zh">分區</span><span class="en">Zone</span></th>
+                  <th><span class="zh">點估計</span><span class="en">Point estimate</span></th>
+                  <th>DEFF</th>
+                  <th>\(n_{\text{eff}}\)</th>
+                  <th>\(p_{z,\text{UCL}}\)</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td><span class="zh">中心</span><span class="en">Center</span></td><td>0 DPPM</td><td>1 + 449 × 0.005 = 3.25</td><td>≈ 138,700</td><td>3 / 138,700 ≈ 21.6 DPPM</td></tr>
+                  <tr><td><span class="zh">中間</span><span class="en">Middle</span></td><td>≈ 1.5 DPPM</td><td>1 + 1,349 × 0.005 = 7.75</td><td>≈ 174,300</td><td>\(\chi^{2}_{0.95,6}\) / (2 × 174,300) = 12.59 / 348,600 ≈ 36.1 DPPM</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <span class="zh">注意差距：中心區點估計是 0，修正後的信賴上界卻是 21.6 DPPM；如果忽略群聚、直接用 450,000 顆計算，會得到 6.7 DPPM，低估了約 3 倍。</span>
+            <span class="en">Note the gap: the center's point estimate is 0, but its corrected upper bound is 21.6 DPPM; ignoring clustering and using all 450,000 die would give 6.7 DPPM — about 3× too optimistic.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Monitor die 與 sentinel（§11.6 (2)(4)）：</strong>RO_FREQ σ = 8 MHz，要看出 1σ（8 MHz）漂移 → 每片 19 顆，依面積分成中心 5 顆、中間 14 顆；每 lot sentinel wafer 3 片（slot 1、13、25），所以每 lot 有 22／25 = 0.88 的 wafer 跑 adaptive。</span>
+            <span class="en"><strong>Monitor die and sentinels (§11.6 (2)(4)):</strong> RO_FREQ σ = 8 MHz; detecting a 1σ (8 MHz) shift → 19 die per wafer, split by area into 5 center and 14 middle. 3 sentinel wafers per lot (slots 1, 13, 25), so 22/25 = 0.88 of each lot's wafers run adaptive.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Skip 比例 \(s_z\)：</strong>再預留 2% 給鄰近 die 升級 → 中心 \(s = (450-5)/450 \times 0.98 \approx 0.969\)；中間 \(s = (1350-49-14)/1350 \times 0.98 \approx 0.934\)；邊緣 \(s = 0\)。</span>
+            <span class="en"><strong>Skip fraction \(s_z\):</strong> reserving another 2% for neighborhood upgrades → center \(s = (450-5)/450 \times 0.98 \approx 0.969\); middle \(s = (1350-49-14)/1350 \times 0.98 \approx 0.934\); edge \(s = 0\).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Escape 預算（§11.7）：</strong>\(0.88 \times (0.18 \times 0.969 \times 21.6 + 0.54 \times 0.934 \times 36.1) \approx 19.4\) DPPM，低於本例假設的 30 DPPM 預算 → 通過。因為 FT 仍覆蓋此失效模式，這 19.4 DPPM 是「WT 漏到 FT」的量，不是漏到客戶：每年約 2,400 顆壞 die 會被封裝後才在 FT 剔除，以每顆封裝 + FT 成本 0.5 USD 計約 1,200 USD／年。</span>
+            <span class="en"><strong>Escape budget (§11.7):</strong> \(0.88 \times (0.18 \times 0.969 \times 21.6 + 0.54 \times 0.934 \times 36.1) \approx 19.4\) DPPM, under this example's assumed 30 DPPM budget → pass. Because FT still covers this failure mode, the 19.4 DPPM is the WT-to-FT leak, not a leak to the customer: about 2,400 bad die per year get packaged before FT rejects them — at 0.5 USD packaging + FT cost each, about 1,200 USD/year.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>節省時間與成本：</strong>\(\Delta TT \approx 0.88 \times (0.18 \times 0.969 + 0.54 \times 0.934) \times 120\) ms ≈ 72 ms／die → 每片 ≈ 179 秒（約 3 分鐘）。年產 50,000 片 → ≈ 2,490 tester-hours；以假設的 60 USD／hr 計 ≈ 149,000 USD／年，扣掉上一步的封裝成本仍明顯划算。</span>
+            <span class="en"><strong>Time and cost saved:</strong> \(\Delta TT \approx 0.88 \times (0.18 \times 0.969 + 0.54 \times 0.934) \times 120\) ms ≈ 72 ms per die → ≈ 179 s (about 3 min) per wafer. At 50,000 wafers/year → ≈ 2,490 tester-hours; at an assumed 60 USD/hr ≈ 149,000 USD/year, still clearly worthwhile after the previous step's packaging cost.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Shadow run（§11.6 (5)）：</strong>先跑 10 個 lot 的影子模式，累積約 96,000 顆中心區、280,000 顆中間區「本來會被 skip」的 die，零漏抓且 monitor die 的 RO_FREQ 管制圖穩定，才切換成真的 skip，進入 Phase 5 pilot。</span>
+            <span class="en"><strong>Shadow run (§11.6 (5)):</strong> run 10 lots in shadow mode first, accumulating about 96,000 center and 280,000 middle would-be-skipped die; only with zero misses and a stable RO_FREQ monitor-die control chart does it switch to real skipping and enter the Phase 5 pilot.</span>
+          </li>
+        </ol>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">範例的三個容易被忽略的陷阱</span><span class="en">Three Easy-to-Miss Traps in This Example</span></span>
+          <p>
+            <span class="zh"><strong>(a) 多 site 會吃掉省下的時間：</strong>上面的 72 ms／die 是單 site 的理論上限。多 site 測試時，同一個 touchdown 只要有一顆 die 跑完整 flow，整個 touchdown 就得等它跑完——邊界附近、monitor die、鄰近升級都會讓 touchdown 混到完整 flow。實際節省要用 touchdown 層級重新計算，必要時讓分區邊界與 monitor die 位置對齊 touchdown 排列。<strong>(b) ρ 決定一切：</strong>本例 ρ = 0.005 是假設值；若實際 ρ = 0.02，中間區 DEFF 會從 7.75 變成約 28，信賴上界跟著放大約 3.6 倍，escape 預算可能就不通過——ρ 一定要從自己的基準資料估計。<strong>(c) 只適用於有 FT 覆蓋的測項：</strong>本例的 escape 只是成本問題，前提是 FT 仍覆蓋同一失效模式；若沒有，19.4 DPPM 就是直接漏給客戶的量，依 §11.7 根本不能進入 adaptive 候選池。</span>
+            <span class="en"><strong>(a) Multi-site eats the savings:</strong> the 72 ms per die above is a single-site theoretical maximum. With multi-site testing, if even one die in a touchdown runs the full flow, the whole touchdown waits for it — and zone boundaries, monitor die, and neighborhood upgrades all mix full-flow die into touchdowns. Recompute the real saving at touchdown level, and where needed align zone boundaries and monitor-die positions with the touchdown pattern. <strong>(b) ρ drives everything:</strong> this example's ρ = 0.005 is assumed; if the real ρ is 0.02, the middle zone's DEFF goes from 7.75 to about 28, the upper bound grows about 3.6×, and the escape budget may well fail — always estimate ρ from your own baseline data. <strong>(c) Only valid for items with FT coverage:</strong> the escape here is just a cost because FT still covers the same failure mode; if it didn't, the 19.4 DPPM would leak straight to the customer, and per §11.7 the item couldn't enter the adaptive pool at all.</span>
+          </p>
+        </div>
       </section>
 
       <section id="appendix">
@@ -2010,8 +2110,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:12</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:12</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:24</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:24</span>
   </footer>
 </div>
 
