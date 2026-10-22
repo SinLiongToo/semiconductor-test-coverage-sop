@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:56</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 07:37</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -437,6 +437,9 @@
               <tr><td class="mono">Redundancy Index</td><td><span class="zh">= 1 − (Incremental Fail 數／該測項總 Fail 數)，越接近 1 代表後站該測項越冗餘。</span><span class="en">= 1 − (incremental fails / total fails for that item); closer to 1 means the downstream test is more redundant.</span></td></tr>
               <tr><td class="mono">Guardband / Margin</td><td><span class="zh">量測值與 spec limit 之間的距離，常以 σ 為單位表示（距離幾個標準差）。</span><span class="en">Distance between a measured value and its spec limit, typically expressed in σ (standard deviations).</span></td></tr>
               <tr><td class="mono">Cpk / Ppk</td><td><span class="zh">製程能力指數，衡量分布相對 spec limit 的集中與偏移程度。</span><span class="en">Process capability index, measuring how tightly and centrally a distribution sits within its spec limits.</span></td></tr>
+              <tr><td class="mono">NNR / GDBN / ZPAT</td><td><span class="zh">三種空間性 outlier 篩選：NNR 比較 die 與鄰居的 parametric 值；GDBN 看 good die 周圍有多少 fail；ZPAT 把同 lot 各 wafer 依座標疊起來找重複 fail 的位置，見 §6.2(f)。</span><span class="en">Three spatial outlier screens: NNR compares a die's parametric value with its neighbors'; GDBN counts fails around a good die; ZPAT stacks a lot's wafers by coordinate to find positions that fail repeatedly — see §6.2(f).</span></td></tr>
+              <tr><td class="mono">SYL / SBL</td><td><span class="zh">Statistical Yield Limit／Statistical Bin Limit，依歷史 lot 分布訂出的 yield 下限與各 bin 比例上限，超出即觸發覆核或 Hold（參考 AEC-Q002），見 §8.1。</span><span class="en">Statistical Yield Limit / Statistical Bin Limit — a yield floor and per-bin ceilings set from the historical lot distribution; exceeding one triggers review or hold (see AEC-Q002) — see §8.1.</span></td></tr>
+              <tr><td class="mono">MRB</td><td><span class="zh">Material Review Board，負責判定異常 lot 處置（加測、放行、報廢、通知客戶）的跨部門小組。</span><span class="en">Material Review Board — the cross-functional group that dispositions abnormal lots (extra test, release, scrap, customer notification).</span></td></tr>
               <tr><td class="mono">Robust σ</td><td><span class="zh">以中位數與分位數估計的標準差（如 1.4826 × MAD、IQR／1.349），不受少數離群值影響；適合用來找異常，但不能用來誇大 Cpk 或縮小 guardband，見 §6.2(h)。</span><span class="en">A standard-deviation estimate built from the median and quantiles (e.g., 1.4826 × MAD, IQR/1.349) that a few outliers barely move; good for finding anomalies, but must not be used to inflate Cpk or shrink a guardband — see §6.2(h).</span></td></tr>
               <tr><td class="mono">PAT</td><td><span class="zh">Part Average Testing，以群體統計分布動態收緊 spec limit 的方法（參考 AEC-Q001）。</span><span class="en">Part Average Testing — dynamically tightens spec limits based on the population's statistical distribution (see AEC-Q001).</span></td></tr>
               <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
@@ -1192,6 +1195,121 @@
           </figcaption>
         </figure>
 
+        <p>
+          <span class="zh"><strong>各方法的實作細節：</strong></span>
+          <span class="en"><strong>Implementation details for each method:</strong></span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>Static PAT（SPAT）與 Dynamic PAT（DPAT）：</strong>SPAT 用多個歷史 lot 的資料算出固定 limit（robust mean ± 6 robust σ），寫進測試程式；DPAT 在每個 lot／wafer 測完後，用這批通過 SPAT 的 die 重新算一次 limit，且 DPAT limit 不得比 SPAT 寬。兩者都要用 §6.2(h) 的 robust σ，否則離群值會撐寬自己的 limit。</span>
+            <span class="en"><strong>Static PAT (SPAT) vs. Dynamic PAT (DPAT):</strong> SPAT computes fixed limits (robust mean ± 6 robust σ) from several historical lots and writes them into the test program; DPAT recomputes the limits after each lot/wafer is tested, from the die that passed SPAT, and a DPAT limit may never be wider than the SPAT one. Both must use §6.2(h)'s robust σ, or the outliers widen their own limits.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>NNR 的計算步驟：</strong></span>
+            <span class="en"><strong>NNR, step by step:</strong></span>
+            <ol>
+              <li>
+                <span class="zh"><strong>定義鄰域：</strong>常用 3 × 3（8 顆鄰居）或 5 × 5（24 顆）視窗；只用有效 parametric 值的鄰居（排除 fail、未測、partial die）。有效鄰居少於門檻（如 8 顆中少於 5 顆，示範值）時——常見於邊緣——把視窗放大到 5 × 5，仍不足就不判定，而不是用少數鄰居硬算。</span>
+                <span class="en"><strong>Define the neighborhood:</strong> typically a 3 × 3 window (8 neighbors) or 5 × 5 (24); use only neighbors with valid parametric values (exclude fails, untested, and partial die). If valid neighbors fall below a threshold (e.g., fewer than 5 of 8 — an illustrative value), as often happens at the edge, widen to 5 × 5; if still too few, don't judge that die rather than forcing a call from a handful of neighbors.</span>
+              </li>
+              <li>
+                <span class="zh"><strong>預測值：</strong>鄰居的中位數（不受單一壞鄰居影響），或依距離加權的平均。</span>
+                <span class="en"><strong>Predicted value:</strong> the median of the neighbors (immune to a single bad neighbor), or a distance-weighted mean.</span>
+              </li>
+              <li>
+                <span class="zh"><strong>殘差與標準化：</strong>算出每顆 die 的殘差，再用整片 wafer 殘差的 robust 統計量標準化；\(|z_i|\) 超過門檻 k（常見 4–6，示範範圍，應依產品與可接受 overkill 訂定）即標記。</span>
+                <span class="en"><strong>Residual and normalization:</strong> compute each die's residual, then normalize it with robust statistics of all residuals on the wafer; flag when \(|z_i|\) exceeds a threshold k (commonly 4–6 — an illustrative range; set it per product and acceptable overkill).</span>
+                <div class="formula">
+                  <div class="label"><span class="zh">NNR 殘差與 robust z</span><span class="en">NNR residual and robust z</span></div>
+                  <div class="eq">\[ e_i = x_i - \operatorname{median}_{j \in N(i)} x_j, \qquad z_i = \dfrac{e_i - \operatorname{median}(e)}{\hat{\sigma}_{\text{robust}}(e)} \]</div>
+                </div>
+              </li>
+              <li>
+                <span class="zh"><strong>先扣 site 偏移：</strong>多 site 測試時，相鄰 die 常由不同 site 測量，site 之間的 offset 會直接變成假殘差。先對每個 site 扣掉自己的中位數（或只拿同 site 的鄰居比較），再做 NNR。Trim 後的參數空間 pattern 已被拉平，NNR 應使用 trim 前的值。</span>
+                <span class="en"><strong>Remove site offsets first:</strong> with multi-site testing, adjacent die are often measured by different sites, and site-to-site offsets turn straight into false residuals. Subtract each site's own median first (or compare only against same-site neighbors) before running NNR. Post-trim values have had their spatial pattern flattened, so NNR should use pre-trim values.</span>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <span class="zh"><strong>GDBN（Good Die in Bad Neighborhood）：</strong>NNR 的 bin 版本，不需要 parametric 資料。計算一顆 good die 周圍有幾顆 fail（可加權：相鄰 1、對角 1、外圈 0.5），超過門檻（如 8 顆鄰居中 ≥ 6 顆 fail，示範值）就判為可疑。原理是缺陷常成群出現，fail 群中間的 good die 很可能帶有尚未顯現的 latent defect。</span>
+            <span class="en"><strong>GDBN (Good Die in Bad Neighborhood):</strong> the bin-based counterpart of NNR, needing no parametric data. Count how many fails surround a good die (optionally weighted: adjacent 1, diagonal 1, outer ring 0.5); above a threshold (e.g., ≥ 6 of 8 neighbors failing — illustrative), the die is suspect. The idea is that defects cluster, so a good die in the middle of a fail cluster likely carries a latent defect that hasn't shown up yet.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>ZPAT（Z-axis PAT）：</strong>把同一 lot 所有 wafer 的 bin map 依 X,Y 疊起來（Z 軸方向），若某個座標在多數 wafer 上都 fail，代表系統性問題（如 reticle 缺陷、probe card 某根針），該座標上剩下的 good die 也列為可疑。與 §11.2 的「shot 內位置」分區是同一種思維。</span>
+            <span class="en"><strong>ZPAT (Z-axis PAT):</strong> stack the bin maps of every wafer in the lot by X,Y (along the Z axis); if a coordinate fails on most wafers, the cause is systematic (e.g., a reticle defect or one probe-card needle), and the remaining good die at that coordinate are treated as suspect too. It's the same thinking as §11.2's in-shot-position zoning.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>迴歸殘差（多變量的簡化版）：</strong>用同一顆 die 的其他相關參數預測這個參數（如由 Idsat、Vth 預測 Freq），對殘差做 robust z。比 Mahalanobis 直觀、容易解釋給客戶，也是 §6.2(g) 迴歸模型的延伸。</span>
+            <span class="en"><strong>Regression residual (a simplified multivariate method):</strong> predict this parameter from other correlated parameters on the same die (e.g., Freq from Idsat and Vth) and take the robust z of the residual. More intuitive than Mahalanobis, easier to explain to customers, and an extension of §6.2(g)'s regression model.</span>
+          </li>
+        </ul>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 760 290" role="img" aria-label="NNR example: local anomaly at wafer center versus normal die inside an edge gradient">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <text x="190" y="30" text-anchor="middle" font-size="13" font-weight="600"><tspan class="zh">(a) 晶圓中心：局部異常</tspan><tspan class="en">(a) Wafer center: local anomaly</tspan></text>
+              <text x="570" y="30" text-anchor="middle" font-size="13" font-weight="600"><tspan class="zh">(b) 晶圓邊緣：梯度內的正常 die</tspan><tspan class="en">(b) Wafer edge: normal die within a gradient</tspan></text>
+              <g stroke="var(--border)" stroke-width="1.2" fill="var(--surface)">
+                <rect x="106" y="46" width="56" height="56"/><rect x="162" y="46" width="56" height="56"/><rect x="218" y="46" width="56" height="56"/>
+                <rect x="106" y="102" width="56" height="56"/><rect x="218" y="102" width="56" height="56"/>
+                <rect x="106" y="158" width="56" height="56"/><rect x="162" y="158" width="56" height="56"/><rect x="218" y="158" width="56" height="56"/>
+                <rect x="486" y="46" width="56" height="56"/><rect x="542" y="46" width="56" height="56"/><rect x="598" y="46" width="56" height="56"/>
+                <rect x="486" y="102" width="56" height="56"/><rect x="598" y="102" width="56" height="56"/>
+                <rect x="486" y="158" width="56" height="56"/><rect x="542" y="158" width="56" height="56"/><rect x="598" y="158" width="56" height="56"/>
+              </g>
+              <rect x="162" y="102" width="56" height="56" fill="var(--danger-soft)" stroke="var(--danger)" stroke-width="2"/>
+              <rect x="542" y="102" width="56" height="56" fill="var(--good-soft)" stroke="var(--good)" stroke-width="2"/>
+              <g font-family="IBM Plex Mono" font-size="14" text-anchor="middle" fill="var(--ink)">
+                <text x="134" y="79">508</text><text x="190" y="79">510</text><text x="246" y="79">512</text>
+                <text x="134" y="135">509</text><text x="190" y="135" font-weight="700" fill="var(--danger)">540</text><text x="246" y="135">513</text>
+                <text x="134" y="191">510</text><text x="190" y="191">511</text><text x="246" y="191">514</text>
+                <text x="514" y="79">594</text><text x="570" y="79">597</text><text x="626" y="79">599</text>
+                <text x="514" y="135">596</text><text x="570" y="135" font-weight="700" fill="var(--good)">598</text><text x="626" y="135">601</text>
+                <text x="514" y="191">597</text><text x="570" y="191">600</text><text x="626" y="191">603</text>
+              </g>
+              <g font-size="12" text-anchor="middle">
+                <text x="190" y="240" fill="var(--ink-soft)"><tspan class="zh">鄰居中位數 510.5 → 殘差 +29.5（≈ 9.8 robust σ）</tspan><tspan class="en">Neighbor median 510.5 → residual +29.5 (≈ 9.8 robust σ)</tspan></text>
+                <text x="190" y="260" fill="var(--danger)" font-weight="600"><tspan class="zh">NNR：標記　｜　DPAT（448–592）：通過 → 漏抓</tspan><tspan class="en">NNR: flagged  |  DPAT (448–592): passes → missed</tspan></text>
+                <text x="570" y="240" fill="var(--ink-soft)"><tspan class="zh">鄰居中位數 598 → 殘差 0</tspan><tspan class="en">Neighbor median 598 → residual 0</tspan></text>
+                <text x="570" y="260" fill="var(--warn)" font-weight="600"><tspan class="zh">NNR：正常　｜　DPAT（448–592）：標記 → 誤殺</tspan><tspan class="en">NNR: normal  |  DPAT (448–592): flagged → overkill</tspan></text>
+              </g>
+              <text x="380" y="284" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-faint)">Vth (mV) · illustrative values</text>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">同一片 wafer 上的兩個 3 × 3 鄰域（Vth，示範數字；整片 wafer 中位數 520 mV、robust σ 12 mV，DPAT limit 520 ± 6σ = 448–592 mV；殘差 robust σ 3 mV）。(a) 中心的 540 mV 在整片 wafer 看來正常，DPAT 放行，但比鄰居高出近 10 個殘差 σ——NNR 抓得到。(b) 邊緣整區偏高是製程梯度，598 mV 和鄰居一致，NNR 判正常；DPAT 只看整片分布，會把整個邊緣梯度誤殺。</span>
+            <span class="en">Two 3 × 3 neighborhoods on the same wafer (Vth, illustrative values; wafer median 520 mV, robust σ 12 mV, so DPAT limits 520 ± 6σ = 448–592 mV; residual robust σ 3 mV). (a) The 540 mV die at the center looks normal for the wafer as a whole, so DPAT passes it, but it sits almost 10 residual σ above its neighbors — NNR catches it. (b) The whole edge region reads high because of a process gradient; 598 mV agrees with its neighbors, so NNR calls it normal, while DPAT, looking only at the wafer-wide distribution, kills the whole edge gradient.</span>
+          </figcaption>
+        </figure>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">方法</span><span class="en">Method</span></th>
+              <th><span class="zh">需要的資料</span><span class="en">Data needed</span></th>
+              <th><span class="zh">抓得到</span><span class="en">Catches</span></th>
+              <th><span class="zh">弱點</span><span class="en">Weakness</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td>SPAT / DPAT</td><td><span class="zh">單一參數</span><span class="en">One parameter</span></td><td><span class="zh">偏離整批分布的 die</span><span class="en">Die far from the batch distribution</span></td><td><span class="zh">晶圓有空間梯度時漏抓中心、誤殺邊緣</span><span class="en">With a spatial gradient: misses at the center, overkill at the edge</span></td></tr>
+              <tr><td>NNR</td><td><span class="zh">單一參數 + X,Y</span><span class="en">One parameter + X,Y</span></td><td><span class="zh">與鄰居不一致的局部異常</span><span class="en">Local anomalies inconsistent with neighbors</span></td><td><span class="zh">邊緣鄰居少；site offset 造成假殘差；整片一起偏移時看不到</span><span class="en">Few neighbors at the edge; site offsets create false residuals; blind to a whole-wafer shift</span></td></tr>
+              <tr><td>GDBN</td><td><span class="zh">Bin + X,Y</span><span class="en">Bin + X,Y</span></td><td><span class="zh">fail 群中的 good die</span><span class="en">Good die inside fail clusters</span></td><td><span class="zh">只看 pass/fail，看不到參數漂移</span><span class="en">Pass/fail only; blind to parametric drift</span></td></tr>
+              <tr><td>ZPAT</td><td><span class="zh">整 lot 的 bin map</span><span class="en">Whole-lot bin maps</span></td><td><span class="zh">跨 wafer 重複出現的座標性問題</span><span class="en">Coordinate-specific problems repeating across wafers</span></td><td><span class="zh">要等整 lot 測完；單片問題看不到</span><span class="en">Needs the whole lot tested; blind to single-wafer problems</span></td></tr>
+              <tr><td><span class="zh">Mahalanobis／迴歸殘差</span><span class="en">Mahalanobis / regression residual</span></td><td><span class="zh">多個相關參數</span><span class="en">Several correlated parameters</span></td><td><span class="zh">單看每個參數都正常、組合不正常</span><span class="en">Each parameter normal alone, abnormal in combination</span></td><td><span class="zh">需要穩定的共變異矩陣；較難解釋</span><span class="en">Needs a stable covariance matrix; harder to explain</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <span class="zh"><strong>Outlier 篩選也可以是移除後站測試的 enabler：</strong>把 FT 的 Incremental Catch die 回推到 WT，看其中有多少比例在 WT 已經被 NNR／DPAT／GDBN 標記。若幾乎全部都會被標記，在 WT 導入這個 outlier 篩選，就可能取代 FT 的測項——跟 §6.2(g) 收緊 limit 是同一種交易：用 WT 的 overkill（被判退的好 die）換 FT 的 test time，兩者要放進同一個 ROI 天平。每種方法的 kill rate 都要持續追蹤，並訂出可接受上限。</span>
+          <span class="en"><strong>Outlier screening can also enable removing a downstream test:</strong> trace FT's Incremental Catch die back to WT and see what fraction was already flagged by NNR/DPAT/GDBN at WT. If nearly all of them would be flagged, adding that outlier screen at WT may replace the FT item — the same trade as §6.2(g)'s tightened limit: WT overkill (good die rejected) in exchange for FT test time, weighed on the same ROI scale. Track each method's kill rate continuously and set an acceptable ceiling.</span>
+        </p>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">Outlier 篩選的執行注意事項</span><span class="en">Operational Cautions for Outlier Screening</span></span>
+          <p>
+            <span class="zh">NNR、DPAT、GDBN、ZPAT 多半是測完後離線計算，結果要透過 map 修改（inkless map）送到封裝端——務必確認修改後的 map 真的被封裝端使用，並在 STDF／map 中保留每顆被判退 die 的原因碼。門檻 k 與鄰域定義要事先訂好並納入版本控管，不能在看到某個 lot 的結果後才調整；若用於車用產品，方法與門檻通常需要客戶同意。</span>
+            <span class="en">NNR, DPAT, GDBN, and ZPAT are mostly computed offline after testing, and their results reach assembly through a map edit (inkless map) — confirm that assembly actually uses the edited map, and keep a reason code for every rejected die in the STDF/map. Fix the threshold k and the neighborhood definition in advance under version control; never adjust them after seeing a particular lot's results. For automotive products, the methods and thresholds usually need customer agreement.</span>
+          </p>
+        </div>
+
         <h4><span class="zh">(g) 主動收緊前站 Limit（Guardbanding）作為 Enabler</span><span class="en">(g) Actively Tightening the Upstream Limit as an Enabler</span></h4>
         <p>
           <span class="zh">有時候相關性不是天生就「夠高」，但仍然可以透過<strong>收緊前站（如 WT）的測試 limit</strong>，主動換取移除後站測試的空間。原理：用迴歸模型從前站量測值推算後站預期值，再加上預測區間（prediction interval）的安全緩衝；只要收緊後的前站 limit 距離這個緩衝夠遠，通過收緊後前站測試的 die，其後站預測值就能以目標信心水準保證落在後站 spec 之內。</span>
@@ -1470,6 +1588,91 @@
             <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision.</span>
           </li>
         </ul>
+
+        <h3><span class="zh">8.1 Bin-level 觸發界限（SYL／SBL）— 及早攔截高 loss 的事故 lot</span><span class="en">8.1 Bin-Level Trigger Limits (SYL / SBL) — Catching High-Loss Incident Lots Early</span></h3>
+        <p>
+          <span class="zh">測項移除或抽測後，剩下的 bin 統計就是最早的警報器。事故 lot（excursion lot）是 loss 與 escape 最集中的地方：越早在第一片、第一個 lot 攔下來，越能減少浪費的測試時間、封裝成本，以及流到客戶端的風險。做法是對 yield 與每個重要 bin 設定統計界限（概念同 AEC-Q002 的 Statistical Yield Limit／Statistical Bin Limit），超出就觸發對應動作。</span>
+          <span class="en">Once a test is removed or sampled, the remaining bin statistics are the earliest alarm. Incident (excursion) lots are where loss and escapes concentrate: the earlier one is stopped — at the first wafer, the first lot — the less test time and packaging cost are wasted and the less reaches the customer. The approach is to set statistical limits on yield and on each important bin (the same concept as AEC-Q002's Statistical Yield Limit / Statistical Bin Limit) and trigger a defined action when one is exceeded.</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">層級</span><span class="en">Level</span></th>
+              <th><span class="zh">監控指標</span><span class="en">Metric</span></th>
+              <th><span class="zh">觸發後動作</span><span class="en">Action when triggered</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="zh"><strong>即時（測試中）</strong></span><span class="en"><strong>Real-time (during test)</strong></span></td>
+                <td><span class="zh">連續 N 顆同 bin fail、單片 wafer 某 bin 比例突增、contact／open-short bin 異常</span><span class="en">N consecutive die failing the same bin, a sudden jump in one bin on a wafer, abnormal contact/open-short bins</span></td>
+                <td><span class="zh">暫停測試，檢查 probe card／清針後重測；避免整片甚至整 lot 被錯誤判 fail</span><span class="en">Pause testing, inspect/clean the probe card and retest — so a whole wafer or lot isn't wrongly failed</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>Wafer</strong></span><span class="en"><strong>Wafer</strong></span></td>
+                <td><span class="zh">wafer yield、各 bin 比例、bin map 空間 signature（邊緣環、刮痕、群聚）</span><span class="en">Wafer yield, each bin's percentage, spatial signatures on the bin map (edge ring, scratch, clusters)</span></td>
+                <td><span class="zh">標記工程覆核；若是該 lot 前幾片，先暫停其餘 wafer 並通知製程端</span><span class="en">Flag for engineering review; if it's among the lot's first wafers, pause the rest of the lot and notify process engineering</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>Lot（SYL／SBL）</strong></span><span class="en"><strong>Lot (SYL / SBL)</strong></span></td>
+                <td><span class="zh">lot yield 低於 SYL、任一 bin 比例高於 SBL；分兩級：警告／Hold</span><span class="en">Lot yield below SYL, or any bin percentage above its SBL; two tiers: warning / hold</span></td>
+                <td><span class="zh">警告 → 工程覆核；Hold → 依下方事故 lot 處置，交 MRB 判定</span><span class="en">Warning → engineering review; Hold → incident-lot handling below, dispositioned by MRB</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>TTR 相關 bin</strong></span><span class="en"><strong>TTR-related bins</strong></span></td>
+                <td><span class="zh">與已移除／抽測測項同一失效模式或高相關的 bin</span><span class="en">Bins sharing a failure mode with, or highly correlated to, a removed/sampled item</span></td>
+                <td><span class="zh">用比一般 bin 更緊的界限；超出即觸發 Phase 6 回退，恢復 100% 測試</span><span class="en">Use tighter limits than ordinary bins; exceeding them triggers the Phase 6 rollback to 100% testing</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <span class="zh"><strong>界限怎麼算：</strong>用歷史 lot 的實際分布，而且要用 robust 統計量——歷史資料裡本來就含有過去的事故 lot，用 classical σ 會把界限撐寬，讓下一次事故躲在界限內（與 §6.2(h) 的 masking effect 相同）：</span>
+          <span class="en"><strong>How to compute the limits:</strong> use the real distribution of historical lots, with robust statistics — the history already contains past incident lots, and classical σ would widen the limits enough for the next incident to hide inside them (the same masking effect as §6.2(h)):</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">統計 Bin／Yield 界限</span><span class="en">Statistical bin / yield limits</span></div>
+          <div class="eq">\[ \text{SBL}_b = \operatorname{median}(\text{bin}\%_b) + k\,\hat{\sigma}_{\text{robust}}(\text{bin}\%_b) \qquad \text{SYL} = \operatorname{median}(Y) - k\,\hat{\sigma}_{\text{robust}}(Y) \]</div>
+          <div class="note">
+            <span class="zh">\(\hat{\sigma}_{\text{robust}}\) 取的是 <strong>lot 與 lot 之間</strong>的變異，不是單一 lot 內的二項分布變異。k 常見做法是警告級 3、Hold 級 4（示範值，應依產品歷史誤報率與 loss 成本訂定）。歷史資料量建議至少涵蓋數十個 lot，並定期（如每季）重算。</span>
+            <span class="en">\(\hat{\sigma}_{\text{robust}}\) is the <strong>lot-to-lot</strong> variation, not the binomial variation within a single lot. A common choice is k = 3 for warning and 4 for hold (illustrative — set them from the product's historical false-alarm rate and loss cost). The history should cover at least a few dozen lots and be recomputed periodically (e.g., quarterly).</span>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">不要直接用二項分布（p-chart）算界限</span><span class="en">Don't Compute the Limits Straight from the Binomial (p-chart)</span></span>
+          <p>
+            <span class="zh">示範：某 bin 平均 0.5%，每 lot 50,000 顆。二項分布的 3σ 只有 \(3\sqrt{0.005 \times 0.995 / 50000} \approx 0.095\%\)，界限 ≈ 0.595%；但實際 lot 與 lot 之間的 robust σ 可能是 0.15%，經驗界限 ≈ 0.5% + 3 × 0.15% = 0.95%。用二項界限的話，大量正常 lot 都會被判超標，警報很快就沒人理會——lot 間變異遠大於二項分布假設（overdispersion）。極少出現的 killer bin（如 open-short、ESD 類）則改用次數界限：假設平均每 lot 2 顆（Poisson λ = 2），一個 lot 出現 ≥ 9 顆的機率只有約 0.02%，可設為 Hold 門檻（示範數字）。</span>
+            <span class="en">Illustration: a bin averaging 0.5%, 50,000 die per lot. The binomial 3σ is only \(3\sqrt{0.005 \times 0.995 / 50000} \approx 0.095\%\), giving a limit ≈ 0.595%; but the real lot-to-lot robust σ might be 0.15%, giving an empirical limit ≈ 0.5% + 3 × 0.15% = 0.95%. With the binomial limit, many normal lots would trip it and the alarm would soon be ignored — lot-to-lot variation far exceeds the binomial assumption (overdispersion). For rare killer bins (e.g., open-short or ESD-type), use a count limit instead: if a lot averages 2 such die (Poisson λ = 2), the chance of ≥ 9 in one lot is only about 0.02%, which makes a reasonable hold threshold (illustrative numbers).</span>
+          </p>
+        </div>
+        <p>
+          <span class="zh"><strong>事故 lot 的處置：</strong></span>
+          <span class="en"><strong>Handling an incident lot:</strong></span>
+        </p>
+        <ol>
+          <li>
+            <span class="zh"><strong>Hold 並交 MRB：</strong>由 Material Review Board 判定——加測、加嚴 PAT／NNR 篩選後放行、報廢，或通知客戶後放行。</span>
+            <span class="en"><strong>Hold and send to MRB:</strong> the Material Review Board decides — extra testing, release after tightened PAT/NNR screening, scrap, or release with customer notification.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>恢復完整覆蓋：</strong>該 lot 所有已移除／抽測的測項恢復 100% 測試，§11 的 adaptive flow 也關閉（見下方紅框）。</span>
+            <span class="en"><strong>Restore full coverage:</strong> every removed/sampled item goes back to 100% testing for that lot, and §11's adaptive flow is switched off (see the red box below).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>擴大圍堵到 sister lot：</strong>查出同一時段經過同一機台、同一批材料的其他 lot，在它們進入測試或出貨前先套用同樣的檢查——事故往往不只一個 lot。</span>
+            <span class="en"><strong>Extend containment to sister lots:</strong> find other lots that went through the same tool, period, or material batch, and apply the same checks before they're tested or shipped — an incident rarely affects only one lot.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>回寫 Phase 3：</strong>把事故 lot 上恢復測試的結果另外統計 Incremental Catch。冗餘性只在正常 lot 上被證明過是不夠的；若事故 lot 上出現了被移除測項的 Incremental Catch，該測項的 TTR 決策要重新評估。</span>
+            <span class="en"><strong>Feed back into Phase 3:</strong> count Incremental Catch separately on the restored tests of incident lots. Redundancy proven only on normal lots isn't enough; if a removed item shows Incremental Catch on an incident lot, its TTR decision must be re-evaluated.</span>
+          </li>
+        </ol>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">事故 lot 一律恢復完整測試</span><span class="en">Incident Lots Always Get the Full Test Back</span></span>
+          <p>
+            <span class="zh">TTR 的統計證據是在「製程正常」的條件下建立的：相關性、margin、分區良率都假設製程在基準範圍內。事故 lot 正好打破這個前提——製程異常時，兩站的相關性可能崩掉，平常冗餘的測項可能突然變成唯一抓得到問題的那一個。因此觸發 Hold 的 lot，不論 Phase 3 的證據多強，都必須恢復所有已移除／抽測的測項並關閉 adaptive flow，直到 MRB 結案。</span>
+            <span class="en">TTR's statistical evidence was built under a normal process: correlations, margins, and zonal yields all assume the process is within its baseline. An incident lot breaks exactly that assumption — under a process excursion, cross-stage correlation can collapse, and a normally redundant item can suddenly become the only one that catches the problem. So any lot that triggers a hold must have every removed/sampled item restored and the adaptive flow switched off until the MRB closes it, no matter how strong the Phase 3 evidence is.</span>
+          </p>
+        </div>
       </section>
 
       <section id="phase6">
@@ -1480,8 +1683,8 @@
             <span class="en">No anomalies during the pilot → file a formal ECN / test flow change, attaching the Phase 3 statistical evidence (Bin-level table + Parameter-level charts), the Phase 5 pilot record, and the designer-review sign-off and FMEA RPN result that Phase 4 required — this is the same standard test-program release process Phase 4 §7 established, not a separate approval track.</span>
           </li>
           <li>
-            <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件），一旦觸發即自動恢復該測項，不需重新走完整審核流程；「客戶端出現對應 fail mode」的具體查證程序見 Phase 7。</span>
-            <span class="en">Maintain a list of rollback trigger conditions (e.g., the corresponding fail mode appears in the field, an SPC control chart goes out of limits, a yield excursion), so hitting any of them automatically restores the test without a full re-approval cycle; see Phase 7 for the concrete verification procedure behind "the corresponding fail mode appears in the field."</span>
+            <span class="zh">建立「回退觸發條件」清單（如：客戶端出現對應 fail mode、SPC 管制圖超出管制界線、良率異常事件——見 §8.1 Bin-level 觸發界限），一旦觸發即自動恢復該測項，不需重新走完整審核流程；「客戶端出現對應 fail mode」的具體查證程序見 Phase 7。</span>
+            <span class="en">Maintain a list of rollback trigger conditions (e.g., the corresponding fail mode appears in the field, an SPC control chart goes out of limits, a yield excursion — see §8.1's bin-level trigger limits), so hitting any of them automatically restores the test without a full re-approval cycle; see Phase 7 for the concrete verification procedure behind "the corresponding fail mode appears in the field."</span>
           </li>
           <li>
             <span class="zh">所有決策需留存於變更歷史紀錄（見附錄範本），供未來稽核與新進工程師追溯決策脈絡。</span>
@@ -1843,8 +2046,8 @@
             <span class="en"><strong>Neighborhood upgrade:</strong> if an already-probed neighboring die failed (Good Die in Bad Neighborhood — see §6.2(f) NNR), this die is automatically upgraded to the full flow; the reduced flow only runs where the neighborhood is clean.</span>
           </li>
           <li>
-            <span class="zh"><strong>即時切回全測：</strong>以下任一發生，該 wafer 剩餘部分（嚴重時整個 lot）自動切回完整 flow 並記錄原因：monitor die 在被 skip 的測項上 fail、zonal yield 低於基準下限、連續 fail 或 contact 異常、更換 probe card／tester、PAT outlier 數超標。</span>
-            <span class="en"><strong>Real-time switch back to full test:</strong> if any of these occur, the rest of the wafer (or the whole lot, if serious) automatically reverts to the full flow and the reason is logged: a monitor die fails a skipped item, zonal yield drops below the baseline lower limit, consecutive fails or contact anomalies, a probe-card/tester change, or the PAT outlier count exceeds its limit.</span>
+            <span class="zh"><strong>即時切回全測：</strong>以下任一發生，該 wafer 剩餘部分（嚴重時整個 lot）自動切回完整 flow 並記錄原因：monitor die 在被 skip 的測項上 fail、zonal yield 低於基準下限、連續 fail 或 contact 異常、更換 probe card／tester、PAT outlier 數超標；lot 觸發 §8.1 的 Hold 時，整個 lot 一律跑完整 flow。</span>
+            <span class="en"><strong>Real-time switch back to full test:</strong> if any of these occur, the rest of the wafer (or the whole lot, if serious) automatically reverts to the full flow and the reason is logged: a monitor die fails a skipped item, zonal yield drops below the baseline lower limit, consecutive fails or contact anomalies, a probe-card/tester change, or the PAT outlier count exceeds its limit. A lot that triggers an §8.1 hold runs entirely on the full flow.</span>
           </li>
           <li>
             <span class="zh"><strong>逐顆記錄 flow：</strong>每顆 die 都要在 STDF 記錄它跑的是哪個 flow（full／reduced／monitor）、所屬分區與 adaptive 規則版本，Phase 7 收到客訴時才能回答「這顆 die 當初有沒有被 skip 這個測項」。</span>
@@ -2140,6 +2343,14 @@
           <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
         </div>
         <div class="formula">
+          <div class="label"><span class="zh">NNR 殘差與 robust z</span><span class="en">NNR residual and robust z</span></div>
+          <div class="eq">\[ e_i = x_i - \operatorname{median}_{j \in N(i)} x_j, \qquad z_i = \dfrac{e_i - \operatorname{median}(e)}{\hat{\sigma}_{\text{robust}}(e)} \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">統計 Bin／Yield 界限</span><span class="en">Statistical bin / yield limits</span></div>
+          <div class="eq">\[ \text{SBL}_b = \operatorname{median}(\text{bin}\%_b) + k\,\hat{\sigma}_{\text{robust}} \qquad \text{SYL} = \operatorname{median}(Y) - k\,\hat{\sigma}_{\text{robust}} \]</div>
+        </div>
+        <div class="formula">
           <div class="label"><span class="zh">Robust σ（MAD／IQR）</span><span class="en">Robust σ (MAD / IQR)</span></div>
           <div class="eq">\[ \hat{\sigma}_{\text{MAD}} = 1.4826 \cdot \operatorname{median}\bigl(|x_i - \tilde{x}|\bigr) \qquad \hat{\sigma}_{\text{IQR}} = \dfrac{Q_3 - Q_1}{1.349} \]</div>
         </div>
@@ -2179,6 +2390,7 @@
           <li><span class="zh">ITRS／IRDS「Test and Test Equipment」章節 — 業界路線圖對 adaptive test（feed-forward、in-situ、feed-back 等型態）的概念說明。</span><span class="en">ITRS/IRDS "Test and Test Equipment" chapter — the industry roadmap's description of adaptive test concepts (feed-forward, in-situ, feed-back, etc.).</span></li>
           <li>Rousseeuw, P. J. &amp; Croux, C. (1993), "Alternatives to the Median Absolute Deviation," <em>Journal of the American Statistical Association</em> — <span class="zh">MAD 等 robust 尺度估計的效率與一致性常數。</span><span class="en">efficiency and consistency constants for MAD and related robust scale estimators.</span></li>
           <li><span class="zh">ISO 22514 系列 — 製程能力與績效統計方法，含非常態分布的分位數（percentile）法 Cpk。</span><span class="en">ISO 22514 series — statistical methods for process capability and performance, including the percentile method for Cpk on non-normal distributions.</span></li>
+          <li><span class="zh">AEC-Q002 — Guidelines for Statistical Yield Analysis，以統計 yield／bin 界限（SYL／SBL）辨識異常 lot 的參考方法。</span><span class="en">AEC-Q002 — Guidelines for Statistical Yield Analysis; a reference method for identifying abnormal lots with statistical yield/bin limits (SYL/SBL).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
       </section>
@@ -2187,8 +2399,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:56</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:56</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 07:37</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 07:37</span>
   </footer>
 </div>
 
