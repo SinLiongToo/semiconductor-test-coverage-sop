@@ -11,6 +11,7 @@
   - **Phase 1–2**：測試對應矩陣（Test Mapping Matrix）、STDF 資料萃取與 die-level 追溯
   - **Phase 3 統計分析**：Bin-level（屬性資料）、Parameter-level（變數資料）、溫度 Corner 線性（TC 模型）三條證據線，含樣本數公式與推導依據
   - **Phase 4–6**：風險分級（Tier A/B/C）、Pilot 導入與 SPC 監控、正式變更與回退機制
+  - **§11 WT 自適應測試（Adaptive Test）**：產品成熟度分類（NPI／Ramp／Mature）、分區良率與 bin Pareto、CQC 位置鎖定區、sentinel wafer／monitor die 執行機制與 escape 預算
   - 附錄：可直接複製到 Excel 的範本欄位（測試對應矩陣、決策紀錄）、公式參考卡、延伸標準
 
 ## 怎麼用

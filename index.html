@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-09-17 08:06</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:04</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -373,7 +373,8 @@
       <li><a href="#phase5"><span class="zh">8 · Phase 5 Pilot 導入與監控</span><span class="en">8 · Phase 5 Pilot Rollout &amp; Monitoring</span></a></li>
       <li><a href="#phase6"><span class="zh">9 · Phase 6 正式變更與回退</span><span class="en">9 · Phase 6 Formal Change &amp; Rollback</span></a></li>
       <li><a href="#phase7"><span class="zh">10 · Phase 7（Optional）客訴查證</span><span class="en">10 · Phase 7 (Optional) Complaint Verification</span></a></li>
-      <li><a href="#appendix"><span class="zh">11 · 附錄</span><span class="en">11 · Appendix</span></a></li>
+      <li><a href="#adaptive"><span class="zh">11 · WT 自適應測試</span><span class="en">11 · WT Adaptive Test</span></a></li>
+      <li><a href="#appendix"><span class="zh">12 · 附錄</span><span class="en">12 · Appendix</span></a></li>
     </ol>
   </details>
 
@@ -393,7 +394,8 @@
         <li><a href="#phase5"><span class="zh">8 · Pilot 導入與監控</span><span class="en">8 · Pilot &amp; Monitoring</span></a></li>
         <li><a href="#phase6"><span class="zh">9 · 正式變更與回退</span><span class="en">9 · Change &amp; Rollback</span></a></li>
         <li><a href="#phase7"><span class="zh">10 · 客訴查證（Optional）</span><span class="en">10 · Complaint Verification (Optional)</span></a></li>
-        <li><a href="#appendix"><span class="zh">11 · 附錄</span><span class="en">11 · Appendix</span></a></li>
+        <li><a href="#adaptive"><span class="zh">11 · 自適應測試</span><span class="en">11 · Adaptive Test</span></a></li>
+        <li><a href="#appendix"><span class="zh">12 · 附錄</span><span class="en">12 · Appendix</span></a></li>
       </ol>
     </nav>
 
@@ -449,6 +451,9 @@
               <tr><td class="mono">VHV / VLV</td><td><span class="zh">Voltage High／Voltage Low，數位邏輯電路常用的高／低電壓應力測試條件，用來在不過度應力損壞良品的前提下激發 latent defect；合適範圍與電路本身的時序、漏電行為相關，應由設計端協助訂定。</span><span class="en">Voltage High / Voltage Low — high/low voltage stress test conditions commonly used for digital logic circuits, meant to excite latent defects without overstressing good units; the appropriate range depends on the circuit's own timing and leakage behavior and should be set with designer input.</span></td></tr>
               <tr><td class="mono">Vmax / Vmin / Stress duration</td><td><span class="zh">應力測試的電壓上下限與持續時間，應對應到正式的應力／篩選規格文件（如 burn-in spec），而不是由測試工程憑經驗設定的數字。</span><span class="en">The upper/lower voltage bounds and duration of a stress test; these should trace to a formal stress/screening spec (e.g., a burn-in spec), not numbers set from test-engineering experience alone.</span></td></tr>
               <tr><td class="mono">Bump crack / Die crack</td><td><span class="zh">封裝／組裝過程或後續應力造成的機械性裂紋——bump crack 發生在銲球／凸塊接點，die crack 發生在晶粒本體。兩者常見於溫度循環、掉落測試等可靠度應力後才顯現，根因調查與驗證屬於封裝可靠度工程範疇，不在本 SOP 範圍內（見 §10）。</span><span class="en">Mechanical cracks from assembly/packaging or subsequent stress — a bump crack occurs at a solder-bump/bond joint, a die crack in the die body itself. Both often only surface after reliability stress (temperature cycling, drop test); root-cause investigation and requalification are package reliability engineering's domain, outside this SOP's scope (see §10).</span></td></tr>
+              <tr><td class="mono">Adaptive Test</td><td><span class="zh">依產品成熟度、晶圓區域、前段 wafer 結果等證據，對不同 wafer／die 動態套用不同測試內容（完整 flow 或精簡 flow）的測試策略，見 §11。</span><span class="en">A test strategy that dynamically applies different test content (full or reduced flow) to different wafers/die based on evidence such as product maturity, wafer zone, and results from earlier wafers — see §11.</span></td></tr>
+              <tr><td class="mono">Zonal Yield / Bin Pareto</td><td><span class="zh">把晶圓依位置切成分區（如中心／中間／邊緣）分別計算的良率；bin Pareto 是把 fail 依 bin 由多到少排序，找出佔大宗的失效類別。</span><span class="en">Yield computed separately for each wafer region (e.g., center/middle/edge); a bin Pareto ranks fails by bin from most to least frequent to show which failure categories dominate.</span></td></tr>
+              <tr><td class="mono">Sentinel wafer / Monitor die</td><td><span class="zh">Adaptive test 中刻意保留完整 flow 的 wafer（每 lot 幾片）與 die（每個精簡區幾顆），用來確認基準仍成立並持續提供被 skip 測項的資料。</span><span class="en">Wafers (a few per lot) and die (a few per reduced zone) deliberately kept on the full flow in adaptive test, to confirm the baseline still holds and keep supplying data on the skipped items.</span></td></tr>
               <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
           </table>
@@ -458,8 +463,8 @@
       <section id="overview">
         <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
         <p>
-          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要（或只需少量）資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性、數位 fault coverage 與應力條件查證），先擋掉不該評估、或地基本身就有破洞的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。</span>
-          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need little to no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity, digital fault-coverage and stress-condition verification) to screen out candidates that should never be evaluated, or whose foundation already has a hole; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10.</span>
+          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要（或只需少量）資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性、數位 fault coverage 與應力條件查證），先擋掉不該評估、或地基本身就有破洞的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。§11 的 WT 自適應測試（Adaptive Test）不是新的 Phase，而是 Phase 4「抽測」決策在 WT 依晶圓區域與產品成熟度的精細化執行方式。</span>
+          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need little to no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity, digital fault-coverage and stress-condition verification) to screen out candidates that should never be evaluated, or whose foundation already has a hole; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10. §11's WT Adaptive Test isn't a new phase; it's a finer-grained way of executing Phase 4's "sample" decision at WT, by wafer zone and product maturity.</span>
         </p>
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
@@ -701,8 +706,8 @@
           <div class="label"><span class="zh">σ 的信賴區間（卡方分布）</span><span class="en">Confidence interval for σ (chi-square distribution)</span></div>
           <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
           <div class="note">
-            <span class="zh">「反查」的做法：先定義可接受的精確度（例如希望有 90% 信心，估出的 s 落在真實 σ 的 ±25% 以內），再從小的 n 開始代入上式檢查，找到第一個滿足精確度需求的 n —— 這正是 Gauge R&amp;R、Cpk 信賴區間等方法回答「重複量測要做幾次」的標準做法，也和 §6.2(d)／§11.3 統計容忍區間的 k-factor 查表背後是同一套數學（k-factor 本身就是從 t 分布與卡方分布組合推導出來的）。實務上多半直接用統計軟體或查表求解，不需要手動反解。</span>
-            <span class="en">The "reverse" approach: define the acceptable precision first (e.g., 90% confidence that the estimated s falls within ±25% of the true σ), then plug in increasing n until this inequality is satisfied — that's the standard way Gauge R&amp;R studies, Cpk confidence intervals, and similar methods answer "how many repeat measurements do I need?" It shares the same underlying math as the §6.2(d)/§11.3 statistical-tolerance-interval k-factor tables (those k-factors are themselves derived by combining the t-distribution with the chi-square distribution). In practice this is solved with statistical software or lookup tables rather than by hand.</span>
+            <span class="zh">「反查」的做法：先定義可接受的精確度（例如希望有 90% 信心，估出的 s 落在真實 σ 的 ±25% 以內），再從小的 n 開始代入上式檢查，找到第一個滿足精確度需求的 n —— 這正是 Gauge R&amp;R、Cpk 信賴區間等方法回答「重複量測要做幾次」的標準做法，也和 §6.2(d)／§12.3 統計容忍區間的 k-factor 查表背後是同一套數學（k-factor 本身就是從 t 分布與卡方分布組合推導出來的）。實務上多半直接用統計軟體或查表求解，不需要手動反解。</span>
+            <span class="en">The "reverse" approach: define the acceptable precision first (e.g., 90% confidence that the estimated s falls within ±25% of the true σ), then plug in increasing n until this inequality is satisfied — that's the standard way Gauge R&amp;R studies, Cpk confidence intervals, and similar methods answer "how many repeat measurements do I need?" It shares the same underlying math as the §6.2(d)/§12.3 statistical-tolerance-interval k-factor tables (those k-factors are themselves derived by combining the t-distribution with the chi-square distribution). In practice this is solved with statistical software or lookup tables rather than by hand.</span>
           </div>
         </div>
 
@@ -1382,8 +1387,8 @@
         </p>
         <ul>
           <li>
-            <span class="zh"><strong>Skip-lot / Skip-test：</strong>先以固定比例（如 1-in-N）抽測取代全測，而非直接關閉，觀察 3–6 個月的實際 escape 狀況。</span>
-            <span class="en"><strong>Skip-lot / Skip-test:</strong> Replace full testing with a fixed sampling ratio (e.g., 1-in-N) first, rather than switching the test off outright, and observe actual escape behavior for 3–6 months.</span>
+            <span class="zh"><strong>Skip-lot / Skip-test：</strong>先以固定比例（如 1-in-N）抽測取代全測，而非直接關閉，觀察 3–6 個月的實際 escape 狀況。若要在 WT 依晶圓區域做 die-level 的抽測，見 §11 Adaptive Test。</span>
+            <span class="en"><strong>Skip-lot / Skip-test:</strong> Replace full testing with a fixed sampling ratio (e.g., 1-in-N) first, rather than switching the test off outright, and observe actual escape behavior for 3–6 months. For die-level sampling by wafer zone at WT, see §11 Adaptive Test.</span>
           </li>
           <li>
             <span class="zh"><strong>SPC 監控：</strong>對該測項的 margin／Cpk 建立管制圖，設定觸發線；一旦趨勢異常，自動恢復 100% 測試。若該測項是透過 §6.2(g) 收緊前站 limit 才核准移除，<strong>PCM／WAT 與此參數的相關性監控為必要項目</strong>，不是選配 —— 製程層級的變異通常會先反映在 PCM/WAT，而不是等到 WT/FT 資料才看得出來。</span>
@@ -1426,8 +1431,8 @@
             <span class="en"><strong>CQC intake:</strong> extract the associated fail mode / electrical parameter / bin from the complaint.</span>
           </li>
           <li>
-            <span class="zh"><strong>比對決策紀錄：</strong>用該參數查詢 §11.2 的決策紀錄（Risk &amp; Decision Log）—— 這個測項目前是「保留」「抽測」還是「已移除」？</span>
-            <span class="en"><strong>Cross-check the decision log:</strong> look up that parameter in the §11.2 Risk &amp; Decision Log — is this test item currently "kept," "sampled," or "removed"?</span>
+            <span class="zh"><strong>比對決策紀錄：</strong>用該參數查詢 §12.2 的決策紀錄（Risk &amp; Decision Log）—— 這個測項目前是「保留」「抽測」還是「已移除」？</span>
+            <span class="en"><strong>Cross-check the decision log:</strong> look up that parameter in the §12.2 Risk &amp; Decision Log — is this test item currently "kept," "sampled," or "removed"?</span>
           </li>
           <li>
             <span class="zh"><strong>若為已移除或抽測 →</strong> 立即觸發 Phase 6 的回退條件，恢復 100% 測試，不等待正式審核流程；根因調查與統計覆核可以並行進行，不應拖延恢復覆蓋的時間。</span>
@@ -1480,10 +1485,217 @@
         </div>
       </section>
 
-      <section id="appendix">
-        <h2><span class="num">11</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+      <section id="adaptive">
+        <h2><span class="num">11</span><span class="zh">WT 自適應測試（Adaptive Test）— 依晶圓區域與產品成熟度動態調整</span><span class="en">WT Adaptive Test — Adjusting Test Content by Wafer Zone &amp; Product Maturity</span></h2>
+        <p class="lead">
+          <span class="zh">Phase 4 的「抽測／移除」是對整個母體的靜態決策——同一個測項對每顆 die 一視同仁。Adaptive Test 則是在 WT 依據證據（產品成熟度、晶圓區域良率與 bin Pareto、客訴歷史位置、同 lot 前段 wafer 的結果）對不同 wafer、不同區域的 die 套用不同的測試內容：證據顯示低風險的區域跑精簡 flow 節省 test time 與成本，高風險區域維持全測。核心原則：<strong>Adaptive Test 只能把測試從「有證據證明低風險」的 die 身上拿掉，不能把風險平均攤到整片 wafer 上</strong>。</span>
+          <span class="en">Phase 4's "sample/remove" is a static, whole-population decision — every die is treated the same for a given item. Adaptive Test instead uses evidence at WT (product maturity, zonal yield and bin Pareto, the wafer locations of past customer complaints, results from earlier wafers in the same lot) to apply different test content to different wafers and different regions of a wafer: regions the evidence shows are low-risk run a reduced flow to save test time and cost, high-risk regions keep the full flow. Core principle: <strong>Adaptive Test may only take tests away from die that evidence shows are low-risk — it must never spread the risk evenly across the whole wafer</strong>.</span>
+        </p>
+        <div class="callout">
+          <span class="tag"><span class="zh">與 Phase 0–7 的關係</span><span class="en">How This Relates to Phase 0–7</span></span>
+          <p>
+            <span class="zh">Adaptive Test 不是另一套獨立流程，而是 Phase 4「抽測」決策在 WT 的精細化執行方式。一個測項要進入 adaptive 候選池，必須先通過 Phase 0 硬性守則與 Phase 3 統計證據，並落在 Phase 4 允許抽測的 Tier（B／C）——<strong>Tier A 測項不進入 adaptive 候選池</strong>。導入時一樣走 Phase 5 pilot、Phase 6 正式變更與回退，客訴時一樣由 Phase 7 查證。Adaptive 規則本身（分區定義、門檻、切換邏輯）就是測試程式的一部分，必須走 Phase 4 的標準 release 流程並納入版本控管。</span>
+            <span class="en">Adaptive Test isn't a separate process — it's a finer-grained way of executing Phase 4's "sample" decision at WT. To enter the adaptive candidate pool, an item must first pass the Phase 0 hard gates and the Phase 3 statistical evidence, and fall in a Tier that Phase 4 allows to be sampled (B/C) — <strong>Tier A items never enter the adaptive pool</strong>. Rollout still goes through the Phase 5 pilot and Phase 6 formal change and rollback, and complaints are still verified through Phase 7. The adaptive rule set itself (zone definitions, thresholds, switching logic) is part of the test program and must go through Phase 4's standard release process under version control.</span>
+          </p>
+        </div>
 
-        <h3><span class="zh">11.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">11.1 Template Fields — Test Mapping Table</span></h3>
+        <h3><span class="zh">11.1 產品成熟度分類 — 先決定「能不能 adapt」</span><span class="en">11.1 Product Maturity Classification — Deciding Whether to Adapt at All</span></h3>
+        <p>
+          <span class="zh">分區分析需要足夠的基準資料；新產品既沒有資料，失效模式也還沒被摸清楚，所以成熟度是 adaptive 的第一道閘門。下表門檻為建議起點，應依產品與客戶要求調整並寫進決策紀錄：</span>
+          <span class="en">Zonal analysis needs enough baseline data; a new product has neither the data nor a well-understood set of failure modes, so maturity is the first gate for adaptive test. The thresholds below are suggested starting points — adjust them to the product and customer requirements and record them in the decision log:</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">類別</span><span class="en">Category</span></th>
+              <th><span class="zh">建議判定條件</span><span class="en">Suggested criteria</span></th>
+              <th><span class="zh">Adaptive 策略</span><span class="en">Adaptive policy</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="pill danger"><span class="zh">新產品（NPI）</span><span class="en">New product (NPI)</span></span></td>
+                <td><span class="zh">基準資料量不足（如 &lt; 30 lots）、主要參數 Cpk 尚未穩定，或測試程式仍在頻繁修改</span><span class="en">Insufficient baseline data (e.g., &lt; 30 lots), key-parameter Cpk not yet stable, or the test program still changing frequently</span></td>
+                <td><span class="zh">禁止 adaptive。100% 全測，並以 continue-on-fail 收集完整資料——這批資料就是之後分區分析的基準。</span><span class="en">No adaptive test. Run 100% full test with continue-on-fail to collect complete data — this data becomes the baseline for later zonal analysis.</span></td>
+              </tr>
+              <tr>
+                <td><span class="pill warn"><span class="zh">量產爬坡（Ramp）</span><span class="en">Ramp</span></span></td>
+                <td><span class="zh">已有基準資料、良率趨穩，但穩定量產未滿 6 個月，或近期有製程／測試程式變更</span><span class="en">Baseline exists and yield is settling, but stable production is under 6 months, or there was a recent process/test-program change</span></td>
+                <td><span class="zh">只允許 wafer-level adaptive（§11.4 的 sentinel wafer 全測，其餘 wafer 依結果決定全測或精簡）；不做 die-level 分區 skip。</span><span class="en">Wafer-level adaptive only (§11.4 sentinel wafers run full test; remaining wafers go full or reduced based on the result); no die-level zonal skipping.</span></td>
+              </tr>
+              <tr>
+                <td><span class="pill good"><span class="zh">成熟產品（Mature）</span><span class="en">Mature</span></span></td>
+                <td><span class="zh">穩定量產 ≥ 6–12 個月、主要參數 Cpk ≥ 1.33 且穩定、近 12 個月無相關 CQC、無未結的製程變更</span><span class="en">≥ 6–12 months of stable production, key-parameter Cpk ≥ 1.33 and stable, no related CQC in the trailing 12 months, no open process changes</span></td>
+                <td><span class="zh">可導入 die-level 分區 adaptive（§11.2–11.4）。</span><span class="en">Die-level zonal adaptive test may be introduced (§11.2–11.4).</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <span class="zh"><strong>成熟度不是永久標籤：</strong>製程變更（PCN）、換 fab、換 probe card 類型或測試平台、良率 excursion、出現相關 CQC，任一事件發生即自動降級回 Ramp（嚴重時回 NPI），重新累積基準資料後才能再升級。</span>
+          <span class="en"><strong>Maturity isn't a permanent label:</strong> a process change (PCN), a fab change, a new probe-card type or test platform, a yield excursion, or a related CQC each automatically demote the product back to Ramp (or to NPI if serious); it can only be promoted again after rebuilding baseline data.</span>
+        </p>
+
+        <h3><span class="zh">11.2 Zonal Yield 與 Bin Pareto — 找出「哪裡可以省」</span><span class="en">11.2 Zonal Yield &amp; Bin Pareto — Finding Where to Save</span></h3>
+        <ul>
+          <li>
+            <span class="zh"><strong>事先定義分區：</strong>常見做法是依半徑切成中心／中間／邊緣三個同心環（邊緣環通常是最外 1–2 圈 die 或依半徑百分比），必要時再加 notch 附近或 reticle shot 內位置。分區定義要在看資料之前訂好並納入版本控管——看完資料再「畫」出最好看的分區，等於在雜訊裡找規律（overfitting）。</span>
+            <span class="en"><strong>Define zones up front:</strong> the common approach is three concentric rings by radius — center / middle / edge (the edge ring is usually the outermost 1–2 rows of die, or a radius percentage) — optionally adding the notch area or position within the reticle shot. Fix the zone definition before looking at the data and put it under version control; drawing the best-looking zones after seeing the data is finding patterns in noise (overfitting).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>逐區、逐測項統計：</strong>每個分區分別計算 zonal yield、各測項的 fail rate，以及該測項的 incremental catch（只有它抓到、其他測項都沒抓到的 fail）。典型結果是邊緣區 fail rate 較高、Pareto 也不同（膜厚、蝕刻、微影的邊緣效應），中心區則乾淨得多——這正是分區省時的空間。</span>
+            <span class="en"><strong>Statistics per zone, per item:</strong> for each zone separately, compute zonal yield, each item's fail rate, and its incremental catch (fails only that item caught). The typical result is a higher fail rate and a different Pareto at the edge (film thickness, etch, and litho edge effects), with a much cleaner center — that difference is exactly where zonal savings come from.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Bin Pareto 判讀：</strong>在某分區佔 fail 大宗（如累計前 80%）的 bin 對應測項，就是該區的主要攔截者，維持全測；在該區 incremental catch 為零、且樣本數足夠的測項，才是該區的 skip 候選。樣本數要<strong>逐區</strong>計算（§6.1 的 zero-failure 公式套用在單一分區的 die 數上），不能用整片 wafer 的總數——小分區通常要累積更多 lot 才夠。</span>
+            <span class="en"><strong>Reading the bin Pareto:</strong> items behind the bins that make up most of a zone's fails (e.g., the top 80% cumulative) are that zone's main catchers — keep them on full test. Only items with zero incremental catch in that zone, backed by enough samples, are skip candidates there. Compute the sample size <strong>per zone</strong> (apply §6.1's zero-failure formula to that zone's die count alone), not from the whole-wafer total — small zones usually need more lots accumulated.</span>
+          </li>
+        </ul>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">Pareto 排名低 ≠ 不重要；stop-on-fail 會讓 Pareto 失真</span><span class="en">Low Pareto Rank ≠ Unimportant; Stop-on-Fail Distorts the Pareto</span></span>
+          <p>
+            <span class="zh">Pareto 衡量的是「頻率」，不是「嚴重度」：一個很少 fail 的測項，可能是某個罕見但致命失效模式的唯一攔截者，排名低不代表可以省——一律要對照 FMEA 的 Severity 與 Phase 0 §3.2 零覆蓋守則。另外，若基準資料是 stop-on-fail 收的，排在 flow 後段的測項會因為 die 已在前面 fail 而沒被執行，fail 數被系統性低估；分區 Pareto 的基準資料應以 continue-on-fail 收集（這也是 NPI 階段要求 continue-on-fail 的原因）。</span>
+            <span class="en">A Pareto measures frequency, not severity: an item that rarely fails may be the only catcher of a rare but critical failure mode, so a low rank doesn't make it skippable — always check FMEA Severity and the Phase 0 §3.2 zero-coverage guard. Also, if the baseline data was collected stop-on-fail, items late in the flow never ran on die that had already failed earlier, so their fail counts are systematically understated; zonal Pareto baselines should be collected continue-on-fail (which is why the NPI stage requires it).</span>
+          </p>
+        </div>
+
+        <h3><span class="zh">11.3 CQC 位置 — 鎖定不可省的區域</span><span class="en">11.3 CQC Locations — Locking the Zones You Can't Skip</span></h3>
+        <ul>
+          <li>
+            <span class="zh"><strong>回推晶圓座標：</strong>用 §5 的 die-level 追溯，把每一顆 CQC／RMA 退貨 die 回推到 Wafer ID + X,Y，疊成一張累積客訴 wafer map（stacked map）。</span>
+            <span class="en"><strong>Trace back to wafer coordinates:</strong> use §5's die-level traceability to map every CQC/RMA return die back to Wafer ID + X,Y, and stack them into a cumulative complaint wafer map.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>鎖定區（locked zone）：</strong>客訴 die 落點所在的分區，連同周圍一圈緩衝 die（如 ±1–2 顆），對與該客訴相關的測項設為永久全測，不論分區統計多乾淨。若客訴 die 無法追溯到座標，則該相關測項整片 wafer 都不做分區 skip。</span>
+            <span class="en"><strong>Locked zones:</strong> the zone where complaint die landed, plus a buffer ring of surrounding die (e.g., ±1–2 die), is set to permanent full test for the items related to that complaint, no matter how clean the zonal statistics look. If a complaint die can't be traced to coordinates, the related items get no zonal skipping anywhere on the wafer.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>反過來檢查分區定義：</strong>客訴 die 若呈現空間聚集，代表有一個空間性的失效機制；應回頭檢討 §11.2 的分區定義是否把這個機制切到了「精簡」那一邊。</span>
+            <span class="en"><strong>Check the zone definition in reverse:</strong> if complaint die cluster spatially, there is a spatial failure mechanism — revisit whether §11.2's zone definition put that mechanism on the "reduced" side.</span>
+          </li>
+        </ul>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">CQC 鎖定區不可被統計結果解鎖</span><span class="en">CQC-Locked Zones Can't Be Unlocked by Statistics</span></span>
+          <p>
+            <span class="zh">客戶已經從某個區域收到過不良品，就代表這個區域的實際風險已被現場證實；之後再多乾淨的分區資料都不能自動解鎖。唯一的解鎖路徑是：對應的 8D 已結案、矯正措施已驗證有效，並重新走一次 Phase 4 的設計端 review 與簽核。</span>
+            <span class="en">Once a customer has received a defective unit from a zone, that zone's real-world risk has been confirmed in the field; no amount of clean zonal data afterward can unlock it automatically. The only unlock path is a closed 8D with a verified-effective corrective action, followed by a fresh Phase 4 designer review and sign-off.</span>
+          </p>
+        </div>
+
+        <h3><span class="zh">11.4 WT 執行機制 — 在 tester 上怎麼做</span><span class="en">11.4 Execution at WT — How It Runs on the Tester</span></h3>
+        <ol>
+          <li>
+            <span class="zh"><strong>Sentinel wafer：</strong>每個 lot 指定幾片 wafer（如第 1 片，加上 lot 中段與末段各 1 片）跑完整 flow（continue-on-fail），結果與產品基準比對：zonal yield、bin Pareto、主要參數 mean／σ、PAT outlier 數。全部在基準範圍內 → 其餘 wafer 才可使用 adaptive flow；任一超出 → 整個 lot 全測。</span>
+            <span class="en"><strong>Sentinel wafers:</strong> designate a few wafers per lot (e.g., the first, plus one mid-lot and one at the end) to run the full flow (continue-on-fail), and compare their results against the product baseline: zonal yield, bin Pareto, key-parameter mean/σ, PAT outlier count. All within baseline → the remaining wafers may use the adaptive flow; any outside → the whole lot runs full test.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Feed-forward：</strong>若有 PCM／WAT 資料，lot 的 WAT 參數超出基準窗口時直接全測，不必等 sentinel wafer 結果。</span>
+            <span class="en"><strong>Feed-forward:</strong> where PCM/WAT data is available, a lot whose WAT parameters fall outside the baseline window goes straight to full test without waiting for the sentinel wafer results.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>分區指派 flow：</strong>符合條件的 wafer 上，中心／中間區跑精簡 flow；邊緣區與 CQC 鎖定區跑完整 flow。</span>
+            <span class="en"><strong>Assign flows by zone:</strong> on eligible wafers, the center/middle zones run the reduced flow; the edge zone and CQC-locked zones run the full flow.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Monitor die：</strong>每個精簡區每片 wafer 保留一組 die 跑完整 flow（固定位置加上隨機位置，隨機是為了避免系統性盲點），提供被 skip 測項的連續 parametric 資料給 SPC——少了它們，就看不到正是被省掉的那些測項有沒有在漂移。</span>
+            <span class="en"><strong>Monitor die:</strong> in every reduced zone on every wafer, keep a set of die on the full flow (fixed positions plus random ones — the random positions prevent systematic blind spots). They supply continuous parametric data on the skipped items to SPC; without them, there's no way to see whether the very items you're skipping are drifting.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>鄰近 die 升級：</strong>依探針順序已測過的鄰近 die 若有 fail（Good-Die-in-Bad-Neighborhood，見 §6.2(f) NNR），這顆 die 自動升級為完整 flow——精簡 flow 只跑在鄰居乾淨的地方。</span>
+            <span class="en"><strong>Neighborhood upgrade:</strong> if an already-probed neighboring die failed (Good Die in Bad Neighborhood — see §6.2(f) NNR), this die is automatically upgraded to the full flow; the reduced flow only runs where the neighborhood is clean.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>即時切回全測：</strong>以下任一發生，該 wafer 剩餘部分（嚴重時整個 lot）自動切回完整 flow 並記錄原因：monitor die 在被 skip 的測項上 fail、zonal yield 低於基準下限、連續 fail 或 contact 異常、更換 probe card／tester、PAT outlier 數超標。</span>
+            <span class="en"><strong>Real-time switch back to full test:</strong> if any of these occur, the rest of the wafer (or the whole lot, if serious) automatically reverts to the full flow and the reason is logged: a monitor die fails a skipped item, zonal yield drops below the baseline lower limit, consecutive fails or contact anomalies, a probe-card/tester change, or the PAT outlier count exceeds its limit.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>逐顆記錄 flow：</strong>每顆 die 都要在 STDF 記錄它跑的是哪個 flow（full／reduced／monitor）、所屬分區與 adaptive 規則版本，Phase 7 收到客訴時才能回答「這顆 die 當初有沒有被 skip 這個測項」。</span>
+            <span class="en"><strong>Log the flow per die:</strong> every die's STDF record must state which flow it ran (full/reduced/monitor), its zone, and the adaptive rule-set version, so that when a complaint arrives Phase 7 can answer "did this die skip that item?"</span>
+          </li>
+        </ol>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 680 350" role="img" aria-label="wafer map showing adaptive test zones, CQC-locked area and monitor die">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <circle cx="180" cy="175" r="145" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+              <circle cx="180" cy="175" r="115" fill="var(--accent-soft)" stroke="var(--border)" stroke-width="1.5"/>
+              <circle cx="180" cy="175" r="65" fill="var(--good-soft)" stroke="var(--border)" stroke-width="1.5"/>
+              <path d="M172,320 L180,308 L188,320 Z" fill="var(--surface)" stroke="var(--warn)" stroke-width="1.5"/>
+              <circle cx="240" cy="115" r="22" fill="var(--danger-soft)" stroke="var(--danger)" stroke-width="1.8" stroke-dasharray="4,3"/>
+              <text x="240" y="119" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="var(--danger)">CQC</text>
+              <g fill="var(--accent-strong)">
+                <rect x="146" y="201" width="9" height="9"/>
+                <rect x="208" y="144" width="9" height="9"/>
+                <rect x="96" y="171" width="9" height="9"/>
+                <rect x="176" y="258" width="9" height="9"/>
+                <rect x="251" y="206" width="9" height="9"/>
+                <rect x="118" y="104" width="9" height="9"/>
+              </g>
+              <text x="180" y="50" text-anchor="middle" font-size="11.5" fill="var(--warn)" font-weight="600"><tspan class="zh">邊緣 · 全測</tspan><tspan class="en">Edge · full</tspan></text>
+              <text x="160" y="88" text-anchor="middle" font-size="11.5" fill="var(--accent-strong)" font-weight="600"><tspan class="zh">中間 · 精簡</tspan><tspan class="en">Middle · reduced</tspan></text>
+              <text x="180" y="180" text-anchor="middle" font-size="11.5" fill="var(--good)" font-weight="600"><tspan class="zh">中心 · 精簡</tspan><tspan class="en">Center · reduced</tspan></text>
+            </g>
+            <g font-family="Source Serif 4" font-size="12" fill="var(--ink)">
+              <text x="370" y="40" font-family="IBM Plex Mono" font-size="11" letter-spacing="1" fill="var(--ink-faint)">ADAPTIVE ZONES</text>
+              <rect x="370" y="62" width="18" height="14" fill="var(--good-soft)" stroke="var(--border)"/>
+              <text x="398" y="74"><tspan class="zh">中心區：精簡 flow</tspan><tspan class="en">Center: reduced flow</tspan></text>
+              <rect x="370" y="98" width="18" height="14" fill="var(--accent-soft)" stroke="var(--border)"/>
+              <text x="398" y="110"><tspan class="zh">中間區：精簡 flow</tspan><tspan class="en">Middle: reduced flow</tspan></text>
+              <rect x="370" y="134" width="18" height="14" fill="var(--warn-soft)" stroke="var(--warn)"/>
+              <text x="398" y="146"><tspan class="zh">邊緣區：完整 flow（fail rate 較高）</tspan><tspan class="en">Edge: full flow (higher fail rate)</tspan></text>
+              <rect x="370" y="170" width="18" height="14" fill="var(--danger-soft)" stroke="var(--danger)" stroke-dasharray="3,2"/>
+              <text x="398" y="182"><tspan class="zh">CQC 鎖定區：永久完整 flow</tspan><tspan class="en">CQC-locked: always full flow</tspan></text>
+              <rect x="374" y="209" width="9" height="9" fill="var(--accent-strong)"/>
+              <text x="398" y="218"><tspan class="zh">Monitor die：完整 flow，供 SPC</tspan><tspan class="en">Monitor die: full flow, feeds SPC</tspan></text>
+              <text x="370" y="262" font-size="11.5" fill="var(--ink-soft)"><tspan class="zh">前提：成熟產品 + 該 lot 的 sentinel wafer 通過</tspan><tspan class="en">Prerequisite: mature product + this lot's sentinel wafers passed</tspan></text>
+              <text x="370" y="280" font-size="11.5" fill="var(--ink-soft)"><tspan class="zh">否則整片／整個 lot 跑完整 flow</tspan><tspan class="en">Otherwise the whole wafer/lot runs the full flow</tspan></text>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">成熟產品在 sentinel wafer 通過後的分區 flow 示意。綠色中心區與藍色中間區跑精簡 flow；橘色邊緣區因 fail rate 與 Pareto 不同，維持完整 flow；紅色虛線圈是累積客訴 die 落點（含緩衝圈）形成的 CQC 鎖定區，永久完整 flow 且不可被統計解鎖；深色小方塊是精簡區內仍跑完整 flow 的 monitor die，提供被 skip 測項的 SPC 資料。底部三角形是 notch。</span>
+            <span class="en">Zonal flows for a mature product after its sentinel wafers pass. The green center and blue middle zones run the reduced flow; the orange edge zone keeps the full flow because its fail rate and Pareto differ; the red dashed circle is a CQC-locked zone formed around stacked complaint-die locations (plus a buffer ring) — always full flow, never unlockable by statistics; the small dark squares are monitor die inside the reduced zones that still run the full flow, feeding SPC data on the skipped items. The triangle at the bottom is the notch.</span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="zh">11.5 品質守則 — 省時間但不犧牲品質</span><span class="en">11.5 Quality Safeguards — Saving Time Without Sacrificing Quality</span></h3>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">零覆蓋守則以「每顆 die」為單位</span><span class="en">The Zero-Coverage Guard Applies Per Die</span></span>
+          <p>
+            <span class="zh">Phase 0 §3.2 的零覆蓋守則在 adaptive 情境下要以每顆 die 檢查，不是以母體檢查：一顆跑精簡 flow 的 die，被 skip 的失效模式必須仍在其他地方被覆蓋（如 FT 的同一或高相關測項）。若被 skip 的 WT 測項是該失效模式在整個流程中的唯一覆蓋，就不能進入 adaptive 候選池——「大部分 die 都有測到」不能抵銷「這幾顆 die 完全沒測到」。</span>
+            <span class="en">In an adaptive setting, Phase 0 §3.2's zero-coverage guard must be checked per die, not per population: for a die on the reduced flow, every failure mode it skips must still be covered somewhere else (e.g., the same or a highly correlated item at FT). If the skipped WT item is that failure mode's only coverage anywhere in the flow, it can't enter the adaptive pool — "most die got tested" doesn't offset "these die were never tested at all."</span>
+          </p>
+        </div>
+        <p>
+          <span class="zh"><strong>Escape 預算：</strong>adaptive 規則核准前，先估算整體 escape DPPM，且必須低於 Phase 4 該 Tier（或客戶）允許的上限；同一套分區參數也直接給出平均每顆 die 節省的 test time，放進 Phase 4 的 ROI 計算：</span>
+          <span class="en"><strong>Escape budget:</strong> before approving an adaptive rule set, estimate the overall escape DPPM, which must stay below the limit Phase 4 allows for that Tier (or the customer allows); the same zonal parameters also give the average test time saved per die, which goes into the Phase 4 ROI calculation:</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">Adaptive 預期 escape 與節省時間</span><span class="en">Adaptive expected escape &amp; time saved</span></div>
+          <div class="eq">\[ \text{DPPM}_{\text{escape}} \approx 10^{6}\sum_{z} f_z\, s_z\, p_{z,\text{UCL}} \qquad \Delta TT \approx \sum_{z} f_z\, s_z\, t_{\text{skip}} \]</div>
+          <div class="note">
+            <span class="zh">\(f_z\)：分區 z 佔整片 die 的比例；\(s_z\)：分區 z 中跑精簡 flow 的比例（扣掉 monitor die 與鄰近升級）；\(p_{z,\text{UCL}}\)：被 skip 測項在分區 z 的 incremental fail rate 信賴上界（用 Clopper–Pearson，零 fail 時約為 \(3/n_z\)），不是點估計；\(t_{\text{skip}}\)：被 skip 測項的 test time。</span>
+            <span class="en">\(f_z\): fraction of the wafer's die in zone z; \(s_z\): fraction of zone z running the reduced flow (net of monitor die and neighborhood upgrades); \(p_{z,\text{UCL}}\): the upper confidence bound of the skipped item's incremental fail rate in zone z (Clopper–Pearson; about \(3/n_z\) with zero fails), not the point estimate; \(t_{\text{skip}}\): test time of the skipped items.</span>
+          </div>
+        </div>
+        <ul>
+          <li>
+            <span class="zh"><strong>先 shadow run 再真正 skip：</strong>Phase 5 pilot 的第一步建議是「影子模式」——照常跑完整 flow，但讓 adaptive 規則在背景算出「本來會 skip 哪些 die」，再比對那些 die 在被 skip 測項上的實際結果。影子期間零漏抓，才切換成真的 skip。</span>
+            <span class="en"><strong>Shadow-run before skipping for real:</strong> the recommended first step of the Phase 5 pilot is shadow mode — keep running the full flow, but let the adaptive rules compute in the background which die they would have skipped, then compare against those die's actual results on the skipped items. Switch to real skipping only after zero misses in the shadow period.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>定期全 lot 重建基準：</strong>每 N 個 lot 安排一個整 lot 完整 flow，重新計算 zonal yield 與 Pareto，避免基準隨製程緩慢漂移而失真。</span>
+            <span class="en"><strong>Re-baseline with periodic full lots:</strong> schedule one whole lot on the full flow every N lots to recompute zonal yield and Pareto, so the baseline doesn't go stale as the process slowly drifts.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>客戶同意：</strong>許多車用與高可靠度客戶把 adaptive flow 視為測試流程變更，需事先通知或核准（PCN）；pilot 前先確認客戶協議。</span>
+            <span class="en"><strong>Customer agreement:</strong> many automotive and high-reliability customers treat an adaptive flow as a test-flow change requiring advance notice or approval (PCN); confirm the customer agreement before the pilot.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="appendix">
+        <h2><span class="num">12</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+
+        <h3><span class="zh">12.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">12.1 Template Fields — Test Mapping Table</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (WT / FT)</b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Name</b></div>
@@ -1495,7 +1707,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">備註</span><span class="en">Notes</span></b></div>
         </div>
 
-        <h3><span class="zh">11.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">11.2 Template Fields — Risk &amp; Decision Log</span></h3>
+        <h3><span class="zh">12.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">12.2 Template Fields — Risk &amp; Decision Log</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">候選測項</span><span class="en">Candidate test item</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">規格是否強制</span><span class="en">Spec-mandated?</span></b></div>
@@ -1508,6 +1720,8 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">溫度線性驗證結論</span><span class="en">Temp-linearity conclusion</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Tier</b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">決策（保留/抽測/移除）</span><span class="en">Decision (Keep/Sample/Remove)</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Adaptive：產品成熟度／適用分區／規則版本</span><span class="en">Adaptive: product maturity / zones / rule-set version</span></b></div>
+          <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Adaptive：預估 escape DPPM</span><span class="en">Adaptive: estimated escape DPPM</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">FMEA RPN（移除前 → 移除後）</span><span class="en">FMEA RPN (before → after removal)</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">Designer Review 簽核人</span><span class="en">Designer review sign-off</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">測試程式 Release 單號</span><span class="en">Test-program release ticket no.</span></b></div>
@@ -1515,7 +1729,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">下次覆核日期</span><span class="en">Next review date</span></b></div>
         </div>
 
-        <h3><span class="zh">11.3 公式參考卡</span><span class="en">11.3 Formula Reference Card</span></h3>
+        <h3><span class="zh">12.3 公式參考卡</span><span class="en">12.3 Formula Reference Card</span></h3>
         <div class="formula">
           <div class="label"><span class="zh">Zero-failure 樣本數（95% CI）</span><span class="en">Zero-failure sample size (95% CI)</span></div>
           <div class="eq">\[ n \ge \dfrac{\ln(0.05)}{\ln(1-p_{\text{target}})} \approx \dfrac{3}{p_{\text{target}}} \]</div>
@@ -1541,7 +1755,12 @@
           <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
         </div>
 
-        <h3><span class="zh">11.4 延伸參考</span><span class="en">11.4 Further References</span></h3>
+        <div class="formula">
+          <div class="label"><span class="zh">Adaptive 預期 escape 與節省時間</span><span class="en">Adaptive expected escape &amp; time saved</span></div>
+          <div class="eq">\[ \text{DPPM}_{\text{escape}} \approx 10^{6}\sum_{z} f_z\, s_z\, p_{z,\text{UCL}} \qquad \Delta TT \approx \sum_{z} f_z\, s_z\, t_{\text{skip}} \]</div>
+        </div>
+
+        <h3><span class="zh">12.4 延伸參考</span><span class="en">12.4 Further References</span></h3>
         <ul>
           <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
           <li>ASTM E2586 — Standard Practice for Calculating and Using Tolerance Factors for Statistical Tolerance Intervals.</li>
@@ -1551,6 +1770,7 @@
           <li><span class="zh">Mahalanobis, P. C. (1936) — 多變量離群偵測的基礎距離量測，將 z-score 概念推廣到相關變數的聯合分布。</span><span class="en">Mahalanobis, P. C. (1936) — the foundational distance measure for multivariate outlier detection, generalizing the z-score concept to the joint distribution of correlated variables.</span></li>
           <li><span class="zh">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity，guardband／收緊 limit 決策規則的參考依據。</span><span class="en">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity, a reference for guardband/limit-tightening decision rules.</span></li>
           <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
+          <li><span class="zh">ITRS／IRDS「Test and Test Equipment」章節 — 業界路線圖對 adaptive test（feed-forward、in-situ、feed-back 等型態）的概念說明。</span><span class="en">ITRS/IRDS "Test and Test Equipment" chapter — the industry roadmap's description of adaptive test concepts (feed-forward, in-situ, feed-back, etc.).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
       </section>
@@ -1559,8 +1779,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-09-17 08:06</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-09-17 08:06</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:04</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:04</span>
   </footer>
 </div>
 
