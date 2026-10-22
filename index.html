@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:24</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-22 18:56</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -437,6 +437,7 @@
               <tr><td class="mono">Redundancy Index</td><td><span class="zh">= 1 − (Incremental Fail 數／該測項總 Fail 數)，越接近 1 代表後站該測項越冗餘。</span><span class="en">= 1 − (incremental fails / total fails for that item); closer to 1 means the downstream test is more redundant.</span></td></tr>
               <tr><td class="mono">Guardband / Margin</td><td><span class="zh">量測值與 spec limit 之間的距離，常以 σ 為單位表示（距離幾個標準差）。</span><span class="en">Distance between a measured value and its spec limit, typically expressed in σ (standard deviations).</span></td></tr>
               <tr><td class="mono">Cpk / Ppk</td><td><span class="zh">製程能力指數，衡量分布相對 spec limit 的集中與偏移程度。</span><span class="en">Process capability index, measuring how tightly and centrally a distribution sits within its spec limits.</span></td></tr>
+              <tr><td class="mono">Robust σ</td><td><span class="zh">以中位數與分位數估計的標準差（如 1.4826 × MAD、IQR／1.349），不受少數離群值影響；適合用來找異常，但不能用來誇大 Cpk 或縮小 guardband，見 §6.2(h)。</span><span class="en">A standard-deviation estimate built from the median and quantiles (e.g., 1.4826 × MAD, IQR/1.349) that a few outliers barely move; good for finding anomalies, but must not be used to inflate Cpk or shrink a guardband — see §6.2(h).</span></td></tr>
               <tr><td class="mono">PAT</td><td><span class="zh">Part Average Testing，以群體統計分布動態收緊 spec limit 的方法（參考 AEC-Q001）。</span><span class="en">Part Average Testing — dynamically tightens spec limits based on the population's statistical distribution (see AEC-Q001).</span></td></tr>
               <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
               <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
@@ -1269,6 +1270,76 @@
           </p>
         </div>
 
+        <h4><span class="zh">(h) Robust σ — 什麼時候用、什麼時候不能用</span><span class="en">(h) Robust σ — When to Use It and When Not To</span></h4>
+        <p>
+          <span class="zh">一般標準差（classical σ）對離群值非常敏感：少數 contact 飛點、混入的子族群或 fail 尾巴，就能把 σ 撐大好幾倍。Robust σ 用中位數與分位數估計「主體分布」的寬度，不受少數離群值影響。兩種常用估計式（在常態分布下都與 σ 一致）：</span>
+          <span class="en">The ordinary standard deviation (classical σ) is very sensitive to outliers: a few contact flyers, a mixed-in sub-population, or a fail tail can inflate σ several times over. Robust σ estimates the width of the main body of the distribution from the median and quantiles, so a handful of outliers barely moves it. Two common estimators (both consistent with σ under a normal distribution):</span>
+        </p>
+        <div class="formula">
+          <div class="label"><span class="zh">Robust σ 估計式</span><span class="en">Robust σ estimators</span></div>
+          <div class="eq">\[ \hat{\sigma}_{\text{MAD}} = 1.4826 \cdot \operatorname{median}\bigl(|x_i - \tilde{x}|\bigr) \qquad \hat{\sigma}_{\text{IQR}} = \dfrac{Q_3 - Q_1}{1.349} \]</div>
+          <div class="note">
+            <span class="zh">\(\tilde{x}\) 為中位數。AEC-Q001 PAT 用的就是這類 robust 估計：robust mean = 中位數，robust σ = (Q3 − Q1)／1.35，limit = 中位數 ± 6 robust σ。代價是統計效率較低：常態資料下 MAD 與 IQR 的效率都只有約 37%，要達到與 classical σ 同樣的精確度，大約需要 2.7 倍樣本。</span>
+            <span class="en">\(\tilde{x}\) is the median. AEC-Q001 PAT uses exactly this kind of robust estimate: robust mean = median, robust σ = (Q3 − Q1)/1.35, limits = median ± 6 robust σ. The cost is lower statistical efficiency: on normal data both MAD and IQR are only about 37% efficient, so matching classical σ's precision takes roughly 2.7× the sample.</span>
+          </div>
+        </div>
+        <p>
+          <span class="zh"><strong>選用原則：哪一種 σ 對「這個決策」比較保守，就用哪一種。</strong></span>
+          <span class="en"><strong>Selection rule: use whichever σ is more conservative for the decision at hand.</strong></span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">用途</span><span class="en">Use</span></th>
+              <th><span class="zh">應使用</span><span class="en">Use this</span></th>
+              <th><span class="zh">原因</span><span class="en">Why</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="zh"><strong>找異常</strong>：§6.2(f) DPAT／outlier 判定 limit</span><span class="en"><strong>Finding anomalies:</strong> §6.2(f) DPAT / outlier limits</span></td>
+                <td><span class="pill good">Robust σ</span></td>
+                <td><span class="zh">用 classical σ 時，離群值會把 σ 撐大、把 limit 推寬，結果把自己藏起來（masking effect）</span><span class="en">With classical σ, the outliers inflate σ and widen the limits until they hide themselves (the masking effect)</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>證明可以移除</strong>：§6.2(c) Cpk、§6.2(g) guardband 的 σ_residual、§6.2(d) 容忍區間</span><span class="en"><strong>Justifying removal:</strong> §6.2(c) Cpk, §6.2(g) guardband σ_residual, §6.2(d) tolerance intervals</span></td>
+                <td><span class="pill danger"><span class="zh">Classical σ（或兩者取大）</span><span class="en">Classical σ (or the larger of the two)</span></span></td>
+                <td><span class="zh">Robust σ 刻意忽略尾巴，但會 escape 的正是尾巴；用它算出來的 Cpk 偏高、guardband 偏窄，會讓移除證據看起來比實際更好</span><span class="en">Robust σ deliberately ignores the tail, but the tail is exactly what escapes; Cpk computed from it comes out too high and the guardband too narrow, making the removal evidence look better than it is</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>描述</strong>：§6.2(b) margin-to-limit（以 σ 為單位）</span><span class="en"><strong>Describing:</strong> §6.2(b) margin-to-limit (in σ units)</span></td>
+                <td><span class="zh">兩者都報</span><span class="en">Report both</span></td>
+                <td><span class="zh">Robust σ 描述主體離 limit 多遠，但尾端子族群一定要另外畫出來看，不能被主體的好看數字蓋過</span><span class="en">Robust σ shows how far the main body sits from the limit, but the tail sub-population must still be plotted and inspected separately, never covered by the main body's good-looking number</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>相關性</strong>：§6.2(a) Pearson r</span><span class="en"><strong>Correlation:</strong> §6.2(a) Pearson r</span></td>
+                <td><span class="zh">Pearson 與 Spearman（等級相關）並列</span><span class="en">Pearson alongside Spearman (rank correlation)</span></td>
+                <td><span class="zh">Pearson 也會被少數極端點拉高或拉低；兩者差很多，本身就是資料裡有離群點或混合族群的訊號</span><span class="en">Pearson can also be pulled up or down by a few extreme points; a large gap between the two is itself a sign of outliers or mixed populations in the data</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <span class="zh"><strong>示範（虛構數字）：</strong>某 VREF 參數 1,000 顆 die，其中 980 顆正常（平均 1.200 V、σ = 5 mV），20 顆因 contact 不良量到 1.255 V。classical σ ≈ 9.2 mV，robust σ ≈ 5.0 mV。</span>
+          <span class="en"><strong>Illustration (made-up numbers):</strong> a VREF parameter on 1,000 die, 980 normal (mean 1.200 V, σ = 5 mV) and 20 reading 1.255 V due to poor contact. Classical σ ≈ 9.2 mV; robust σ ≈ 5.0 mV.</span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>找異常：</strong>用 classical σ 算的 PAT 上限 = 平均 + 6σ ≈ 1.256 V，那 20 顆全部「通過」——被自己撐大的 σ 藏起來了；用 robust σ 算的上限 ≈ 1.230 V，20 顆全部被抓到。</span>
+            <span class="en"><strong>Finding anomalies:</strong> a PAT upper limit from classical σ = mean + 6σ ≈ 1.256 V, so all 20 "pass" — hidden by the σ they inflated themselves; the robust-σ limit ≈ 1.230 V catches all 20.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>證明可以移除：</strong>若 USL = 1.30 V，classical Cpk ≈ 3.6，robust Cpk ≈ 6.6。用 6.6 報告會誇大將近一倍的能力，而被忽略掉的正是最靠近 limit 的那 20 顆。</span>
+            <span class="en"><strong>Justifying removal:</strong> with USL = 1.30 V, classical Cpk ≈ 3.6 and robust Cpk ≈ 6.6. Reporting 6.6 overstates capability nearly twofold — and what it ignores is precisely the 20 die closest to the limit.</span>
+          </li>
+        </ul>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">兩種 σ 差很多時，先查原因，不要直接挑一個</span><span class="en">When the Two σ Values Differ a Lot, Find Out Why — Don't Just Pick One</span></span>
+          <p>
+            <span class="zh">classical σ 明顯大於 robust σ（例如比值 &gt; 1.2，示範門檻，應依產品訂定），代表資料裡有離群值或混合族群：先查 contact／量測系統（§3.4）、site／tester／lot 是否混在一起、是否有真實的製程子族群。查清楚前，這筆資料不適合拿來支持移除。另外，robust σ 的常數（1.4826、1.349）假設主體是常態分布；漏電流這類偏斜（如 log-normal）參數，應先取 log 再計算，或改用分位數法 Cpk（如 ISO 22514 的 percentile 法：以 P0.135／P50／P99.865 取代 μ ± 3σ）。</span>
+            <span class="en">Classical σ clearly larger than robust σ (e.g., a ratio &gt; 1.2 — an illustrative threshold, set it per product) means the data contains outliers or mixed populations: check contact and the measurement system first (§3.4), whether sites/testers/lots are mixed together, and whether there's a real process sub-population. Until that's resolved, the data shouldn't be used to support removal. Also, robust σ's constants (1.4826, 1.349) assume a normal main body; for skewed parameters such as leakage current (e.g., log-normal), take logs first, or use a percentile-based Cpk instead (e.g., the ISO 22514 percentile method: P0.135 / P50 / P99.865 in place of μ ± 3σ).</span>
+          </p>
+        </div>
+
         <h3><span class="zh">6.3 溫度 Corner 冗餘分析（線性／TC 模型）</span><span class="en">6.3 Temperature-Corner Redundancy (Linearity / TC Model)</span></h3>
         <p>
           <span class="zh">僅在候選屬於「移除某個溫度 corner 的測試」時才需要這條證據線（見 Phase 0 §3.3、§6.2(e)）；若候選單純是跨站（WT↔FT）冗餘、溫度 corner 不變，此節不適用。</span>
@@ -1295,8 +1366,8 @@
             <span class="en">Bin-level: Incremental Catch = 0 over the observation window, with sample size meeting the confidence level required for that Tier (see the table in 6.1).</span>
           </li>
           <li>
-            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min（若原始 r 不足，可改用 §6.2(g) 收緊前站 limit 後重新滿足此條件）；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內；相關矩陣中同站跨溫與跨站同溫配對皆已檢視（§6.2(e)）；殘差通過個體層級異常偵測，無 NNR／DPAT／雙變量離群點（§6.2(f)）。</span>
-            <span class="en">Parameter-level: r ≥ the Tier's r_min (if the raw r falls short, §6.2(g)'s tightened upstream limit can be used to satisfy this condition instead); no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range; every same-stage cross-temperature and cross-stage same-temperature pair in the correlation matrix has been reviewed (§6.2(e)); residuals pass individual-level outlier detection with no NNR/DPAT/bivariate outliers (§6.2(f)).</span>
+            <span class="zh">Parameter-level：r ≥ 該 Tier 的 r_min（若原始 r 不足，可改用 §6.2(g) 收緊前站 limit 後重新滿足此條件）；margin 趨勢無逼近 limit 的尾端子族群；Cpk(FT) 與 Cpk(WT) 差異在可接受範圍內；相關矩陣中同站跨溫與跨站同溫配對皆已檢視（§6.2(e)）；殘差通過個體層級異常偵測，無 NNR／DPAT／雙變量離群點（§6.2(f)）；支持移除的 Cpk、guardband、容忍區間使用 classical σ（或兩者取大），且 classical 與 robust σ 的落差已查明原因（§6.2(h)）。</span>
+            <span class="en">Parameter-level: r ≥ the Tier's r_min (if the raw r falls short, §6.2(g)'s tightened upstream limit can be used to satisfy this condition instead); no tail sub-population trending toward the limit; the Cpk(FT)–Cpk(WT) gap is within an acceptable range; every same-stage cross-temperature and cross-stage same-temperature pair in the correlation matrix has been reviewed (§6.2(e)); residuals pass individual-level outlier detection with no NNR/DPAT/bivariate outliers (§6.2(f)); the Cpk, guardband, and tolerance intervals supporting removal use classical σ (or the larger of the two), and any gap between classical and robust σ has been explained (§6.2(h)).</span>
           </li>
           <li>
             <span class="zh">溫度 Corner 線性（僅溫度 corner 候選適用）：線性假設經迴歸驗證成立，未測 corner 的預測區間距 spec limit 仍有足夠 margin。</span>
@@ -2069,6 +2140,10 @@
           <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
         </div>
         <div class="formula">
+          <div class="label"><span class="zh">Robust σ（MAD／IQR）</span><span class="en">Robust σ (MAD / IQR)</span></div>
+          <div class="eq">\[ \hat{\sigma}_{\text{MAD}} = 1.4826 \cdot \operatorname{median}\bigl(|x_i - \tilde{x}|\bigr) \qquad \hat{\sigma}_{\text{IQR}} = \dfrac{Q_3 - Q_1}{1.349} \]</div>
+        </div>
+        <div class="formula">
           <div class="label"><span class="zh">σ 信賴區間 / 反查 Chi-Square 樣本數</span><span class="en">CI for σ / reverse chi-square sample size</span></div>
           <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
         </div>
@@ -2102,6 +2177,8 @@
           <li><span class="zh">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity，guardband／收緊 limit 決策規則的參考依據。</span><span class="en">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity, a reference for guardband/limit-tightening decision rules.</span></li>
           <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
           <li><span class="zh">ITRS／IRDS「Test and Test Equipment」章節 — 業界路線圖對 adaptive test（feed-forward、in-situ、feed-back 等型態）的概念說明。</span><span class="en">ITRS/IRDS "Test and Test Equipment" chapter — the industry roadmap's description of adaptive test concepts (feed-forward, in-situ, feed-back, etc.).</span></li>
+          <li>Rousseeuw, P. J. &amp; Croux, C. (1993), "Alternatives to the Median Absolute Deviation," <em>Journal of the American Statistical Association</em> — <span class="zh">MAD 等 robust 尺度估計的效率與一致性常數。</span><span class="en">efficiency and consistency constants for MAD and related robust scale estimators.</span></li>
+          <li><span class="zh">ISO 22514 系列 — 製程能力與績效統計方法，含非常態分布的分位數（percentile）法 Cpk。</span><span class="en">ISO 22514 series — statistical methods for process capability and performance, including the percentile method for Cpk on non-normal distributions.</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
       </section>
@@ -2110,8 +2187,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:24</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:24</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-22 18:56</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-22 18:56</span>
   </footer>
 </div>
 
