@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 07:37</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 07:48</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -1297,6 +1297,98 @@
               <tr><td><span class="zh">Mahalanobis／迴歸殘差</span><span class="en">Mahalanobis / regression residual</span></td><td><span class="zh">多個相關參數</span><span class="en">Several correlated parameters</span></td><td><span class="zh">單看每個參數都正常、組合不正常</span><span class="en">Each parameter normal alone, abnormal in combination</span></td><td><span class="zh">需要穩定的共變異矩陣；較難解釋</span><span class="en">Needs a stable covariance matrix; harder to explain</span></td></tr>
             </tbody>
           </table>
+        </div>
+        <p>
+          <span class="zh"><strong>雙變量範例：DPAT 漏抓、雙變量抓到（示範數字）</strong>——兩個高度相關的參數：IDDQ（漏電流）與 Fmax（最高工作頻率）。製程偏快的 die 本來就「漏電大、跑得快」，偏慢的 die「漏電小、跑得慢」，相關係數 ρ = 0.9。母體：IDDQ 中位數 50 µA、robust σ 5 µA；Fmax 中位數 1000 MHz、robust σ 20 MHz。DPAT 以 ±6σ 設 limit：IDDQ 20–80 µA、Fmax 880–1120 MHz。</span>
+          <span class="en"><strong>Bivariate example: DPAT misses, bivariate catches (illustrative numbers)</strong> — two highly correlated parameters, IDDQ (leakage) and Fmax (maximum operating frequency). A fast-process die naturally "leaks more and runs faster," a slow one "leaks less and runs slower"; correlation ρ = 0.9. Population: IDDQ median 50 µA, robust σ 5 µA; Fmax median 1000 MHz, robust σ 20 MHz. DPAT sets ±6σ limits: IDDQ 20–80 µA, Fmax 880–1120 MHz.</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th>Die</th>
+              <th>IDDQ</th>
+              <th>Fmax</th>
+              <th><span class="zh">單變量 z</span><span class="en">Univariate z</span></th>
+              <th><span class="zh">DPAT（±6σ）</span><span class="en">DPAT (±6σ)</span></th>
+              <th><span class="zh">Mahalanobis D²</span><span class="en">Mahalanobis D²</span></th>
+              <th><span class="zh">迴歸殘差 z</span><span class="en">Regression residual z</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>A</strong></td><td>62 µA</td><td>960 MHz</td><td>+2.4 / −2.0</td>
+                <td><span class="pill good"><span class="zh">通過</span><span class="en">Pass</span></span></td>
+                <td><strong>≈ 96.8</strong> <span class="pill danger"><span class="zh">標記</span><span class="en">Flag</span></span></td>
+                <td><strong>≈ −9.5</strong> <span class="pill danger"><span class="zh">標記</span><span class="en">Flag</span></span></td>
+              </tr>
+              <tr>
+                <td><strong>B</strong></td><td>64 µA</td><td>1045 MHz</td><td>+2.8 / +2.25</td>
+                <td><span class="pill good"><span class="zh">通過</span><span class="en">Pass</span></span></td>
+                <td>≈ 8.2 <span class="pill good"><span class="zh">正常</span><span class="en">Normal</span></span></td>
+                <td>≈ −0.6 <span class="pill good"><span class="zh">正常</span><span class="en">Normal</span></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li>
+            <span class="zh"><strong>Mahalanobis（兩個參數時的展開式）：</strong>先轉成 z 值，再代入下式。門檻用 \(\chi^2_{2}\) 分布：要對應約 1 ppm 的誤判率，\(D^2 &gt; -2\ln(10^{-6}) \approx 27.6\)。A 的 D² ≈ 96.8，遠超門檻；B 的 D² ≈ 8.2，正常。</span>
+            <span class="en"><strong>Mahalanobis (two-parameter form):</strong> convert to z-scores, then use the formula below. The threshold comes from the \(\chi^2_{2}\) distribution: for about a 1 ppm false-flag rate, \(D^2 &gt; -2\ln(10^{-6}) \approx 27.6\). A's D² ≈ 96.8, far above it; B's D² ≈ 8.2, normal.</span>
+            <div class="formula">
+              <div class="label"><span class="zh">雙變量 Mahalanobis 距離</span><span class="en">Bivariate Mahalanobis distance</span></div>
+              <div class="eq">\[ D^{2} = \dfrac{z_1^{2} + z_2^{2} - 2\rho\, z_1 z_2}{1-\rho^{2}} \qquad \text{A: } \dfrac{2.4^{2} + 2.0^{2} - 2(0.9)(2.4)(-2.0)}{1-0.81} \approx 96.8 \]</div>
+            </div>
+          </li>
+          <li>
+            <span class="zh"><strong>迴歸殘差（較容易解釋）：</strong>用 IDDQ 預測 Fmax：斜率 = ρ σ_Fmax／σ_IDDQ = 0.9 × 20／5 = 3.6 MHz／µA。A 的 IDDQ 62 µA 應對應 Fmax ≈ 1000 + 3.6 × 12 ≈ 1043 MHz，實際只有 960 MHz，殘差 −83 MHz；殘差 σ = 20 × √(1 − 0.81) ≈ 8.7 MHz，z ≈ −9.5。白話就是：<strong>「漏電像快 die，速度卻像慢 die」——這兩件事同時發生在正常製程變異下幾乎不可能</strong>，比較可能是某個缺陷造成的額外漏電。B 則是漏電大、速度也快，符合 fast corner 的物理關係，單看每個參數它比 A 更極端，但它是正常的。</span>
+            <span class="en"><strong>Regression residual (easier to explain):</strong> predict Fmax from IDDQ: slope = ρ σ_Fmax / σ_IDDQ = 0.9 × 20 / 5 = 3.6 MHz/µA. A's IDDQ of 62 µA should go with Fmax ≈ 1000 + 3.6 × 12 ≈ 1043 MHz, but it only reaches 960 MHz — a residual of −83 MHz; the residual σ = 20 × √(1 − 0.81) ≈ 8.7 MHz, so z ≈ −9.5. In plain words: <strong>"it leaks like a fast die but runs like a slow one" — under normal process variation that combination is almost impossible</strong>, and extra leakage from a defect is the likelier explanation. B leaks more and runs faster, matching the physics of a fast corner; on each parameter alone it's more extreme than A, yet it's normal.</span>
+          </li>
+        </ul>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 680 380" role="img" aria-label="bivariate outlier example: DPAT box versus Mahalanobis ellipse">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <line x1="150" y1="340" x2="450" y2="340" stroke="var(--border)" stroke-width="1.5"/>
+              <line x1="150" y1="40" x2="150" y2="340" stroke="var(--border)" stroke-width="1.5"/>
+              <g font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-faint)" text-anchor="middle">
+                <text x="168" y="356">20</text><text x="300" y="356">50</text><text x="432" y="356">80</text>
+              </g>
+              <g font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-faint)" text-anchor="end">
+                <text x="144" y="326">880</text><text x="144" y="194">1000</text><text x="144" y="62">1120</text>
+              </g>
+              <text x="300" y="374" text-anchor="middle" font-size="12.5" fill="var(--ink-soft)">IDDQ (µA)</text>
+              <text x="100" y="190" transform="rotate(-90 100 190)" text-anchor="middle" font-size="12.5" fill="var(--ink-soft)">Fmax (MHz)</text>
+              <rect x="168" y="58" width="264" height="264" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-dasharray="6,4"/>
+              <ellipse cx="300" cy="190" rx="159.4" ry="36.6" transform="rotate(-45 300 190)" fill="var(--accent-soft)" fill-opacity="0.6" stroke="var(--accent)" stroke-width="1.8"/>
+              <g fill="var(--ink-soft)">
+                <circle cx="267" cy="218.6" r="3.5"/><circle cx="278" cy="214.2" r="3.5"/><circle cx="289" cy="196.6" r="3.5"/><circle cx="300" cy="185.6" r="3.5"/><circle cx="311" cy="181.2" r="3.5"/><circle cx="322" cy="172.4" r="3.5"/><circle cx="333" cy="154.8" r="3.5"/><circle cx="256" cy="227.4" r="3.5"/><circle cx="344" cy="148.2" r="3.5"/><circle cx="304.4" cy="192.2" r="3.5"/><circle cx="293.4" cy="203.2" r="3.5"/><circle cx="317.6" cy="165.8" r="3.5"/><circle cx="273.6" cy="207.6" r="3.5"/><circle cx="326.4" cy="161.4" r="3.5"/><circle cx="284.6" cy="209.8" r="3.5"/><circle cx="355" cy="141.6" r="3.5"/><circle cx="247.2" cy="240.6" r="3.5"/><circle cx="302.2" cy="181.2" r="3.5"/><circle cx="297.8" cy="198.8" r="3.5"/><circle cx="313.2" cy="170.2" r="3.5"/><circle cx="260.4" cy="234" r="3.5"/><circle cx="337.4" cy="159.2" r="3.5"/>
+              </g>
+              <circle cx="352.8" cy="234" r="6.5" fill="var(--danger)"/>
+              <circle cx="352.8" cy="234" r="13" fill="none" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <circle cx="361.6" cy="140.5" r="6.5" fill="var(--good)"/>
+              <line x1="367" y1="240" x2="446" y2="262" stroke="var(--danger)" stroke-width="1" stroke-dasharray="2,3"/>
+              <line x1="369" y1="138" x2="446" y2="118" stroke="var(--good)" stroke-width="1" stroke-dasharray="2,3"/>
+              <g font-size="11.5">
+                <text x="450" y="260" fill="var(--danger)" font-weight="600"><tspan class="zh">A：62 µA、960 MHz</tspan><tspan class="en">A: 62 µA, 960 MHz</tspan></text>
+                <text x="450" y="276" fill="var(--danger)"><tspan class="zh">DPAT 通過；D² ≈ 97 → 標記</tspan><tspan class="en">DPAT passes; D² ≈ 97 → flagged</tspan></text>
+                <text x="450" y="112" fill="var(--good)" font-weight="600"><tspan class="zh">B：64 µA、1045 MHz</tspan><tspan class="en">B: 64 µA, 1045 MHz</tspan></text>
+                <text x="450" y="128" fill="var(--good)"><tspan class="zh">fast corner；D² ≈ 8 → 正常</tspan><tspan class="en">fast corner; D² ≈ 8 → normal</tspan></text>
+                <text x="176" y="76" fill="var(--warn)" font-weight="600"><tspan class="zh">DPAT ±6σ 方框</tspan><tspan class="en">DPAT ±6σ box</tspan></text>
+                <text x="426" y="298" text-anchor="end" fill="var(--accent-strong)" font-weight="600"><tspan class="zh">Mahalanobis 橢圓</tspan><tspan class="en">Mahalanobis ellipse</tspan></text>
+                <text x="426" y="314" text-anchor="end" fill="var(--accent-strong)">D² = 27.6 (≈ 1 ppm)</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">示範數字。橘色虛線方框是兩個參數各自 DPAT ±6σ 的範圍，藍色橢圓是 Mahalanobis D² = 27.6 的邊界。相關性高的資料集中在對角線上，方框內大部分面積其實是「正常 die 不會出現的組合」。A（紅）在方框內、DPAT 放行，但遠在橢圓外——被雙變量方法抓到；B（綠）單看每個軸都比 A 更極端，但落在橢圓內，屬於正常的 fast corner。</span>
+            <span class="en">Illustrative numbers. The dashed orange box is each parameter's own DPAT ±6σ range; the blue ellipse is the Mahalanobis D² = 27.6 boundary. Highly correlated data hugs the diagonal, so most of the box's area is combinations normal die never produce. A (red) sits inside the box, so DPAT passes it, but far outside the ellipse — the bivariate method catches it. B (green) is more extreme than A on each axis alone, yet falls inside the ellipse: a normal fast corner.</span>
+          </figcaption>
+        </figure>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">雙變量方法的前提</span><span class="en">Prerequisites for Bivariate Methods</span></span>
+          <p>
+            <span class="zh">(1) 平均值、σ、ρ 要用 robust 方式估計（如 MCD，Minimum Covariance Determinant），否則離群點會把 ρ 拉低、橢圓撐胖而遮住自己——與 §6.2(h) 的 masking effect 相同。(2) 參數之間要有物理上說得通的相關性，而且 ρ 在各 lot 間穩定；ρ 不穩時橢圓本身就不可靠。(3) 偏斜參數（如 IDDQ 常呈 log-normal）先取 log 再計算。(4) 門檻（本例 1 ppm）與 DPAT 一樣要事先訂定、追蹤 kill rate，不能看完結果再調。</span>
+            <span class="en">(1) Estimate the means, σ, and ρ robustly (e.g., MCD — Minimum Covariance Determinant); otherwise the outliers drag ρ down and fatten the ellipse until it hides them — the same masking effect as §6.2(h). (2) The parameters need a physically sensible correlation, and ρ must be stable across lots; if ρ isn't stable, the ellipse itself can't be trusted. (3) Take logs of skewed parameters first (IDDQ is often log-normal). (4) As with DPAT, fix the threshold (1 ppm here) in advance and track the kill rate — never tune it after seeing the results.</span>
+          </p>
         </div>
         <p>
           <span class="zh"><strong>Outlier 篩選也可以是移除後站測試的 enabler：</strong>把 FT 的 Incremental Catch die 回推到 WT，看其中有多少比例在 WT 已經被 NNR／DPAT／GDBN 標記。若幾乎全部都會被標記，在 WT 導入這個 outlier 篩選，就可能取代 FT 的測項——跟 §6.2(g) 收緊 limit 是同一種交易：用 WT 的 overkill（被判退的好 die）換 FT 的 test time，兩者要放進同一個 ROI 天平。每種方法的 kill rate 都要持續追蹤，並訂出可接受上限。</span>
@@ -2347,6 +2439,10 @@
           <div class="eq">\[ e_i = x_i - \operatorname{median}_{j \in N(i)} x_j, \qquad z_i = \dfrac{e_i - \operatorname{median}(e)}{\hat{\sigma}_{\text{robust}}(e)} \]</div>
         </div>
         <div class="formula">
+          <div class="label"><span class="zh">雙變量 Mahalanobis 距離（門檻 \(\chi^2_2\)：\(D^2 &gt; -2\ln p\)）</span><span class="en">Bivariate Mahalanobis distance (\(\chi^2_2\) threshold: \(D^2 &gt; -2\ln p\))</span></div>
+          <div class="eq">\[ D^{2} = \dfrac{z_1^{2} + z_2^{2} - 2\rho\, z_1 z_2}{1-\rho^{2}} \]</div>
+        </div>
+        <div class="formula">
           <div class="label"><span class="zh">統計 Bin／Yield 界限</span><span class="en">Statistical bin / yield limits</span></div>
           <div class="eq">\[ \text{SBL}_b = \operatorname{median}(\text{bin}\%_b) + k\,\hat{\sigma}_{\text{robust}} \qquad \text{SYL} = \operatorname{median}(Y) - k\,\hat{\sigma}_{\text{robust}} \]</div>
         </div>
@@ -2384,6 +2480,7 @@
           <li>ISO 16269-6:2014 — Statistical interpretation of data, Part 6: Determination of statistical tolerance intervals.</li>
           <li><span class="zh">Nearest Neighbor Residual（NNR）— 以晶圓上鄰近 die 的平滑預測值篩選空間異常，常見於 Good-Die-in-Bad-Neighborhood 篩選文獻。</span><span class="en">Nearest Neighbor Residual (NNR) — screens spatial anomalies using a smoothed prediction from neighboring die on the wafer map; widely discussed in Good-Die-in-Bad-Neighborhood screening literature.</span></li>
           <li><span class="zh">Dynamic Part Average Testing（DPAT）— AEC-Q001 PAT 概念的延伸，以每 lot／wafer 自身分布動態計算限制而非固定 spec limit。</span><span class="en">Dynamic Part Average Testing (DPAT) — an extension of the AEC-Q001 PAT concept that computes limits dynamically from each lot/wafer's own distribution rather than a fixed spec limit.</span></li>
+          <li>Rousseeuw, P. J. &amp; Van Driessen, K. (1999), "A Fast Algorithm for the Minimum Covariance Determinant Estimator," <em>Technometrics</em> — <span class="zh">robust 共變異矩陣（MCD）估計，避免多變量離群點遮住自己。</span><span class="en">robust covariance (MCD) estimation, so multivariate outliers can't mask themselves.</span></li>
           <li><span class="zh">Mahalanobis, P. C. (1936) — 多變量離群偵測的基礎距離量測，將 z-score 概念推廣到相關變數的聯合分布。</span><span class="en">Mahalanobis, P. C. (1936) — the foundational distance measure for multivariate outlier detection, generalizing the z-score concept to the joint distribution of correlated variables.</span></li>
           <li><span class="zh">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity，guardband／收緊 limit 決策規則的參考依據。</span><span class="en">ILAC-G8:2019 — Guidelines on Decision Rules and Statements of Conformity, a reference for guardband/limit-tightening decision rules.</span></li>
           <li>Cohen, J. (1988), <em>Statistical Power Analysis for the Behavioral Sciences</em> — <span class="zh">相關係數檢定力與樣本數公式（Fisher z）。</span><span class="en">power and sample-size formulas for correlation coefficients (Fisher z).</span></li>
@@ -2399,8 +2496,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 07:37</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 07:37</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 07:48</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 07:48</span>
   </footer>
 </div>
 
