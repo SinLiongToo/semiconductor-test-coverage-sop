@@ -385,7 +385,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 08:17</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 09:15</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -408,7 +408,8 @@
       <li><a href="#phase6"><span class="zh">9 · Phase 6 正式變更與回退</span><span class="en">9 · Phase 6 Formal Change &amp; Rollback</span></a></li>
       <li><a href="#phase7"><span class="zh">10 · Phase 7（Optional）客訴查證</span><span class="en">10 · Phase 7 (Optional) Complaint Verification</span></a></li>
       <li><a href="#adaptive"><span class="zh">11 · WT 自適應測試</span><span class="en">11 · WT Adaptive Test</span></a></li>
-      <li><a href="#appendix"><span class="zh">12 · 附錄</span><span class="en">12 · Appendix</span></a></li>
+      <li><a href="#onchip"><span class="zh">12 · 片上量測取代外部儀器</span><span class="en">12 · On-Chip Measurement</span></a></li>
+      <li><a href="#appendix"><span class="zh">13 · 附錄</span><span class="en">13 · Appendix</span></a></li>
     </ol>
   </details>
 
@@ -429,7 +430,8 @@
         <li><a href="#phase6"><span class="zh">9 · 正式變更與回退</span><span class="en">9 · Change &amp; Rollback</span></a></li>
         <li><a href="#phase7"><span class="zh">10 · 客訴查證（Optional）</span><span class="en">10 · Complaint Verification (Optional)</span></a></li>
         <li><a href="#adaptive"><span class="zh">11 · 自適應測試</span><span class="en">11 · Adaptive Test</span></a></li>
-        <li><a href="#appendix"><span class="zh">12 · 附錄</span><span class="en">12 · Appendix</span></a></li>
+        <li><a href="#onchip"><span class="zh">12 · 片上量測</span><span class="en">12 · On-Chip Measurement</span></a></li>
+        <li><a href="#appendix"><span class="zh">13 · 附錄</span><span class="en">13 · Appendix</span></a></li>
       </ol>
     </nav>
 
@@ -475,6 +477,7 @@
               <tr><td class="mono">SYL / SBL</td><td><span class="zh">Statistical Yield Limit／Statistical Bin Limit，依歷史 lot 分布訂出的 yield 下限與各 bin 比例上限，超出即觸發覆核或 Hold（參考 AEC-Q002），見 §8.1。</span><span class="en">Statistical Yield Limit / Statistical Bin Limit — a yield floor and per-bin ceilings set from the historical lot distribution; exceeding one triggers review or hold (see AEC-Q002) — see §8.1.</span></td></tr>
               <tr><td class="mono">MRB</td><td><span class="zh">Material Review Board，負責判定異常 lot 處置（加測、放行、報廢、通知客戶）的跨部門小組。</span><span class="en">Material Review Board — the cross-functional group that dispositions abnormal lots (extra test, release, scrap, customer notification).</span></td></tr>
               <tr><td class="mono">Robust σ</td><td><span class="zh">以中位數與分位數估計的標準差（如 1.4826 × MAD、IQR／1.349），不受少數離群值影響；適合用來找異常，但不能用來誇大 Cpk 或縮小 guardband，見 §6.2(h)。</span><span class="en">A standard-deviation estimate built from the median and quantiles (e.g., 1.4826 × MAD, IQR/1.349) that a few outliers barely move; good for finding anomalies, but must not be used to inflate Cpk or shrink a guardband — see §6.2(h).</span></td></tr>
+              <tr><td class="mono">On-chip measurement / BIST</td><td><span class="zh">由晶片內建的 ADC、感測器或自我測試電路（Built-In Self-Test）執行量測，再以數位碼經 scan／JTAG（如 IEEE 1687）回傳測試機，取代外部儀器量測，見 §12。</span><span class="en">Measurement performed by the chip's built-in ADC, sensors, or self-test circuitry (Built-In Self-Test), with results returned to the tester as digital codes over scan/JTAG (e.g., IEEE 1687), in place of external-instrument measurement — see §12.</span></td></tr>
               <tr><td class="mono">PAT</td><td><span class="zh">Part Average Testing，以群體統計分布動態收緊 spec limit 的方法（參考 AEC-Q001）。</span><span class="en">Part Average Testing — dynamically tightens spec limits based on the population's statistical distribution (see AEC-Q001).</span></td></tr>
               <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
               <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
@@ -493,7 +496,7 @@
               <tr><td class="mono">Adaptive Test</td><td><span class="zh">依產品成熟度、晶圓區域、前段 wafer 結果等證據，對不同 wafer／die 動態套用不同測試內容（完整 flow 或精簡 flow）的測試策略，見 §11。</span><span class="en">A test strategy that dynamically applies different test content (full or reduced flow) to different wafers/die based on evidence such as product maturity, wafer zone, and results from earlier wafers — see §11.</span></td></tr>
               <tr><td class="mono">Zonal Yield / Bin Pareto</td><td><span class="zh">把晶圓依位置切成分區（如中心／中間／邊緣）分別計算的良率；bin Pareto 是把 fail 依 bin 由多到少排序，找出佔大宗的失效類別。</span><span class="en">Yield computed separately for each wafer region (e.g., center/middle/edge); a bin Pareto ranks fails by bin from most to least frequent to show which failure categories dominate.</span></td></tr>
               <tr><td class="mono">Sentinel wafer / Monitor die</td><td><span class="zh">Adaptive test 中刻意保留完整 flow 的 wafer（每 lot 幾片）與 die（每個精簡區幾顆），用來確認基準仍成立並持續提供被 skip 測項的資料。</span><span class="en">Wafers (a few per lot) and die (a few per reduced zone) deliberately kept on the full flow in adaptive test, to confirm the baseline still holds and keep supplying data on the skipped items.</span></td></tr>
-              <tr><td class="mono">V93000 / SmarTest</td><td><span class="zh">Advantest 的 SoC 測試機平台（常稱 93K）與其測試程式軟體；SmarTest 7 以 C++ 撰寫 test method，SmarTest 8 改用 Java 與 Eclipse 開發環境，見 §12.5。</span><span class="en">Advantest's SoC tester platform (often called the 93K) and its test-program software; SmarTest 7 test methods are written in C++, SmarTest 8 moves to Java and an Eclipse-based environment — see §12.5.</span></td></tr>
+              <tr><td class="mono">V93000 / SmarTest</td><td><span class="zh">Advantest 的 SoC 測試機平台（常稱 93K）與其測試程式軟體；SmarTest 7 以 C++ 撰寫 test method，SmarTest 8 改用 Java 與 Eclipse 開發環境，見 §13.5。</span><span class="en">Advantest's SoC tester platform (often called the 93K) and its test-program software; SmarTest 7 test methods are written in C++, SmarTest 8 moves to Java and an Eclipse-based environment — see §13.5.</span></td></tr>
               <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
           </table>
@@ -503,8 +506,8 @@
       <section id="overview">
         <h2><span class="num">2</span><span class="zh">流程總覽</span><span class="en">Process Overview</span></h2>
         <p>
-          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要（或只需少量）資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性、數位 fault coverage 與應力條件查證），先擋掉不該評估、或地基本身就有破洞的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。§11 的 WT 自適應測試（Adaptive Test）不是新的 Phase，而是 Phase 4「抽測」決策在 WT 依晶圓區域與產品成熟度的精細化執行方式。</span>
-          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need little to no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity, digital fault-coverage and stress-condition verification) to screen out candidates that should never be evaluated, or whose foundation already has a hole; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10. §11's WT Adaptive Test isn't a new phase; it's a finer-grained way of executing Phase 4's "sample" decision at WT, by wafer zone and product maturity.</span>
+          <span class="zh">主流程分七個 Phase（Phase 0–6），前一 Phase 的輸出是後一 Phase 的輸入。Phase 0 是不需要（或只需少量）資料就能先判斷的「硬性守則」（規格強制項目、零覆蓋保護、量測系統有效性、數位 fault coverage 與應力條件查證），先擋掉不該評估、或地基本身就有破洞的候選；Phase 3 則是本 SOP 的統計核心，把 Bin-level、Parameter-level 與（適用時的）溫度 Corner 線性驗證拆成並行的證據線。額外的 Phase 7（虛線／Optional）不是循序步驟，而是客訴事件觸發時才啟動的查證程序；紅色虛線回饋迴路則代表 Phase 7 查證後若發現是「原本覆蓋就不夠」而非單純誤移除，整個流程要回到 Phase 0 重新開始，見 §10。§11 的 WT 自適應測試（Adaptive Test）不是新的 Phase，而是 Phase 4「抽測」決策在 WT 依晶圓區域與產品成熟度的精細化執行方式；§12 的片上量測則是另一種 TTR 手段——不移除測項，而是改用晶片自己的量測電路取代外部儀器。</span>
+          <span class="en">The main process runs across seven phases (Phase 0–6), each phase's output feeding the next. Phase 0 applies hard rules that need little to no data at all (spec-mandated items, the zero-coverage guard, measurement-system validity, digital fault-coverage and stress-condition verification) to screen out candidates that should never be evaluated, or whose foundation already has a hole; Phase 3 is the statistical core, splitting Bin-level, Parameter-level, and (where applicable) temperature-corner linearity validation into parallel lines of evidence. The extra Phase 7 (dashed / Optional) isn't a sequential step — it's a verification procedure that only runs when a customer complaint triggers it; the red dashed feedback loop represents Phase 7 finding that coverage was genuinely insufficient to begin with, not just a wrong removal, sending the whole process back to Phase 0 — see §10. §11's WT Adaptive Test isn't a new phase; it's a finer-grained way of executing Phase 4's "sample" decision at WT, by wafer zone and product maturity. §12's on-chip measurement is yet another TTR lever — rather than removing a test, it replaces the external instrument with the chip's own measurement circuitry.</span>
         </p>
         <figure>
         <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
@@ -746,8 +749,8 @@
           <div class="label"><span class="zh">σ 的信賴區間（卡方分布）</span><span class="en">Confidence interval for σ (chi-square distribution)</span></div>
           <div class="eq">\[ \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{\alpha/2,\,n-1}}} \;\le\; \sigma \;\le\; \sqrt{\dfrac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2,\,n-1}}} \]</div>
           <div class="note">
-            <span class="zh">「反查」的做法：先定義可接受的精確度（例如希望有 90% 信心，估出的 s 落在真實 σ 的 ±25% 以內），再從小的 n 開始代入上式檢查，找到第一個滿足精確度需求的 n —— 這正是 Gauge R&amp;R、Cpk 信賴區間等方法回答「重複量測要做幾次」的標準做法，也和 §6.2(d)／§12.3 統計容忍區間的 k-factor 查表背後是同一套數學（k-factor 本身就是從 t 分布與卡方分布組合推導出來的）。實務上多半直接用統計軟體或查表求解，不需要手動反解。</span>
-            <span class="en">The "reverse" approach: define the acceptable precision first (e.g., 90% confidence that the estimated s falls within ±25% of the true σ), then plug in increasing n until this inequality is satisfied — that's the standard way Gauge R&amp;R studies, Cpk confidence intervals, and similar methods answer "how many repeat measurements do I need?" It shares the same underlying math as the §6.2(d)/§12.3 statistical-tolerance-interval k-factor tables (those k-factors are themselves derived by combining the t-distribution with the chi-square distribution). In practice this is solved with statistical software or lookup tables rather than by hand.</span>
+            <span class="zh">「反查」的做法：先定義可接受的精確度（例如希望有 90% 信心，估出的 s 落在真實 σ 的 ±25% 以內），再從小的 n 開始代入上式檢查，找到第一個滿足精確度需求的 n —— 這正是 Gauge R&amp;R、Cpk 信賴區間等方法回答「重複量測要做幾次」的標準做法，也和 §6.2(d)／§13.3 統計容忍區間的 k-factor 查表背後是同一套數學（k-factor 本身就是從 t 分布與卡方分布組合推導出來的）。實務上多半直接用統計軟體或查表求解，不需要手動反解。</span>
+            <span class="en">The "reverse" approach: define the acceptable precision first (e.g., 90% confidence that the estimated s falls within ±25% of the true σ), then plug in increasing n until this inequality is satisfied — that's the standard way Gauge R&amp;R studies, Cpk confidence intervals, and similar methods answer "how many repeat measurements do I need?" It shares the same underlying math as the §6.2(d)/§13.3 statistical-tolerance-interval k-factor tables (those k-factors are themselves derived by combining the t-distribution with the chi-square distribution). In practice this is solved with statistical software or lookup tables rather than by hand.</span>
           </div>
         </div>
 
@@ -1064,7 +1067,7 @@
               <tr>
                 <td><span class="zh"><strong>TEST_T 是 touchdown 時間，不是單顆時間</strong></span><span class="en"><strong>TEST_T is touchdown time, not per-die time</strong></span></td>
                 <td><span class="zh">同一 touchdown 的 14 個 site，PRR TEST_T 完全相同</span><span class="en">All 14 sites in one touchdown reported exactly the same PRR TEST_T</span></td>
-                <td><span class="zh">算 TTR 節省時不要逐顆加總（會高估約 site 數倍）；以 touchdown 為單位，或用測試機的逐測項 test-time profiling（見 §12.5）</span><span class="en">Don't sum it per die when computing TTR savings (that overstates by roughly the site count); work per touchdown, or use the tester's per-test time profiling (see §12.5)</span></td>
+                <td><span class="zh">算 TTR 節省時不要逐顆加總（會高估約 site 數倍）；以 touchdown 為單位，或用測試機的逐測項 test-time profiling（見 §13.5）</span><span class="en">Don't sum it per die when computing TTR savings (that overstates by roughly the site count); work per touchdown, or use the tester's per-test time profiling (see §13.5)</span></td>
               </tr>
               <tr>
                 <td><span class="zh"><strong>摘要 record 重複計算</strong></span><span class="en"><strong>Double-counting summary records</strong></span></td>
@@ -1904,8 +1907,8 @@
             <span class="en"><strong>SPC monitoring:</strong> Build control charts for the item's margin/Cpk with trigger limits; automatically restore 100% testing if the trend goes out of control. If the item was approved for removal via the §6.2(g) tightened-upstream-limit route, <strong>monitoring the PCM/WAT correlation for this parameter is required, not optional</strong> — process-level variation typically shows up in PCM/WAT before it's visible in WT/FT data.</span>
           </li>
           <li>
-            <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策（測試平台遷移的注意事項見 §12.5）。</span>
-            <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision (see §12.5 for tester-platform migrations).</span>
+            <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策（測試平台遷移的注意事項見 §13.5）。</span>
+            <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision (see §13.5 for tester-platform migrations).</span>
           </li>
         </ul>
 
@@ -2025,8 +2028,8 @@
             <span class="en"><strong>CQC intake:</strong> extract the associated fail mode / electrical parameter / bin from the complaint.</span>
           </li>
           <li>
-            <span class="zh"><strong>比對決策紀錄：</strong>用該參數查詢 §12.2 的決策紀錄（Risk &amp; Decision Log）—— 這個測項目前是「保留」「抽測」還是「已移除」？</span>
-            <span class="en"><strong>Cross-check the decision log:</strong> look up that parameter in the §12.2 Risk &amp; Decision Log — is this test item currently "kept," "sampled," or "removed"?</span>
+            <span class="zh"><strong>比對決策紀錄：</strong>用該參數查詢 §13.2 的決策紀錄（Risk &amp; Decision Log）—— 這個測項目前是「保留」「抽測」還是「已移除」？</span>
+            <span class="en"><strong>Cross-check the decision log:</strong> look up that parameter in the §13.2 Risk &amp; Decision Log — is this test item currently "kept," "sampled," or "removed"?</span>
           </li>
           <li>
             <span class="zh"><strong>若為已移除或抽測 →</strong> 立即觸發 Phase 6 的回退條件，恢復 100% 測試，不等待正式審核流程；根因調查與統計覆核可以並行進行，不應拖延恢復覆蓋的時間。</span>
@@ -2604,10 +2607,192 @@
         </div>
       </section>
 
-      <section id="appendix">
-        <h2><span class="num">12</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+      <section id="onchip">
+        <h2><span class="num">12</span><span class="zh">片上量測（On-Chip Measurement）取代外部儀器</span><span class="en">On-Chip Measurement in Place of External Instruments</span></h2>
+        <p class="lead">
+          <span class="zh">另一條 TTR 路線不是「移除測項」，而是「換量測方法」：讓晶片用自己的 ADC、感測器或 BIST 量測內部訊號，再透過 scan／JTAG 以數位碼回傳，測試機只負責讀碼，不再用 PMU、DPS、digitizer 等外部儀器逐一量測。測項還在，但量測時間大幅縮短。</span>
+          <span class="en">Another TTR route isn't removing a test but changing how it's measured: the chip measures internal signals with its own ADC, sensors, or BIST and reports digital codes over scan/JTAG, so the tester only reads codes instead of measuring each signal with external instruments such as a PMU, DPS, or digitizer. The test item stays; its measurement time shrinks dramatically.</span>
+        </p>
+        <div class="callout">
+          <span class="tag"><span class="zh">與 Phase 0–7 的關係</span><span class="en">How This Relates to Phase 0–7</span></span>
+          <p>
+            <span class="zh">換量測方法就是換量測系統，所以 Phase 0 §3.4（量測系統有效性）是起點；Phase 3 的比較對象不再是「WT vs FT」，而是「片上量測 vs 外部儀器」在同一顆 die 上的一致性；之後同樣走 Phase 4 簽核（設計端 review 特別重要——只有設計端清楚片上電路看得到哪些缺陷、看不到哪些）、Phase 5 pilot 與 Phase 6 回退。</span>
+            <span class="en">Changing the measurement method means changing the measurement system, so Phase 0 §3.4 (measurement-system validity) is the starting point. In Phase 3 the comparison is no longer "WT vs. FT" but on-chip vs. external-instrument agreement on the same die. After that, the usual Phase 4 sign-off (designer review matters especially here — only the designers know which defects the on-chip circuits can and can't see), Phase 5 pilot, and Phase 6 rollback apply.</span>
+          </p>
+        </div>
 
-        <h3><span class="zh">12.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">12.1 Template Fields — Test Mapping Table</span></h3>
+        <h3><span class="zh">12.1 常見的片上量測類型</span><span class="en">12.1 Common Types of On-Chip Measurement</span></h3>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">類型</span><span class="en">Type</span></th>
+              <th><span class="zh">取代的外部量測</span><span class="en">Replaces</span></th>
+              <th><span class="zh">主要風險</span><span class="en">Main risk</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td><span class="zh">片上 ADC／電壓監測（讀內部電源、LDO 輸出、bandgap）</span><span class="en">On-chip ADC / voltage monitor (internal rails, LDO output, bandgap)</span></td><td><span class="zh">PMU／DPS 逐一量測各電源</span><span class="en">PMU/DPS measuring each rail one by one</span></td><td><span class="zh">與受測電路共用參考（見 §12.3）；解析度、INL／DNL</span><span class="en">Shares a reference with the circuit under test (see §12.3); resolution, INL/DNL</span></td></tr>
+              <tr><td><span class="zh">片上電流感測／功耗監測</span><span class="en">On-chip current sensing / power monitor</span></td><td><span class="zh">DPS 量電流</span><span class="en">DPS current measurement</span></td><td><span class="zh">對 µA 級漏電的精度通常不足，難以取代 IDDQ 類測項</span><span class="en">Usually too coarse for µA-level leakage; hard to replace IDDQ-type items</span></td></tr>
+              <tr><td><span class="zh">Ring oscillator／製程監測電路</span><span class="en">Ring oscillators / process monitors</span></td><td><span class="zh">部分 Fmax search、shmoo</span><span class="en">Part of Fmax search / shmoo</span></td><td><span class="zh">只代表局部製程速度，不等於真實關鍵路徑的時序</span><span class="en">Represents local process speed only, not the real critical-path timing</span></td></tr>
+              <tr><td><span class="zh">溫度感測器</span><span class="en">Temperature sensor</span></td><td><span class="zh">外部推估接面溫度</span><span class="en">Externally estimated junction temperature</span></td><td><span class="zh">感測器本身需要校正（常靠 trim）</span><span class="en">The sensor itself needs calibration (often via trim)</span></td></tr>
+              <tr><td><span class="zh">BIST：MBIST、LBIST、類比 BIST、SerDes／RF loopback、PLL lock／頻率計數</span><span class="en">BIST: MBIST, LBIST, analog BIST, SerDes/RF loopback, PLL lock / frequency counter</span></td><td><span class="zh">高速 digitizer、RF 儀器、長向量</span><span class="en">High-speed digitizers, RF instruments, long vector sets</span></td><td><span class="zh">內部 loopback 看不到 pad、封裝、外部走線的缺陷；涵蓋率要由設計端確認（§3.5）</span><span class="en">Internal loopback can't see pad, package, or external-path defects; coverage must be confirmed with designers (§3.5)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">12.2 為什麼能省時間</span><span class="en">12.2 Where the Time Savings Come From</span></h3>
+        <ul>
+          <li>
+            <span class="zh"><strong>平行化：</strong>所有 site、多個量測點可同時進行，不必排隊使用共用儀器（§13.5 的序列化資源問題直接消失）。</span>
+            <span class="en"><strong>Parallelism:</strong> all sites and many measurement points run at once instead of queuing for shared instruments (§13.5's serialized-resource problem simply disappears).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>沒有切換與穩定等待：</strong>不必切 relay、設定儀器量程、等待 settling。</span>
+            <span class="en"><strong>No switching or settling:</strong> no relay switching, no instrument range setup, no settling waits.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>需要的測試機資源更少：</strong>可以提高 site 數，甚至改用較低成本的測試機。</span>
+            <span class="en"><strong>Fewer tester resources:</strong> allows a higher site count, or even a lower-cost tester.</span>
+          </li>
+        </ul>
+        <p>
+          <span class="zh"><strong>示範（虛構數字）：</strong>16 site、每顆 8 個內部電源，若共用 PMU 只能逐 site 逐點量測、每點 2 ms，一個 touchdown 要 8 × 16 × 2 = 256 ms；改由片上 ADC 一次讀出所有電源、所有 site 平行經 scan 回傳，可能只需約 10 ms。</span>
+          <span class="en"><strong>Illustration (made-up numbers):</strong> 16 sites, 8 internal rails per die. If a shared PMU can only measure site by site, point by point, at 2 ms each, one touchdown takes 8 × 16 × 2 = 256 ms; with an on-chip ADC reading all rails at once and all sites reporting in parallel over scan, it might take about 10 ms.</span>
+        </p>
+
+        <h3><span class="zh">12.3 最大的風險：晶片在量自己</span><span class="en">12.3 The Biggest Risk: The Chip Is Measuring Itself</span></h3>
+        <p>
+          <span class="zh">外部儀器有自己獨立、經過校正的參考；片上量測的「尺規」卻是晶片自己的電路。當缺陷同時影響受測電路與量測電路的共用參考時，兩者一起偏移，讀值看起來完全正常——這是片上量測特有、外部儀器不會發生的失效模式（common-mode failure）。</span>
+          <span class="en">An external instrument has its own independent, calibrated reference; an on-chip measurement's "ruler" is the chip's own circuitry. When a defect affects a reference shared by the circuit under test and the measuring circuit, both shift together and the reading looks perfectly normal — a common-mode failure unique to on-chip measurement that an external instrument can't suffer.</span>
+        </p>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 720 320" role="img" aria-label="external measurement versus on-chip measurement sharing a bandgap reference">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <text x="30" y="24" font-size="13" font-weight="600"><tspan class="zh">(a) 外部儀器量測</tspan><tspan class="en">(a) External instrument</tspan></text>
+              <text x="370" y="24" font-size="13" font-weight="600"><tspan class="zh">(b) 片上量測：與受測電路共用參考</tspan><tspan class="en">(b) On-chip: shares a reference</tspan></text>
+              <!-- (a) -->
+              <rect x="40" y="50" width="150" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="115" y="75" text-anchor="middle" font-size="12.5">Tester PMU / DPS</text>
+              <rect x="30" y="130" width="300" height="110" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="40" y="148" font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">DUT</text>
+              <rect x="60" y="170" width="110" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="115" y="195" text-anchor="middle" font-size="12.5">LDO</text>
+              <line x1="115" y1="170" x2="115" y2="92" stroke="var(--accent)" stroke-width="2"/>
+              <path d="M109,100 L115,90 L121,100 Z" fill="var(--accent)"/>
+              <g font-size="11" fill="var(--accent-strong)">
+                <text x="126" y="110"><tspan class="zh">直接量 pin 電壓</tspan><tspan class="en">Measures the pin directly</tspan></text>
+                <text x="126" y="124"><tspan class="zh">外部獨立、已校正的參考</tspan><tspan class="en">independent, calibrated reference</tspan></text>
+              </g>
+              <!-- (b) -->
+              <rect x="370" y="50" width="330" height="190" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="380" y="68" font-family="IBM Plex Mono" font-size="11" fill="var(--ink-faint)">DUT</text>
+              <rect x="390" y="80" width="110" height="40" rx="4" fill="var(--danger-soft)" stroke="var(--danger)" stroke-width="1.8"/>
+              <text x="445" y="105" text-anchor="middle" font-size="12.5">Bandgap</text>
+              <rect x="390" y="170" width="110" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="445" y="195" text-anchor="middle" font-size="12.5">LDO</text>
+              <rect x="570" y="125" width="110" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="625" y="150" text-anchor="middle" font-size="12.5">ADC</text>
+              <line x1="445" y1="120" x2="445" y2="168" stroke="var(--danger)" stroke-width="2"/>
+              <path d="M439,160 L445,170 L451,160 Z" fill="var(--danger)"/>
+              <path d="M500,100 H625 V123" fill="none" stroke="var(--danger)" stroke-width="2"/>
+              <path d="M619,115 L625,125 L631,115 Z" fill="var(--danger)"/>
+              <path d="M500,190 H540 V145 H568" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <path d="M560,139 L570,145 L560,151 Z" fill="var(--accent)"/>
+              <line x1="625" y1="165" x2="625" y2="262" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="5,4"/>
+              <path d="M619,254 L625,264 L631,254 Z" fill="var(--ink-soft)"/>
+              <g font-size="11">
+                <text x="512" y="93" fill="var(--danger)"><tspan class="zh">參考</tspan><tspan class="en">ref</tspan></text>
+                <text x="452" y="148" fill="var(--danger)"><tspan class="zh">參考</tspan><tspan class="en">ref</tspan></text>
+                <text x="512" y="206" fill="var(--accent-strong)"><tspan class="zh">量測輸入</tspan><tspan class="en">input</tspan></text>
+                <text x="625" y="282" text-anchor="middle" fill="var(--ink-soft)"><tspan class="zh">scan／JTAG → tester 只讀數位碼</tspan><tspan class="en">scan/JTAG → tester reads a digital code only</tspan></text>
+              </g>
+              <text x="360" y="308" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--danger)"><tspan class="zh">若 bandgap 偏高 3%：LDO 輸出 +3%，ADC 的尺規也 +3% → 讀值不變，片上量測看不出來</tspan><tspan class="en">If the bandgap is 3% high: LDO output +3%, and the ADC's ruler +3% too → reading unchanged; on-chip can't see it</tspan></text>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">(a) 外部儀器用自己獨立的參考直接量 pin，bandgap 偏移會直接反映在讀值上。(b) 片上 ADC 與 LDO 都以同一個 bandgap 為參考（紅線）：bandgap 一偏，受測值與尺規同步偏移，比值不變，數位碼看起來正常。這就是 §12.3 要求保留「錨點量測」的原因。</span>
+            <span class="en">(a) An external instrument measures the pin against its own independent reference, so a bandgap shift shows up directly in the reading. (b) The on-chip ADC and the LDO both reference the same bandgap (red): when the bandgap shifts, the measured value and the ruler move together, the ratio stays the same, and the digital code looks normal. This is why §12.3 requires keeping an anchor measurement.</span>
+          </figcaption>
+        </figure>
+        <div class="callout danger">
+          <span class="tag"><span class="zh">保留至少一個外部「錨點量測」</span><span class="en">Keep at Least One External Anchor Measurement</span></span>
+          <p>
+            <span class="zh">片上量測不能成為它所依賴之參考的唯一檢查。每顆 die 至少保留一個以外部儀器量測的絕對錨點——例如直接量 bandgap 或 ADC 參考電壓，或由測試機強制一個已知電壓讓片上 ADC 讀取、比對讀值是否正確。少了這個錨點，整組片上量測可能一起偏移而沒有任何機制發現，無論相關性統計多漂亮都一樣。</span>
+            <span class="en">An on-chip measurement must never be the only check of the reference it depends on. Keep at least one absolute anchor measured with an external instrument on every die — for example, measure the bandgap or ADC reference directly, or have the tester force a known voltage for the on-chip ADC to read and check that the code is right. Without that anchor, the whole set of on-chip measurements can drift together with nothing to catch it, no matter how good the correlation statistics look.</span>
+          </p>
+        </div>
+        <p>
+          <span class="zh"><strong>其他風險：</strong></span>
+          <span class="en"><strong>Other risks:</strong></span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>規格定義在 pin 上：</strong>若 datasheet 或客戶規格把參數定義為「在 pin 上、以指定條件量測」，片上的內部量測不能直接取代，屬於 Phase 0 §3.1 的規格強制範圍，需客戶同意。</span>
+            <span class="en"><strong>Specs defined at the pin:</strong> if the datasheet or customer spec defines a parameter as "measured at the pin under stated conditions," an internal on-chip reading can't substitute directly — it falls under Phase 0 §3.1's spec-mandated scope and needs customer agreement.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>看不到 pin 層級缺陷：</strong>pad open、pin 漏電、ESD 損傷、封裝與外部走線問題，片上電路都看不到——移除對應的外部量測前要先過 Phase 0 §3.2 零覆蓋守則。</span>
+            <span class="en"><strong>Blind to pin-level defects:</strong> pad opens, pin leakage, ESD damage, and package or external-path problems are invisible to on-chip circuits — pass the Phase 0 §3.2 zero-coverage guard before dropping the matching external measurement.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>精度與解析度：</strong>ADC 的 LSB、INL／DNL、雜訊與溫度漂移都會進入量測不確定度，必須小於 spec 容許範圍的一小部分（見 §12.4 的 guardband）。</span>
+            <span class="en"><strong>Accuracy and resolution:</strong> the ADC's LSB, INL/DNL, noise, and temperature drift all feed the measurement uncertainty, which must be a small fraction of the spec tolerance (see §12.4's guardband).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>相依性：</strong>片上量測電路要先能正常上電、運作（常還要先 trim）；前段 fail 的 die 可能根本讀不到值，與 stop-on-fail 的資料缺口一樣要分開處理（§5.3）。</span>
+            <span class="en"><strong>Dependencies:</strong> the on-chip measurement circuitry must power up and work first (often after trim); die that failed earlier may return no reading at all — handle that gap separately, like stop-on-fail missing data (§5.3).</span>
+          </li>
+        </ul>
+
+        <h3><span class="zh">12.4 導入驗證步驟</span><span class="en">12.4 Validation Steps for Adoption</span></h3>
+        <ol>
+          <li>
+            <span class="zh"><strong>Phase 0 篩選：</strong>確認是否為規格強制的 pin 層級參數（§3.1）、改用片上量測後是否造成任何失效模式零覆蓋（§3.2）；由設計端列出片上電路看得到與看不到的缺陷。</span>
+            <span class="en"><strong>Phase 0 screening:</strong> check whether the parameter is spec-mandated at the pin (§3.1) and whether switching to on-chip leaves any failure mode with zero coverage (§3.2); have the designers list which defects the on-chip circuit can and can't see.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>方法比對（method comparison）：</strong>同一批 die 用兩種方法都量（外部儀器為參考），涵蓋多個 lot、溫度 corner 與 site。<strong>只看相關係數 r 不夠</strong>——r 高只代表兩者一起變動，不代表數值一致；要看偏差（bias）、一致性界限（limits of agreement）、整個量測範圍內的線性，以及片上方法本身的重複性（Gauge R&amp;R）。</span>
+            <span class="en"><strong>Method comparison:</strong> measure the same die both ways (external instrument as the reference), across several lots, temperature corners, and sites. <strong>The correlation r alone isn't enough</strong> — a high r only means the two move together, not that they agree; examine the bias, the limits of agreement, linearity across the full range, and the on-chip method's own repeatability (Gauge R&amp;R).</span>
+            <div class="formula">
+              <div class="label"><span class="zh">Bland–Altman 一致性界限</span><span class="en">Bland–Altman limits of agreement</span></div>
+              <div class="eq">\[ d_i = x_{\text{on-chip},i} - x_{\text{ext},i}, \qquad \text{LoA} = \bar{d} \pm 1.96\, s_d \]</div>
+            </div>
+          </li>
+          <li>
+            <span class="zh"><strong>依不確定度設 guardband：</strong>先校正系統性偏差，再把片上量測的不確定度 u 從 spec limit 往內收（概念同 §6.2(g) 與 ILAC-G8 的判定規則）：</span>
+            <span class="en"><strong>Guardband for uncertainty:</strong> correct the systematic bias first, then pull the test limits in from the spec limits by the on-chip measurement uncertainty u (the same idea as §6.2(g) and ILAC-G8 decision rules):</span>
+            <div class="formula">
+              <div class="label"><span class="zh">片上量測的測試 limit</span><span class="en">Test limits for an on-chip measurement</span></div>
+              <div class="eq">\[ \text{TL}_{\text{upper}} = \text{USL} - k\,u, \qquad \text{TL}_{\text{lower}} = \text{LSL} + k\,u \]</div>
+              <div class="note">
+                <span class="zh">k 依目標信心選擇（常用 k = 2）。收得越多，良率損失越大；若 k·u 吃掉 spec 容許範圍的一大塊，代表片上量測不夠準，不適合取代外部量測。</span>
+                <span class="en">Choose k for the target confidence (k = 2 is common). The more you pull in, the more yield you lose; if k·u eats a large share of the spec tolerance, the on-chip measurement isn't accurate enough to replace the external one.</span>
+              </div>
+            </div>
+          </li>
+          <li>
+            <span class="zh"><strong>保留錨點量測</strong>（§12.3 紅框）。</span>
+            <span class="en"><strong>Keep the anchor measurement</strong> (§12.3, red box).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>平行試行：</strong>Phase 5 pilot 期間兩種方法同時跑，比對每顆 die 的 pass／fail 判定；特別統計「外部判 fail、片上判 pass」的顆數——這就是片上量測的 Incremental Catch 缺口，處理方式同 §6.1。</span>
+            <span class="en"><strong>Parallel run:</strong> during the Phase 5 pilot, run both methods and compare each die's pass/fail call; count especially "external fails, on-chip passes" — that's the on-chip method's Incremental Catch gap, handled as in §6.1.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>持續稽核：</strong>導入後定期抽樣以外部儀器量測（如每 lot 幾顆 monitor die），對兩者的差值做 SPC；設計改版、trim 方法變更、測試機更換時重新驗證。</span>
+            <span class="en"><strong>Ongoing audit:</strong> after rollout, periodically sample with the external instrument (e.g., a few monitor die per lot) and run SPC on the difference between the two; re-validate after a design revision, a trim-method change, or a tester change.</span>
+          </li>
+        </ol>
+        <p>
+          <span class="zh"><strong>示範（虛構數字）：</strong>某 LDO 輸出規格 1.200 V ± 3%（± 36 mV），片上 ADC LSB = 2 mV。300 顆 die 兩種方法比對：平均差 \(\bar{d} = +4\) mV、差值標準差 \(s_d = 3\) mV → LoA = +4 ± 5.9 mV（−1.9 至 +9.9 mV）。先扣除 +4 mV 的系統偏差，再以 u = 3 mV、k = 2 收 6 mV，片上量測的測試 limit 變為 1.200 V ± 30 mV。下一步是確認這 6 mV 造成的良率損失可以接受（同 §6.2(g) 的 ROI 天平）。</span>
+          <span class="en"><strong>Illustration (made-up numbers):</strong> an LDO output spec of 1.200 V ± 3% (± 36 mV), on-chip ADC LSB = 2 mV. Comparing both methods on 300 die: mean difference \(\bar{d} = +4\) mV, standard deviation of the differences \(s_d = 3\) mV → LoA = +4 ± 5.9 mV (−1.9 to +9.9 mV). Correct the +4 mV systematic bias first, then pull in by 6 mV with u = 3 mV and k = 2: the on-chip test limits become 1.200 V ± 30 mV. Next, confirm that the yield lost to those 6 mV is acceptable (the same ROI balance as §6.2(g)).</span>
+        </p>
+      </section>
+
+      <section id="appendix">
+        <h2><span class="num">13</span><span class="zh">附錄</span><span class="en">Appendix</span></h2>
+
+        <h3><span class="zh">13.1 範本欄位 — 測試對應矩陣（Test Mapping Table）</span><span class="en">13.1 Template Fields — Test Mapping Table</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test ID (WT / FT)</b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b>Test Name</b></div>
@@ -2619,7 +2804,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">備註</span><span class="en">Notes</span></b></div>
         </div>
 
-        <h3><span class="zh">12.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">12.2 Template Fields — Risk &amp; Decision Log</span></h3>
+        <h3><span class="zh">13.2 範本欄位 — 決策紀錄（Risk &amp; Decision Log）</span><span class="en">13.2 Template Fields — Risk &amp; Decision Log</span></h3>
         <div class="field-list">
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">候選測項</span><span class="en">Candidate test item</span></b></div>
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">規格是否強制</span><span class="en">Spec-mandated?</span></b></div>
@@ -2641,7 +2826,7 @@
           <div><span class="zh">欄位</span><span class="en">Field</span><b><span class="zh">下次覆核日期</span><span class="en">Next review date</span></b></div>
         </div>
 
-        <h3><span class="zh">12.3 公式參考卡</span><span class="en">12.3 Formula Reference Card</span></h3>
+        <h3><span class="zh">13.3 公式參考卡</span><span class="en">13.3 Formula Reference Card</span></h3>
         <div class="formula">
           <div class="label"><span class="zh">Zero-failure 樣本數（95% CI）</span><span class="en">Zero-failure sample size (95% CI)</span></div>
           <div class="eq">\[ n \ge \dfrac{\ln(0.05)}{\ln(1-p_{\text{target}})} \approx \dfrac{3}{p_{\text{target}}} \]</div>
@@ -2661,6 +2846,10 @@
         <div class="formula">
           <div class="label"><span class="zh">馬氏距離（多變量離群偵測）</span><span class="en">Mahalanobis distance (multivariate outlier detection)</span></div>
           <div class="eq">\[ D^{2} = (x-\mu)^{\top}\Sigma^{-1}(x-\mu) \]</div>
+        </div>
+        <div class="formula">
+          <div class="label"><span class="zh">Bland–Altman 一致性界限（片上 vs 外部量測）</span><span class="en">Bland–Altman limits of agreement (on-chip vs. external)</span></div>
+          <div class="eq">\[ \text{LoA} = \bar{d} \pm 1.96\, s_d, \qquad \text{TL} = \text{SL} \mp k\,u \]</div>
         </div>
         <div class="formula">
           <div class="label"><span class="zh">NNR 殘差與 robust z</span><span class="en">NNR residual and robust z</span></div>
@@ -2701,7 +2890,7 @@
           <div class="eq">\[ n_{\text{eff}} = \dfrac{n}{1+(m-1)\,\rho} \]</div>
         </div>
 
-        <h3><span class="zh">12.4 延伸參考</span><span class="en">12.4 Further References</span></h3>
+        <h3><span class="zh">13.4 延伸參考</span><span class="en">13.4 Further References</span></h3>
         <ul>
           <li><span class="zh">Clopper–Pearson exact binomial confidence interval — 屬性資料信賴區間的精確解法。</span><span class="en">Clopper–Pearson exact binomial confidence interval — the exact-form confidence interval for attribute data.</span></li>
           <li>ASTM E2586 — Standard Practice for Calculating and Using Tolerance Factors for Statistical Tolerance Intervals.</li>
@@ -2715,11 +2904,14 @@
           <li><span class="zh">ITRS／IRDS「Test and Test Equipment」章節 — 業界路線圖對 adaptive test（feed-forward、in-situ、feed-back 等型態）的概念說明。</span><span class="en">ITRS/IRDS "Test and Test Equipment" chapter — the industry roadmap's description of adaptive test concepts (feed-forward, in-situ, feed-back, etc.).</span></li>
           <li>Rousseeuw, P. J. &amp; Croux, C. (1993), "Alternatives to the Median Absolute Deviation," <em>Journal of the American Statistical Association</em> — <span class="zh">MAD 等 robust 尺度估計的效率與一致性常數。</span><span class="en">efficiency and consistency constants for MAD and related robust scale estimators.</span></li>
           <li><span class="zh">ISO 22514 系列 — 製程能力與績效統計方法，含非常態分布的分位數（percentile）法 Cpk。</span><span class="en">ISO 22514 series — statistical methods for process capability and performance, including the percentile method for Cpk on non-normal distributions.</span></li>
+          <li>Bland, J. M. &amp; Altman, D. G. (1986), "Statistical methods for assessing agreement between two methods of clinical measurement," <em>The Lancet</em> — <span class="zh">兩種量測方法的一致性評估（bias 與一致性界限），而非只看相關係數。</span><span class="en">assessing agreement between two measurement methods (bias and limits of agreement) rather than correlation alone.</span></li>
+          <li>JCGM 100:2008 (GUM) — <span class="zh">量測不確定度的表示方法，片上量測 guardband 的不確定度 u 依此估算。</span><span class="en">Guide to the expression of uncertainty in measurement; the basis for estimating the uncertainty u behind an on-chip guardband.</span></li>
+          <li>IEEE 1687 (IJTAG) — <span class="zh">存取晶片內建量測儀器（embedded instruments）的標準介面。</span><span class="en">the standard interface for accessing on-chip embedded instruments.</span></li>
           <li><span class="zh">AEC-Q002 — Guidelines for Statistical Yield Analysis，以統計 yield／bin 界限（SYL／SBL）辨識異常 lot 的參考方法。</span><span class="en">AEC-Q002 — Guidelines for Statistical Yield Analysis; a reference method for identifying abnormal lots with statistical yield/bin limits (SYL/SBL).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
 
-        <h3><span class="zh">12.5 測試機平台：Advantest V93000 與 SmarTest 7／8</span><span class="en">12.5 Tester Platform: Advantest V93000 and SmarTest 7/8</span></h3>
+        <h3><span class="zh">13.5 測試機平台：Advantest V93000 與 SmarTest 7／8</span><span class="en">13.5 Tester Platform: Advantest V93000 and SmarTest 7/8</span></h3>
         <p>
           <span class="zh">本 SOP 的方法與測試機平台無關，但真正導入 TTR 或 adaptive test 時，要在測試程式裡改 flow、調 limit、設定 datalog——平台細節會直接決定「實際能省多少」以及「資料可不可信」。以下以業界常見的 Advantest V93000（常簡稱 93K）為例。</span>
           <span class="en">This SOP's method is platform-independent, but actually implementing TTR or adaptive test means changing flows, adjusting limits, and configuring the datalog inside the test program — and platform details directly decide how much is really saved and whether the data can be trusted. The examples below use the widely deployed Advantest V93000 (often called the 93K).</span>
@@ -2787,8 +2979,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 08:17</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 08:17</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 09:15</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 09:15</span>
   </footer>
 </div>
 
