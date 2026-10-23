@@ -18,6 +18,7 @@
 3. **收合（collapse）預設狀態**：除了 Process Overview（`#overview`）維持展開，其餘所有 `h2` 章節預設收合；`h3`/`h4` 子章節本身預設展開（只是要等父層章節被點開才看得到）。
 4. **Find 功能不能邊打字邊跳頁**：輸入時只更新結果面板內容和計數（`current = -1`，不呼叫 `highlightCurrent()`）；只有明確動作（點結果面板的項目、按 Enter、按上下箭頭按鈕）才會真的捲動跳轉並展開對應的收合區塊。
 5. **服務於網址的檔案要用 ASCII 檔名**：主文件叫 `index.html`（GitHub Pages 用，避免中文檔名被編碼成一長串 `%E8%B7%A8...` 網址，分享時出問題）；純本地、不會被 URL 存取的檔案才可以用中文檔名。
+6. **固定頂列（`.topbar`）**：搜尋、深淺色、語言按鈕放在頁面最上方 sticky 的 `.topbar` 裡，不在 masthead 內。任何會被錨點跳轉或 `scrollIntoView` 定位的元素（section、h3、h4、figure），都要用 `scroll-margin-top: calc(var(--topbar-h) + 16px)` 讓出頂列高度，否則標題會被頂列蓋住；側邊 TOC 的 sticky `top` 也一樣以 `--topbar-h` 為基準。
 
 ## 工作流程規則
 

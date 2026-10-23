@@ -79,11 +79,37 @@
     line-height:1.7;
     padding:0 20px;
   }
-  .page{max-width:1180px;margin:0 auto;padding-block:32px 80px;}
+  .page{max-width:1180px;margin:0 auto;padding-block:24px 80px;}
 
   h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;text-wrap:balance;color:var(--ink);}
   a{color:var(--accent);}
   code, .mono{font-family:var(--font-mono);}
+
+  /* ---- sticky top bar ---- */
+  :root{--topbar-h:56px;}
+  .topbar{
+    position:sticky;top:0;z-index:60;
+    margin:0 -20px;padding:0 20px;
+    background:var(--bg);
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{
+    max-width:1180px;margin:0 auto;min-height:var(--topbar-h);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0;
+  }
+  .topbar-title{
+    display:flex;align-items:center;gap:10px;min-width:0;
+    font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--ink);text-decoration:none;
+  }
+  .topbar-title:hover{color:var(--accent-strong);}
+  .topbar-title .dot{width:8px;height:22px;border-radius:2px;background:var(--accent);flex:none;}
+  .topbar-title .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  @media (max-width:640px){
+    .topbar-title .t{display:none;}
+    .topbar-inner .controls{flex:1;justify-content:flex-end;}
+  }
 
   /* ---- masthead ---- */
   .masthead{
@@ -94,7 +120,6 @@
     padding:28px 32px;
     margin-bottom:28px;
   }
-  .masthead-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
   .masthead .eyebrow{
     font-family:var(--font-mono);
     font-size:12px;
@@ -160,11 +185,12 @@
     line-height:1.08;
     margin:6px 0 4px;
   }
+  .masthead .eyebrow{display:block;}
   .masthead .sub{
     color:var(--ink-soft);
     font-size:16px;
-    max-width:64ch;
-    margin-bottom:20px;
+    max-width:96ch;
+    margin:10px 0 22px;
   }
   .doc-fields{
     display:grid;
@@ -177,16 +203,16 @@
     font-family:var(--font-mono);
     font-size:12.5px;
   }
-  .doc-fields div{background:var(--surface-2);padding:8px 12px;}
-  .doc-fields span{display:block;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-bottom:3px;}
-  .doc-fields b{color:var(--ink);font-weight:600;}
+  .doc-fields div{background:var(--surface-2);padding:9px 12px;}
+  .doc-fields div > span{display:block;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-bottom:4px;}
+  .doc-fields b{display:block;color:var(--ink);font-weight:600;line-height:1.45;}
 
   /* ---- layout ---- */
   .body-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start;transition:grid-template-columns .18s ease;}
   .body-grid.toc-collapsed{grid-template-columns:34px minmax(0,1fr);gap:16px;}
   @media (max-width:900px){.body-grid{grid-template-columns:1fr;}}
 
-  nav.toc{position:sticky;top:20px;align-self:start;}
+  nav.toc{position:sticky;top:calc(var(--topbar-h) + 16px);align-self:start;max-height:calc(100vh - var(--topbar-h) - 32px);overflow-y:auto;}
   @media (max-width:900px){nav.toc{display:none;}}
   nav.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--border);}
   nav.toc li{margin:0;}
@@ -217,7 +243,8 @@
   details.toc-m ol{list-style:none;margin:0;padding:0 16px 16px;}
   details.toc-m a{display:block;padding:5px 0;font-size:14px;color:var(--ink-soft);text-decoration:none;}
 
-  main section{margin-bottom:52px;scroll-margin-top:20px;}
+  main section{margin-bottom:52px;scroll-margin-top:calc(var(--topbar-h) + 16px);}
+  main h3, main h4, main figure, .masthead{scroll-margin-top:calc(var(--topbar-h) + 16px);}
   main section > h2{
     font-size:clamp(21px,2.6vw,27px);
     display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
@@ -323,14 +350,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 </head>
 <body>
-<div class="page">
-
-  <header class="masthead">
-    <div class="masthead-top">
-      <span class="eyebrow">
-        <span class="zh">方法論文件 · Methodology SOP · Created by @MasaTu</span>
-        <span class="en">Methodology Document · SOP · Created by @MasaTu</span>
-      </span>
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="topbar-title" href="#top" aria-label="Back to top / 回到頂端">
+      <span class="dot"></span>
+      <span class="t"><span class="zh">半導體跨站測試覆蓋優化 SOP</span><span class="en">Cross-Stage Test Coverage SOP</span></span>
+    </a>
       <div class="controls">
         <div class="find-box">
           <input type="search" id="findInput" placeholder="Find / 搜尋" aria-label="Find in document">
@@ -342,7 +367,16 @@
         <button type="button" id="themeToggle" class="ctrl-btn">🌙 <span class="zh">深色</span><span class="en">Dark</span></button>
         <button type="button" id="langToggle" class="ctrl-btn">EN</button>
       </div>
-    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <header class="masthead" id="top">
+    <span class="eyebrow">
+      <span class="zh">方法論文件 · Methodology SOP · Created by @MasaTu</span>
+      <span class="en">Methodology Document · SOP · Created by @MasaTu</span>
+    </span>
     <h1><span class="zh">半導體跨站測試覆蓋優化 SOP</span><span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP</span></h1>
     <p class="sub">
       <span class="zh">WT／FT 跨站測項冗餘分析與 Test Time Reduction 決策流程 — 從 Bin-level 判定延伸至 Parameter-level 統計驗證，附樣本數科學依據與範本表格。</span>
@@ -351,7 +385,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 08:02</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 08:17</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -459,6 +493,7 @@
               <tr><td class="mono">Adaptive Test</td><td><span class="zh">依產品成熟度、晶圓區域、前段 wafer 結果等證據，對不同 wafer／die 動態套用不同測試內容（完整 flow 或精簡 flow）的測試策略，見 §11。</span><span class="en">A test strategy that dynamically applies different test content (full or reduced flow) to different wafers/die based on evidence such as product maturity, wafer zone, and results from earlier wafers — see §11.</span></td></tr>
               <tr><td class="mono">Zonal Yield / Bin Pareto</td><td><span class="zh">把晶圓依位置切成分區（如中心／中間／邊緣）分別計算的良率；bin Pareto 是把 fail 依 bin 由多到少排序，找出佔大宗的失效類別。</span><span class="en">Yield computed separately for each wafer region (e.g., center/middle/edge); a bin Pareto ranks fails by bin from most to least frequent to show which failure categories dominate.</span></td></tr>
               <tr><td class="mono">Sentinel wafer / Monitor die</td><td><span class="zh">Adaptive test 中刻意保留完整 flow 的 wafer（每 lot 幾片）與 die（每個精簡區幾顆），用來確認基準仍成立並持續提供被 skip 測項的資料。</span><span class="en">Wafers (a few per lot) and die (a few per reduced zone) deliberately kept on the full flow in adaptive test, to confirm the baseline still holds and keep supplying data on the skipped items.</span></td></tr>
+              <tr><td class="mono">V93000 / SmarTest</td><td><span class="zh">Advantest 的 SoC 測試機平台（常稱 93K）與其測試程式軟體；SmarTest 7 以 C++ 撰寫 test method，SmarTest 8 改用 Java 與 Eclipse 開發環境，見 §12.5。</span><span class="en">Advantest's SoC tester platform (often called the 93K) and its test-program software; SmarTest 7 test methods are written in C++, SmarTest 8 moves to Java and an Eclipse-based environment — see §12.5.</span></td></tr>
               <tr><td class="mono">Trim</td><td><span class="zh">出廠前對電路做的一次性校準（如燒 fuse／寫 OTP 調整 trim code），用以修正製程變異；trim 前與 trim 後同一測項的量測值代表不同的物理狀態。</span><span class="en">A one-time factory calibration of the circuit (e.g., blowing fuses / writing OTP trim codes) that corrects for process variation; the same item's value before and after trim represents different physical states.</span></td></tr>
             </tbody>
           </table>
@@ -1029,7 +1064,7 @@
               <tr>
                 <td><span class="zh"><strong>TEST_T 是 touchdown 時間，不是單顆時間</strong></span><span class="en"><strong>TEST_T is touchdown time, not per-die time</strong></span></td>
                 <td><span class="zh">同一 touchdown 的 14 個 site，PRR TEST_T 完全相同</span><span class="en">All 14 sites in one touchdown reported exactly the same PRR TEST_T</span></td>
-                <td><span class="zh">算 TTR 節省時不要逐顆加總（會高估約 site 數倍）；以 touchdown 為單位，或用測試機的逐測項 test-time profiling</span><span class="en">Don't sum it per die when computing TTR savings (that overstates by roughly the site count); work per touchdown, or use the tester's per-test time profiling</span></td>
+                <td><span class="zh">算 TTR 節省時不要逐顆加總（會高估約 site 數倍）；以 touchdown 為單位，或用測試機的逐測項 test-time profiling（見 §12.5）</span><span class="en">Don't sum it per die when computing TTR savings (that overstates by roughly the site count); work per touchdown, or use the tester's per-test time profiling (see §12.5)</span></td>
               </tr>
               <tr>
                 <td><span class="zh"><strong>摘要 record 重複計算</strong></span><span class="en"><strong>Double-counting summary records</strong></span></td>
@@ -1869,8 +1904,8 @@
             <span class="en"><strong>SPC monitoring:</strong> Build control charts for the item's margin/Cpk with trigger limits; automatically restore 100% testing if the trend goes out of control. If the item was approved for removal via the §6.2(g) tightened-upstream-limit route, <strong>monitoring the PCM/WAT correlation for this parameter is required, not optional</strong> — process-level variation typically shows up in PCM/WAT before it's visible in WT/FT data.</span>
           </li>
           <li>
-            <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策。</span>
-            <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision.</span>
+            <span class="zh"><strong>定期重新驗證：</strong>製程節點轉換、封裝廠變更、測試機台汰換等事件，皆應觸發該測項的重新驗證，不可視為一次性決策（測試平台遷移的注意事項見 §12.5）。</span>
+            <span class="en"><strong>Periodic re-validation:</strong> process node changes, assembly house changes, tester replacement, and similar events should all trigger re-validation of the item — this is never a one-time decision (see §12.5 for tester-platform migrations).</span>
           </li>
         </ul>
 
@@ -2683,14 +2718,77 @@
           <li><span class="zh">AEC-Q002 — Guidelines for Statistical Yield Analysis，以統計 yield／bin 界限（SYL／SBL）辨識異常 lot 的參考方法。</span><span class="en">AEC-Q002 — Guidelines for Statistical Yield Analysis; a reference method for identifying abnormal lots with statistical yield/bin limits (SYL/SBL).</span></li>
           <li><span class="zh">AEC-Q001 — Guidelines for Part Average Testing（PAT），車用半導體 outlier 管控參考方法。</span><span class="en">AEC-Q001 — Guidelines for Part Average Testing (PAT); a reference method for outlier control in automotive semiconductors.</span></li>
         </ul>
+
+        <h3><span class="zh">12.5 測試機平台：Advantest V93000 與 SmarTest 7／8</span><span class="en">12.5 Tester Platform: Advantest V93000 and SmarTest 7/8</span></h3>
+        <p>
+          <span class="zh">本 SOP 的方法與測試機平台無關，但真正導入 TTR 或 adaptive test 時，要在測試程式裡改 flow、調 limit、設定 datalog——平台細節會直接決定「實際能省多少」以及「資料可不可信」。以下以業界常見的 Advantest V93000（常簡稱 93K）為例。</span>
+          <span class="en">This SOP's method is platform-independent, but actually implementing TTR or adaptive test means changing flows, adjusting limits, and configuring the datalog inside the test program — and platform details directly decide how much is really saved and whether the data can be trusted. The examples below use the widely deployed Advantest V93000 (often called the 93K).</span>
+        </p>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">一般性概述，實作前請查證</span><span class="en">General Overview — Verify Before Implementing</span></span>
+          <p>
+            <span class="zh">以下是概念層級的整理；實際的功能名稱、檔案格式與行為依 SmarTest 版本、硬體世代與公司內部的程式框架而不同。實作前請以 Advantest 官方文件與內部測試程式規範為準。</span>
+            <span class="en">What follows is a concept-level summary; actual feature names, file formats, and behavior vary with the SmarTest version, hardware generation, and your company's in-house program framework. Check Advantest's official documentation and your internal test-program standards before implementing.</span>
+          </p>
+        </div>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">項目</span><span class="en">Aspect</span></th>
+              <th>SmarTest 7 (ST7)</th>
+              <th>SmarTest 8 (ST8)</th>
+            </tr></thead>
+            <tbody>
+              <tr><td><span class="zh">定位</span><span class="en">Position</span></td><td><span class="zh">上一代軟體，大量成熟量產程式仍在 ST7 上執行</span><span class="en">Previous generation; many mature production programs still run on it</span></td><td><span class="zh">新一代軟體，新專案逐步轉移</span><span class="en">Current generation; new projects are moving to it</span></td></tr>
+              <tr><td><span class="zh">開發環境</span><span class="en">Development environment</span></td><td><span class="zh">傳統 GUI 工具搭配文字設定檔</span><span class="en">Traditional GUI tools plus text setup files</span></td><td><span class="zh">以 Eclipse 為基礎的 IDE</span><span class="en">Eclipse-based IDE</span></td></tr>
+              <tr><td><span class="zh">Test method 語言</span><span class="en">Test-method language</span></td><td>C++</td><td>Java</td></tr>
+              <tr><td><span class="zh">程式結構</span><span class="en">Program structure</span></td><td><span class="zh">testflow（test suite、flow、bin 定義）＋各類 setup（levels、timing、vectors）</span><span class="en">A testflow (test suites, flow, bin definitions) plus setups (levels, timing, vectors)</span></td><td><span class="zh">專案式結構：flow、test suite、各類 setup 分檔管理</span><span class="en">Project-based: flows, test suites, and setups managed as separate files</span></td></tr>
+              <tr><td><span class="zh">多 site 寫法</span><span class="en">Multi-site coding</span></td><td><span class="zh">在 test method 內明確處理，如 <span class="mono">ON_FIRST_INVOCATION</span>、<span class="mono">FOR_EACH_SITE</span> 等巨集</span><span class="en">Handled explicitly inside test methods, e.g., the <span class="mono">ON_FIRST_INVOCATION</span> and <span class="mono">FOR_EACH_SITE</span> macros</span></td><td><span class="zh">API 原生支援多 site（如多 site 資料型別），寫法較透明</span><span class="en">Multi-site is native to the API (e.g., multi-site data types), so the code is more transparent</span></td></tr>
+              <tr><td><span class="zh">Limit／bin 管理</span><span class="en">Limits / binning</span></td><td><span class="zh">依程式寫法，在 testflow 或 limit 表中設定</span><span class="en">In the testflow or a limit table, depending on how the program is written</span></td><td><span class="zh">通常集中在 test table</span><span class="en">Usually centralized in test tables</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <span class="zh"><strong>對 TTR 有直接影響的平台知識：</strong></span>
+          <span class="en"><strong>Platform knowledge that directly affects TTR:</strong></span>
+        </p>
+        <ul>
+          <li>
+            <span class="zh"><strong>Test time 要量測，不要相減：</strong>用平台的 test-time profiling 逐 test suite 找出耗時大戶。但移除一個 test suite 實際省下的時間，常小於它在 profiling 裡的時間——levels／timing 切換、pattern 載入、電源穩定等待等 setup 可能轉移到下一個 suite。改完後一律用實測 touchdown 時間驗證（PRR TEST_T 的特性見 §5.3）。</span>
+            <span class="en"><strong>Measure test time, don't subtract it:</strong> use the platform's test-time profiling to find the biggest time consumers per test suite. But removing a suite often saves less than its profiled time — setup such as levels/timing changes, pattern loading, and power-settling waits can shift to the next suite. Always confirm with measured touchdown time after the change (see §5.3 for how PRR TEST_T behaves).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>多 site 與序列化資源：</strong>測試時間由整個 touchdown 決定。若某些量測必須逐 site 序列執行（共用儀器、逐 site 迴圈），這類測項的時間會乘上 site 數，是 TTR 最有價值的目標；完全平行執行的測項，移除後省下的可能只有一小段。</span>
+            <span class="en"><strong>Multi-site and serialized resources:</strong> test time is set by the whole touchdown. Measurements that must run site by site (shared instruments, per-site loops) cost their time multiplied by the site count, making them TTR's most valuable targets; a fully parallel item may save very little when removed.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Datalog 設定決定 STDF 內容：</strong>datalog 可設定只記 fail、或記錄所有 parametric 值，以及是否記錄 MPR／FTR 細節。TTR 的基準資料需要完整的 parametric datalog，但 datalog 本身也會增加 test time——量產可用精簡設定，基準 lot 與 pilot lot 要開完整 datalog，並在決策紀錄中註明。</span>
+            <span class="en"><strong>Datalog settings define what's in the STDF:</strong> the datalog can record fails only or every parametric value, with or without MPR/FTR detail. TTR baselines need the full parametric datalog, but datalogging itself adds test time — production can use a lean setting while baseline and pilot lots run the full datalog, noted in the decision log.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>用 flow 控制實作 skip／adaptive：</strong>以 flow 變數與條件分支實作 1-in-N 抽測或依分區查表決定 flow。變數狀態一定要寫進 datalog（如 DTR 文字或 PRR 的 part text），否則 Phase 7 無法回答「這顆 die 跑的是哪個 flow」（§11.5 第 7 點）。</span>
+            <span class="en"><strong>Implement skip/adaptive with flow control:</strong> use flow variables and conditional branches for 1-in-N sampling or a zone lookup that picks the flow. Always write the variable state into the datalog (e.g., DTR text or the PRR part text), or Phase 7 can't answer "which flow did this die run?" (§11.5 item 7).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>Limit 集中管理：</strong>§6.2(g) 收緊 limit、§6.2(f) PAT limit 都是測試程式變更，要走 Phase 4 release。Limit 集中在表格（如 test table）而不是寫死在 test method 裡，審查、比對與回退都容易得多。</span>
+            <span class="en"><strong>Centralize limits:</strong> §6.2(g) tightened limits and §6.2(f) PAT limits are test-program changes that go through the Phase 4 release. Keeping limits in a table (e.g., a test table) rather than hard-coded in test methods makes review, comparison, and rollback much easier.</span>
+          </li>
+        </ul>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">平台遷移 = 新程式 + 新量測系統</span><span class="en">A Platform Migration = New Program + New Measurement System</span></span>
+          <p>
+            <span class="zh">ST7 → ST8 遷移、測試機世代或儀器板卡更換，TEST_NUM、測項名稱、量測方法、平均次數、settling time 都可能改變。遷移前的 TTR 證據不能直接沿用：遷移前後要用同一批 die 在新舊程式上做 correlation，重新確認 §3.4 量測系統有效性，並觸發 Phase 5 的重新驗證。這也是 §5.3「TEST_NUM 不是跨程式鍵值」最常發生的情境——WT／FT 資料若橫跨遷移前後，必須靠 Phase 1 的測試對應矩陣重新對應。</span>
+            <span class="en">With an ST7 → ST8 migration, or a tester-generation or instrument-card change, TEST_NUM, test names, measurement methods, averaging counts, and settling times can all change. TTR evidence from before the migration can't carry over directly: run a correlation on the same die across the old and new programs, re-confirm §3.4 measurement-system validity, and trigger Phase 5 re-validation. This is also the most common case of §5.3's "TEST_NUM isn't a cross-program key" — WT/FT data spanning a migration must be re-mapped through the Phase 1 test mapping table.</span>
+          </p>
+        </div>
       </section>
 
     </main>
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 08:02</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 08:02</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 08:17</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 08:17</span>
   </footer>
 </div>
 
