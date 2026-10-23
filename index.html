@@ -351,7 +351,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 07:48</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 08:02</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -444,6 +444,7 @@
               <tr><td class="mono">PAT</td><td><span class="zh">Part Average Testing，以群體統計分布動態收緊 spec limit 的方法（參考 AEC-Q001）。</span><span class="en">Part Average Testing — dynamically tightens spec limits based on the population's statistical distribution (see AEC-Q001).</span></td></tr>
               <tr><td class="mono">Skip-lot / Skip-test</td><td><span class="zh">以固定比例（如 1-in-N）抽測取代 100% 全測的抽樣策略。</span><span class="en">A sampling strategy that replaces 100% testing with a fixed ratio (e.g., 1-in-N).</span></td></tr>
               <tr><td class="mono">STDF（PTR／FTR）</td><td><span class="zh">業界通用之 Standard Test Data Format；PTR 記錄 parametric 量測值，FTR 記錄 functional pass/fail 結果。</span><span class="en">The industry-standard Standard Test Data Format; PTR records parametric measurements, FTR records functional pass/fail results.</span></td></tr>
+              <tr><td class="mono">ECID</td><td><span class="zh">Electronic Chip ID，燒錄在晶片 eFuse／OTP 內的唯一識別碼，通常編碼了 fab lot、wafer 與 X／Y 座標；FT 端要配回 WT 的 die，多半靠它（見 §5.4）。</span><span class="en">Electronic Chip ID — a unique identifier burned into the chip's eFuse/OTP, usually encoding fab lot, wafer, and X/Y; FT-side units are mostly matched back to WT die through it (see §5.4).</span></td></tr>
               <tr><td class="mono">Die-level 追溯</td><td><span class="zh">透過 Wafer ID + X,Y 座標或封裝序號，將同一顆 die 在 WT 與 FT 的資料點對點配對。</span><span class="en">Die-level traceability — pairing the same die's WT and FT data point-to-point via Wafer ID + X,Y coordinates or package serial number.</span></td></tr>
               <tr><td class="mono">PCM / WAT</td><td><span class="zh">Process Control Monitor／Wafer Acceptance Test，晶圓上刀模／scribe-line 製程監控結構的電性測試，反映製程本身（而非產品電路）的變異，通常比 WT/FT 資料更早出現異常訊號。</span><span class="en">Process Control Monitor / Wafer Acceptance Test — electrical tests on scribe-line/kerf process-monitor structures that reflect variation in the process itself (not the product circuit), typically surfacing anomalies earlier than WT/FT data.</span></td></tr>
               <tr><td class="mono">Gauge R&amp;R / MSA</td><td><span class="zh">Measurement System Analysis，量化量測系統本身貢獻的變異（repeatability + reproducibility）佔總變異的比例，用以判斷一組量測數據是否值得信任。</span><span class="en">Measurement System Analysis — quantifies how much of total variance comes from the measurement system itself (repeatability + reproducibility), used to judge whether a set of measurements can be trusted.</span></td></tr>
@@ -919,6 +920,198 @@
           <li>
             <span class="zh">Parametric 測項務必保留<strong>原始量測值</strong>（非僅 Pass/Fail flag），這是 Phase 3 做 Parameter-level 分析的前提。</span>
             <span class="en">Parametric items must retain the <strong>raw measured value</strong> (not just a Pass/Fail flag) — this is a prerequisite for the Phase 3 Parameter-level analysis.</span>
+          </li>
+        </ul>
+
+        <h3><span class="zh">5.1 STDF V4 檔案結構</span><span class="en">5.1 STDF V4 File Structure</span></h3>
+        <p>
+          <span class="zh">STDF 是一連串二進位 record，每筆 record 都以 4 bytes 的 header 開頭：REC_LEN（U*2，payload 長度）、REC_TYP、REC_SUB（各 U*1，決定 record 類型，如 PTR = 15／10）。Record 的順序有固定的巢狀關係——lot 層級包著 wafer 層級（僅 WT），wafer 層級包著每顆 die 的 PIR…PRR 區塊：</span>
+          <span class="en">STDF is a sequence of binary records, each starting with a 4-byte header: REC_LEN (U*2, payload length), then REC_TYP and REC_SUB (U*1 each, which identify the record type, e.g., PTR = 15/10). Records follow a fixed nesting: the lot level contains the wafer level (WT only), and the wafer level contains each die's PIR…PRR block:</span>
+        </p>
+        <figure>
+        <button type="button" class="fig-zoom" aria-label="Enlarge diagram / 放大檢視">⛶</button>
+          <svg viewBox="0 0 720 380" role="img" aria-label="STDF V4 record nesting: file, wafer, and part levels">
+            <g font-family="Source Serif 4" fill="var(--ink)">
+              <rect x="30" y="96" width="660" height="196" rx="6" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="684" y="284" text-anchor="end" font-size="11.5" fill="var(--accent-strong)" font-weight="600"><tspan class="zh">× 每片 wafer（僅 WT）</tspan><tspan class="en">× per wafer (WT only)</tspan></text>
+              <rect x="50" y="136" width="620" height="116" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.2"/>
+              <text x="664" y="152" text-anchor="end" font-size="11.5" fill="var(--accent-strong)" font-weight="600"><tspan class="zh">× 每顆 die（多 site 時交錯）</tspan><tspan class="en">× per die (interleaved across sites)</tspan></text>
+              <g font-family="IBM Plex Mono" font-size="12" font-weight="600">
+                <rect x="40" y="18" width="200" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="50" y="35">FAR · ATR</text>
+                <rect x="40" y="54" width="200" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="50" y="71">MIR · SDR · PMR · WCR</text>
+                <rect x="50" y="102" width="190" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="60" y="119">WIR</text>
+                <rect x="70" y="160" width="190" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="177">PIR</text>
+                <rect x="70" y="190" width="190" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="207">PTR · MPR · FTR …</text>
+                <rect x="70" y="220" width="190" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="237">PRR</text>
+                <rect x="50" y="260" width="190" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="60" y="277">WRR</text>
+                <rect x="40" y="304" width="200" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="50" y="321">TSR · HBR · SBR · PCR</text>
+                <rect x="40" y="340" width="200" height="24" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="50" y="357">MRR</text>
+              </g>
+              <g font-size="12" fill="var(--ink-soft)">
+                <text x="280" y="35"><tspan class="zh">位元組順序（CPU_TYPE）、STDF 版本、稽核紀錄</tspan><tspan class="en">Byte order (CPU_TYPE), STDF version, audit trail</tspan></text>
+                <text x="280" y="71"><tspan class="zh">Lot、程式／版本、站別、溫度、模式、硬體 ID、晶圓幾何</tspan><tspan class="en">Lot, program/rev, stage, temp, mode, hardware IDs, wafer geometry</tspan></text>
+                <text x="280" y="119"><tspan class="zh">Wafer ID、開始時間</tspan><tspan class="en">Wafer ID, start time</tspan></text>
+                <text x="280" y="177"><tspan class="zh">一顆 die 開始（HEAD、SITE）</tspan><tspan class="en">A die starts (HEAD, SITE)</tspan></text>
+                <text x="280" y="207"><tspan class="zh">每個測項一筆：量測值、旗標、limit、單位</tspan><tspan class="en">One per test: value, flags, limits, units</tspan></text>
+                <text x="280" y="237"><tspan class="zh">Bin、Pass/Fail、X/Y、PART_FLG、測項數、TEST_T</tspan><tspan class="en">Bin, pass/fail, X/Y, PART_FLG, test count, TEST_T</tspan></text>
+                <text x="280" y="277"><tspan class="zh">單片 wafer 統計</tspan><tspan class="en">Per-wafer counts</tspan></text>
+                <text x="280" y="321"><tspan class="zh">摘要；HEAD = 255 代表所有 site 合計</tspan><tspan class="en">Summaries; HEAD = 255 means all sites combined</tspan></text>
+                <text x="280" y="357"><tspan class="zh">檔案結束；缺 MRR = 檔案不完整</tspan><tspan class="en">End of file; no MRR = incomplete file</tspan></text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>
+            <span class="zh">STDF V4 record 的巢狀順序。藍色虛線框只在 WT 檔案出現；藍色實心框是每顆 die 的區塊——多 site 測試時，不同 site 的 PIR、PTR、PRR 會交錯出現，必須依 HEAD／SITE 把每筆 PTR 歸到對應的 die，而不是歸給「最後一筆 PIR」。底部的摘要 record 是測試機自己算的統計，只適合拿來交叉核對。</span>
+            <span class="en">The nesting order of STDF V4 records. The dashed blue frame appears only in WT files; the solid blue box is the per-die block — with multi-site testing, PIR, PTR, and PRR records from different sites are interleaved, so each PTR must be assigned to its die by HEAD/SITE, not to "the most recent PIR." The summary records at the bottom are statistics the tester computed itself — use them only as a cross-check.</span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="zh">5.2 TTR 分析需要的關鍵欄位</span><span class="en">5.2 Key Fields for TTR Analysis</span></h3>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th>Record</th>
+              <th><span class="zh">欄位</span><span class="en">Fields</span></th>
+              <th><span class="zh">在本 SOP 的用途</span><span class="en">Use in this SOP</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">MIR</td><td class="mono">LOT_ID, PART_TYP, JOB_NAM, JOB_REV, TEST_COD, MODE_COD, RTST_COD, TST_TEMP, TSTR_TYP, NODE_NAM</td><td><span class="zh">篩選資料：只用同一程式版本、Production 模式（MODE_COD = P）、正確站別與溫度 corner 的資料</span><span class="en">Filter data: use only one program revision, production mode (MODE_COD = P), and the right stage and temperature corner</span></td></tr>
+              <tr><td class="mono">SDR</td><td class="mono">HAND_ID, CARD_ID, LOAD_ID, SITE_NUM</td><td><span class="zh">Probe card／load board／handler 等共變因子；§3.4 量測系統、site-to-site 比較</span><span class="en">Confounders such as probe card, load board, handler; §3.4 measurement system and site-to-site comparison</span></td></tr>
+              <tr><td class="mono">WIR / WRR</td><td class="mono">WAFER_ID, PART_CNT, GOOD_CNT, RTST_CNT</td><td><span class="zh">die-level 追溯的 wafer 鍵值；wafer yield（§8.1 觸發界限）</span><span class="en">Wafer key for die-level traceability; wafer yield (§8.1 trigger limits)</span></td></tr>
+              <tr><td class="mono">WCR</td><td class="mono">WAFR_SIZ, DIE_HT, DIE_WID, WF_UNITS, WF_FLAT, CENTER_X/Y, POS_X/Y</td><td><span class="zh">把 die index 換成 mm、統一座標方向：§11.2 分區、§6.2(f) NNR 都需要</span><span class="en">Convert die index to mm and normalize axis direction — needed for §11.2 zoning and §6.2(f) NNR</span></td></tr>
+              <tr><td class="mono">PRR</td><td class="mono">HEAD_NUM, SITE_NUM, PART_FLG, NUM_TEST, HARD_BIN, SOFT_BIN, X_COORD, Y_COORD, TEST_T, PART_ID</td><td><span class="zh">每顆 die 的結果與座標；retest 判定；stop-on-fail 偵測；test time</span><span class="en">Each die's result and coordinates; retest resolution; stop-on-fail detection; test time</span></td></tr>
+              <tr><td class="mono">PTR</td><td class="mono">TEST_NUM, TEST_TXT, RESULT, TEST_FLG, PARM_FLG, OPT_FLAG, RES_SCAL, LO_LIMIT, HI_LIMIT, UNITS</td><td><span class="zh">Phase 3 parameter-level 分析的原始量測值與 limit</span><span class="en">Raw measurements and limits for Phase 3 parameter-level analysis</span></td></tr>
+              <tr><td class="mono">MPR / FTR</td><td class="mono">RTN_STAT, RTN_RSLT / VECT_NAM, FAIL_PIN</td><td><span class="zh">多 pin 量測陣列；功能測試的 fail pin 與向量（§3.5 fault coverage 查證）</span><span class="en">Multi-pin measurement arrays; functional fail pins and vectors (§3.5 fault-coverage checks)</span></td></tr>
+              <tr><td class="mono">DTR / GDR</td><td><span class="zh">自由文字／自訂二進位</span><span class="en">Free text / custom binary</span></td><td><span class="zh">ECID 字串、trim code、程式 SVN 版本等——FT 端 die 追溯常靠這裡</span><span class="en">ECID strings, trim codes, program SVN revision, etc. — FT-side die traceability often depends on these</span></td></tr>
+              <tr><td class="mono">TSR / HBR / SBR / PCR</td><td><span class="zh">測試機自算的摘要</span><span class="en">Tester-computed summaries</span></td><td><span class="zh">只作交叉核對；統計一律由 PTR／PRR 重算</span><span class="en">Cross-check only; always recompute statistics from PTR/PRR</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">5.3 解析陷阱 — 每一個都會讓 Phase 3 的統計算錯</span><span class="en">5.3 Parsing Pitfalls — Each One Breaks Phase 3's Statistics</span></h3>
+        <p>
+          <span class="zh">下表的「實例」欄取自一份實際 FT 檔案的解析結果（16 site、每顆 23,403 個測項、共 374,448 筆 PTR），用來說明這些陷阱在真實資料裡有多常見。</span>
+          <span class="en">The "Real example" column comes from parsing an actual FT file (16 sites, 23,403 tests per die, 374,448 PTRs in total), to show how common these pitfalls are in real data.</span>
+        </p>
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th><span class="zh">陷阱</span><span class="en">Pitfall</span></th>
+              <th><span class="zh">實例</span><span class="en">Real example</span></th>
+              <th><span class="zh">正確做法</span><span class="en">Correct handling</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="zh"><strong>選配欄位沿用（limit、單位只在第一筆）</strong>：同一 TEST_NUM 的後續 PTR 通常省略 limit、單位、scale，規格上應沿用第一筆的值</span><span class="en"><strong>Optional-field inheritance (limits and units only in the first record):</strong> later PTRs for the same TEST_NUM usually omit limits, units, and scales; per the spec they inherit the first record's values</span></td>
+                <td><span class="zh">374,448 筆中 351,045 筆（≈ 94%）沒有 limit，361,791 筆沒有單位</span><span class="en">351,045 of 374,448 (≈ 94%) had no limits; 361,791 had no units</span></td>
+                <td><span class="zh">依 TEST_NUM（必要時再加 HEAD／SITE）快取第一筆 PTR 的 OPT_FLAG、limit、單位與 scale，套用到後續 record；依 OPT_FLAG bit 4–7 判斷 limit 是否無效或不存在</span><span class="en">Cache the first PTR's OPT_FLAG, limits, units, and scales per TEST_NUM (plus HEAD/SITE if needed) and apply them to later records; use OPT_FLAG bits 4–7 to tell whether a limit is invalid or absent</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>RES_SCAL 與單位不一致</strong>：RESULT 以基本單位（V、A）儲存，RES_SCAL 只是顯示用的 10 次方指數</span><span class="en"><strong>RES_SCAL vs. units:</strong> RESULT is stored in base units (V, A); RES_SCAL is only a power-of-ten display exponent</span></td>
+                <td><span class="zh">出現 ×10³、×10⁶、×10⁹、×10⁻³ 的換算；一筆 −0.4298 V 被換算成 −429.8，單位欄卻仍寫 V（實際是 mV，差 1000 倍）</span><span class="en">Scale factors of ×10³, ×10⁶, ×10⁹, ×10⁻³ appear; a −0.4298 V reading became −429.8 while the unit column still said V (really mV — off by 1000×)</span></td>
+                <td><span class="zh">分析一律用未換算的 RESULT 與基本單位；只有顯示時才換算，並同步加上前綴（m、µ、n）。WT 與 FT 對同一參數可能用不同 scale，比較前先換回基本單位</span><span class="en">Always analyze the unscaled RESULT in base units; scale only for display, adding the matching prefix (m, µ, n). WT and FT may use different scales for the same parameter — convert both to base units before comparing</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>缺值哨兵值</strong></span><span class="en"><strong>Missing-value sentinels</strong></span></td>
+                <td><span class="zh">PCR 與 TSR 的計數欄位出現 4,294,967,295（U*4 最大值 = 缺值）</span><span class="en">PCR and TSR count fields contained 4,294,967,295 (the U*4 maximum = missing)</span></td>
+                <td><span class="zh">統計前先把 U*4 0xFFFFFFFF、座標 ±32767／−32768、R*4 NaN 轉成空值，不要當成數字</span><span class="en">Before any statistics, convert U*4 0xFFFFFFFF, coordinates of ±32767/−32768, and R*4 NaN to null — never treat them as numbers</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>R*4 浮點精度與 limit 比較方向</strong></span><span class="en"><strong>R*4 float precision and limit comparison direction</strong></span></td>
+                <td><span class="zh">limit −620 被存成 −620.0000047683716</span><span class="en">A limit of −620 stored as −620.0000047683716</span></td>
+                <td><span class="zh">Pass／Fail 以 TEST_FLG bit 7 為準；需要自己重算時，用容許誤差比較，並依 PARM_FLG bit 6／7 判斷 limit 是「≥／≤」還是「&gt;／&lt;」</span><span class="en">Take pass/fail from TEST_FLG bit 7; if you must recompute, compare with a tolerance and use PARM_FLG bits 6/7 to tell whether the limit is "≥/≤" or "&gt;/&lt;"</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>多 site 交錯</strong></span><span class="en"><strong>Multi-site interleaving</strong></span></td>
+                <td><span class="zh">16 site 同時測試，各 site 的 PTR 交錯寫入</span><span class="en">16 sites tested at once, with each site's PTRs interleaved</span></td>
+                <td><span class="zh">每個 HEAD／SITE 各自維護一個「目前開啟的 PIR」，PTR 依自己的 HEAD／SITE 歸屬；每個 PIR 都要有對應的 PRR</span><span class="en">Keep one "currently open PIR" per HEAD/SITE and assign each PTR by its own HEAD/SITE; every PIR must have a matching PRR</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>TEST_T 是 touchdown 時間，不是單顆時間</strong></span><span class="en"><strong>TEST_T is touchdown time, not per-die time</strong></span></td>
+                <td><span class="zh">同一 touchdown 的 14 個 site，PRR TEST_T 完全相同</span><span class="en">All 14 sites in one touchdown reported exactly the same PRR TEST_T</span></td>
+                <td><span class="zh">算 TTR 節省時不要逐顆加總（會高估約 site 數倍）；以 touchdown 為單位，或用測試機的逐測項 test-time profiling</span><span class="en">Don't sum it per die when computing TTR savings (that overstates by roughly the site count); work per touchdown, or use the tester's per-test time profiling</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>摘要 record 重複計算</strong></span><span class="en"><strong>Double-counting summary records</strong></span></td>
+                <td><span class="zh">TSR 共 351,045 筆 ≈ 23,403 個測項 × 15 組 site 摘要</span><span class="en">351,045 TSRs ≈ 23,403 tests × 15 per-site summaries</span></td>
+                <td><span class="zh">TSR／HBR／SBR／PCR 有逐 site 版本，也可能有 HEAD = 255 的全體合計；兩者相加會重複計算。統計一律由 PTR／PRR 重算</span><span class="en">TSR/HBR/SBR/PCR come per site and may also come as a HEAD = 255 all-site total; adding both double-counts. Always recompute statistics from PTR/PRR</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>Retest 與 supersede</strong></span><span class="en"><strong>Retest and supersede</strong></span></td>
+                <td><span class="zh">同一顆 die 可能出現多次</span><span class="en">The same die can appear more than once</span></td>
+                <td><span class="zh">看 PRR PART_FLG bit 0／1（取代先前同 PART_ID／同座標的結果）與 MIR RTST_COD。出貨判定用最後結果；Phase 3 的相關性與 Incremental Catch 建議用第一次測試結果（retest 可能把真實 fail 洗掉），並在決策紀錄中寫明規則</span><span class="en">Check PRR PART_FLG bits 0/1 (supersedes an earlier result with the same PART_ID / same coordinates) and MIR RTST_COD. Use the final result for shipping disposition; for Phase 3 correlation and Incremental Catch, use the first-pass result (a retest can wash out a real fail) — and record the rule in the decision log</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>Stop-on-fail 截斷</strong></span><span class="en"><strong>Stop-on-fail truncation</strong></span></td>
+                <td><span class="zh">fail die 的 PRR NUM_TEST 少於完整測項數</span><span class="en">A failed die's PRR NUM_TEST is below the full test count</span></td>
+                <td><span class="zh">沒有資料 ≠ Pass。統計 fail rate 時分母只算真的有執行該測項的 die（見 §11.3 Pareto 失真）</span><span class="en">No data ≠ pass. When computing a fail rate, the denominator counts only die that actually ran the item (see §11.3 on Pareto distortion)</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>TEST_NUM 不是跨程式的鍵值</strong></span><span class="en"><strong>TEST_NUM isn't a cross-program key</strong></span></td>
+                <td><span class="zh">測項名稱常帶 pin（如 <span class="mono">…@CLK_OUTN</span>），同一號碼在不同程式版本可能代表不同測項</span><span class="en">Test names often carry a pin (e.g., <span class="mono">…@CLK_OUTN</span>), and one number can mean different tests across program revisions</span></td>
+                <td><span class="zh">WT↔FT 配對依 Phase 1 測試對應矩陣（測項名稱 + pin + 條件），並鎖定 JOB_NAM／JOB_REV</span><span class="en">Pair WT↔FT items through the Phase 1 test mapping table (test name + pin + condition), and lock JOB_NAM/JOB_REV</span></td>
+              </tr>
+              <tr>
+                <td><span class="zh"><strong>位元組順序</strong></span><span class="en"><strong>Byte order</strong></span></td>
+                <td><span class="zh">FAR CPU_TYPE：1 = Sun（big-endian）、2 = PC／x86（little-endian）</span><span class="en">FAR CPU_TYPE: 1 = Sun (big-endian), 2 = PC/x86 (little-endian)</span></td>
+                <td><span class="zh">最穩健的做法是看檔案前兩個 byte（FAR 的 REC_LEN = 2）：<span class="mono">02 00</span> 為 little-endian、<span class="mono">00 02</span> 為 big-endian</span><span class="en">The most robust check is the file's first two bytes (FAR's REC_LEN = 2): <span class="mono">02 00</span> means little-endian, <span class="mono">00 02</span> big-endian</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warn">
+          <span class="tag"><span class="zh">不要直接相信解析器輸出的 limit、單位與數值欄位</span><span class="en">Don't Trust a Parser's Limit, Unit, and Value Columns Blindly</span></span>
+          <p>
+            <span class="zh">上表的前三項——limit 沿用、scale 與單位、缺值哨兵——任何一項處理錯，Phase 3 的 margin、Cpk、guardband 都會整批算錯，而且錯得很安靜：數字看起來都很合理，只是差了 1000 倍、或是 limit 被當成 0。導入任何 STDF 解析工具（包括內部自建的解析器）前，先用一份已知答案的檔案驗證：抽幾個測項，拿測試機原始 datalog 的數值、limit、單位逐筆核對。</span>
+            <span class="en">Get any of the first three items above wrong — limit inheritance, scale and units, missing-value sentinels — and Phase 3's margin, Cpk, and guardband all come out wrong across the board, and quietly: the numbers look plausible, they're just off by 1000× or the limit got read as 0. Before adopting any STDF parser (including an in-house one), validate it on a file with known answers: pick a few tests and check values, limits, and units one by one against the tester's raw datalog.</span>
+          </p>
+        </div>
+
+        <h3><span class="zh">5.4 WT↔FT Die-level 配對</span><span class="en">5.4 WT↔FT Die-Level Pairing</span></h3>
+        <ol>
+          <li>
+            <span class="zh"><strong>WT 端鍵值：</strong>Lot + WAFER_ID（WIR）+ X_COORD／Y_COORD（PRR）。先用 WCR 的 POS_X／POS_Y 與 WF_FLAT 把座標統一成同一套方向（prober 與 map 系統的 X／Y 正方向可能相反），§11.2 分區與 §6.2(f) NNR 也都用這套座標。</span>
+            <span class="en"><strong>WT-side key:</strong> Lot + WAFER_ID (WIR) + X_COORD/Y_COORD (PRR). First use WCR's POS_X/POS_Y and WF_FLAT to normalize coordinates to one orientation (the prober's and the map system's positive X/Y directions may be opposite); §11.2 zoning and §6.2(f) NNR use the same coordinates.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>FT 端鍵值：</strong>FT 的 PART_ID 多半只是測試序號，不代表 die 身分。要靠晶片內燒錄的 <strong>ECID</strong>（通常由 PTR、DTR 或 GDR 讀出，需依產品定義解碼）還原成 fab lot、wafer、X、Y。</span>
+            <span class="en"><strong>FT-side key:</strong> FT's PART_ID is usually just a test sequence number, not the die's identity. Recover fab lot, wafer, X, Y from the on-chip <strong>ECID</strong> (usually read out via PTR, DTR, or GDR and decoded per the product's definition).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>先去重再配對：</strong>依 §5.3 的 retest 規則，WT 與 FT 各自先決定每顆 die 只留哪一筆，再做 join。</span>
+            <span class="en"><strong>De-duplicate before pairing:</strong> apply §5.3's retest rule on each side so every die keeps exactly one record, then join.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>配對率是資料品質指標：</strong>FT 顆數中成功配回 WT 的比例要記錄在決策紀錄裡；配不回來的 die 若集中在某些 lot、wafer 或座標，代表 ECID 讀取或解碼有問題，必須先查清楚，否則 Phase 3 只是在看一個有偏差的子集。</span>
+            <span class="en"><strong>The match rate is a data-quality metric:</strong> record in the decision log what fraction of FT units were matched back to WT. If unmatched die cluster in certain lots, wafers, or coordinates, ECID read-out or decoding has a problem that must be fixed first — otherwise Phase 3 is only looking at a biased subset.</span>
+          </li>
+        </ol>
+
+        <h3><span class="zh">5.5 進入 Phase 3 前的資料品質檢查</span><span class="en">5.5 Data-Quality Checks Before Phase 3</span></h3>
+        <ul>
+          <li>
+            <span class="zh"><strong>檔案完整：</strong>FAR 開頭、MRR 結尾都在；缺 MRR 代表檔案被截斷或測試中斷。</span>
+            <span class="en"><strong>File complete:</strong> FAR at the start and MRR at the end; a missing MRR means the file was truncated or the test was interrupted.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>計數一致：</strong>PIR 數 = PRR 數；PRR 顆數與 WRR／PCR 的 PART_CNT 對得上（注意 HEAD = 255 的合計 record）。</span>
+            <span class="en"><strong>Counts agree:</strong> number of PIRs = number of PRRs; PRR counts match WRR/PCR PART_CNT (watch for HEAD = 255 totals).</span>
+          </li>
+          <li>
+            <span class="zh"><strong>條件單一：</strong>MIR 的 JOB_NAM／JOB_REV、TEST_COD、TST_TEMP、MODE_COD 在整個資料集內一致，或已明確分組；工程模式資料已排除。</span>
+            <span class="en"><strong>Uniform conditions:</strong> MIR's JOB_NAM/JOB_REV, TEST_COD, TST_TEMP, and MODE_COD are consistent across the dataset or explicitly grouped; engineering-mode data is excluded.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>結果有效：</strong>統計 TEST_FLG bit 1（RESULT 無效）、bit 2（結果不可靠）、bit 4（未執行）、bit 6（無 pass/fail 判定）的比例；這些 record 不進入統計。</span>
+            <span class="en"><strong>Valid results:</strong> count the share of records with TEST_FLG bit 1 (RESULT invalid), bit 2 (result unreliable), bit 4 (not executed), or bit 6 (no pass/fail indication); exclude them from statistics.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>單位與 scale 一致：</strong>同一測項在所有檔案、WT 與 FT 之間的基本單位一致；有 scale 換算的測項已核對。</span>
+            <span class="en"><strong>Consistent units and scales:</strong> each item's base unit agrees across all files and between WT and FT; items with scale conversions have been checked.</span>
+          </li>
+          <li>
+            <span class="zh"><strong>配對率已記錄</strong>（§5.4），且未配對的 die 沒有空間或 lot 上的集中。</span>
+            <span class="en"><strong>Match rate recorded</strong> (§5.4), with no spatial or lot clustering among unmatched die.</span>
           </li>
         </ul>
       </section>
@@ -2496,8 +2689,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 07:48</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 07:48</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 08:02</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 08:02</span>
   </footer>
 </div>
 
