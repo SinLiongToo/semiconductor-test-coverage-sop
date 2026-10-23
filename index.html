@@ -207,6 +207,8 @@
   .doc-fields div > span{display:block;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-bottom:4px;}
   .doc-fields b{display:block;color:var(--ink);font-weight:600;line-height:1.45;}
 
+  a.xref{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent);white-space:nowrap;}
+  a.xref:hover{color:var(--accent-strong);border-bottom-style:solid;}
   table.gloss td:first-child{min-width:9em;max-width:15em;font-weight:600;}
   table.gloss td:nth-child(2){color:var(--ink-soft);font-size:.92em;}
   table.gloss td:last-child{white-space:nowrap;color:var(--accent-strong);font-size:.85em;}
@@ -389,7 +391,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 10:22</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 10:30</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -3223,8 +3225,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 10:22</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 10:22</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 10:30</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 10:30</span>
   </footer>
 </div>
 
@@ -3347,6 +3349,111 @@
       h.classList.toggle('is-collapsed');
     });
   });
+})();
+</script>
+
+<script>
+(function(){
+  // Turn every "§x" reference into a link: give each h3/h4 an id derived
+  // from its number ("5.3" -> s-5-3, "6.2(f)" -> s-6-2-f), then wrap matching
+  // text. In-page links open any collapsed ancestor before scrolling.
+  var main = document.querySelector('main');
+  if (!main) return;
+  var map = {};
+  main.querySelectorAll('section').forEach(function(sec){
+    var num = sec.querySelector('h2 .num');
+    if (num && sec.id) map[num.textContent.trim()] = sec.id;
+  });
+  var lastH3 = null;
+  main.querySelectorAll('h3, h4').forEach(function(h){
+    var zh = h.querySelector('.zh');
+    var text = (zh ? zh.textContent : h.textContent).trim();
+    var key = null;
+    if (h.tagName === 'H3') {
+      var m3 = text.match(/^(\d+\.\d+)/);
+      lastH3 = m3 ? m3[1] : null;
+      key = lastH3;
+    } else {
+      var m4 = text.match(/^\(([a-z])\)/);
+      if (m4 && lastH3) key = lastH3 + '(' + m4[1] + ')';
+    }
+    if (!key) return;
+    if (!h.id) h.id = 's-' + key.replace(/[.()]+/g, '-').replace(/-$/, '');
+    map[key] = h.id;
+  });
+
+  var re = /§(\d+(?:\.\d+)?(?:\([a-z]\))?)/g;
+  var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(n){
+      if (n.nodeValue.indexOf('§') < 0) return NodeFilter.FILTER_REJECT;
+      var p = n.parentElement;
+      if (!p || p.closest('a, svg, script, style, .katex, h2, h3, h4')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  var nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(function(n){
+    var text = n.nodeValue, last = 0, m, frag = document.createDocumentFragment(), hit = false;
+    re.lastIndex = 0;
+    while ((m = re.exec(text))) {
+      var key = m[1];
+      // "§6.2(x)" with no matching h4 still links to §6.2
+      if (!map[key] && /\(/.test(key)) key = key.replace(/\(.*$/, '');
+      if (!map[key]) continue;
+      hit = true;
+      frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var a = document.createElement('a');
+      a.className = 'xref';
+      a.href = '#' + map[key];
+      a.textContent = m[0];
+      frag.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (!hit) return;
+    frag.appendChild(document.createTextNode(text.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  });
+
+  function openTarget(el){
+    var node = el.parentElement;
+    while (node && node !== document.body) {
+      if (node.classList.contains('collapse-body') && node.classList.contains('collapsed')) {
+        node.classList.remove('collapsed');
+        var hd = node.previousElementSibling;
+        if (hd && hd.classList.contains('collapsible-h')) hd.classList.remove('is-collapsed');
+      }
+      node = node.parentElement;
+    }
+    var heading = el.tagName === 'SECTION' ? el.querySelector('h2') : el;
+    if (heading && heading.classList.contains('is-collapsed')) {
+      heading.classList.remove('is-collapsed');
+      var body = heading.nextElementSibling;
+      if (body && body.classList.contains('collapse-body')) body.classList.remove('collapsed');
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a');
+    if (!a) return;
+    var href = a.getAttribute('href') || a.getAttribute('xlink:href') || '';
+    if (href.charAt(0) !== '#' || href === '#top' || href.length < 2) return;
+    var target = document.getElementById(href.slice(1));
+    if (!target || !main.contains(target)) return;
+    e.preventDefault();
+    openTarget(target);
+    target.scrollIntoView({block: 'start', behavior: 'smooth'});
+    try { history.replaceState(null, '', href); } catch(err) {}
+  });
+
+  // Shared links such as index.html#s-6-2-f open straight to the subsection.
+  if (location.hash.length > 1) {
+    var initial = document.getElementById(location.hash.slice(1));
+    if (initial && main.contains(initial)) {
+      openTarget(initial);
+      setTimeout(function(){ initial.scrollIntoView({block: 'start'}); }, 0);
+    }
+  }
 })();
 </script>
 
