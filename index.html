@@ -207,6 +207,10 @@
   .doc-fields div > span{display:block;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-bottom:4px;}
   .doc-fields b{display:block;color:var(--ink);font-weight:600;line-height:1.45;}
 
+  table.gloss td:first-child{min-width:9em;max-width:15em;font-weight:600;}
+  table.gloss td:nth-child(2){color:var(--ink-soft);font-size:.92em;}
+  table.gloss td:last-child{white-space:nowrap;color:var(--accent-strong);font-size:.85em;}
+
   /* ---- layout ---- */
   .body-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start;transition:grid-template-columns .18s ease;}
   .body-grid.toc-collapsed{grid-template-columns:34px minmax(0,1fr);gap:16px;}
@@ -385,7 +389,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 09:15</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-23 10:22</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -410,6 +414,7 @@
       <li><a href="#adaptive"><span class="zh">11 · WT 自適應測試</span><span class="en">11 · WT Adaptive Test</span></a></li>
       <li><a href="#onchip"><span class="zh">12 · 片上量測取代外部儀器</span><span class="en">12 · On-Chip Measurement</span></a></li>
       <li><a href="#appendix"><span class="zh">13 · 附錄</span><span class="en">13 · Appendix</span></a></li>
+      <li><a href="#glossary"><span class="zh">14 · 術語表</span><span class="en">14 · Glossary</span></a></li>
     </ol>
   </details>
 
@@ -432,6 +437,7 @@
         <li><a href="#adaptive"><span class="zh">11 · 自適應測試</span><span class="en">11 · Adaptive Test</span></a></li>
         <li><a href="#onchip"><span class="zh">12 · 片上量測</span><span class="en">12 · On-Chip Measurement</span></a></li>
         <li><a href="#appendix"><span class="zh">13 · 附錄</span><span class="en">13 · Appendix</span></a></li>
+        <li><a href="#glossary"><span class="zh">14 · 術語表</span><span class="en">14 · Glossary</span></a></li>
       </ol>
     </nav>
 
@@ -458,6 +464,10 @@
 
       <section id="definitions">
         <h2><span class="num">1</span><span class="zh">名詞定義</span><span class="en">Definitions</span></h2>
+        <p>
+          <span class="zh">以下是閱讀本 SOP 需要先懂的核心概念；所有縮寫與術語的完整速查表見 §14 術語表。</span>
+          <span class="en">These are the core concepts needed to read this SOP; for a quick reference of every abbreviation and term, see the §14 Glossary.</span>
+        </p>
         <div class="twrap">
           <table>
             <thead><tr><th><span class="zh">詞彙</span><span class="en">Term</span></th><th><span class="zh">定義</span><span class="en">Definition</span></th></tr></thead>
@@ -2975,12 +2985,246 @@
         </div>
       </section>
 
+      <section id="glossary">
+        <h2><span class="num">14</span><span class="zh">術語表</span><span class="en">Glossary</span></h2>
+        <p class="lead">
+          <span class="zh">本文件出現的所有縮寫與術語，依類別排列；「見」欄是主要說明的章節。核心概念（如 Incremental Catch、Escape Rate、Redundancy Index）在 §1 有較完整的定義。也可以用上方的搜尋功能直接查詢。</span>
+          <span class="en">Every abbreviation and term used in this document, grouped by category; the "See" column points to the main explanation. Core concepts (e.g., Incremental Catch, Escape Rate, Redundancy Index) have fuller definitions in §1. You can also look terms up with the search box at the top.</span>
+        </p>
+
+        <h3><span class="zh">14.1 測試流程與站別</span><span class="en">14.1 Test Flow & Stages</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">WT / CP</td><td>Wafer Test / Circuit Probe</td><td><span class="zh">晶圓階段、切割封裝前的電性測試。</span><span class="en">Electrical test at the wafer stage, before dicing and packaging.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">FT</td><td>Final Test</td><td><span class="zh">封裝後的成品終測。</span><span class="en">Post-package final test.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">RT / HT / LT</td><td>Room / High / Low Temperature</td><td><span class="zh">常溫／高溫／低溫測試 corner。</span><span class="en">Room/high/low temperature test corners.</span></td><td class="mono">§1, §3.3</td></tr>
+              <tr><td class="mono">TTR</td><td>Test Time Reduction</td><td><span class="zh">在不犧牲品質的前提下縮短測試時間，本 SOP 的目標。</span><span class="en">Cutting test time without sacrificing quality — this SOP's goal.</span></td><td class="mono">§0</td></tr>
+              <tr><td class="mono">NPI / Ramp / Mature</td><td>New Product Introduction / Ramp / Mature</td><td><span class="zh">產品成熟度三階段，決定能否做 adaptive test。</span><span class="en">Three product-maturity stages that decide whether adaptive test is allowed.</span></td><td class="mono">§11.1</td></tr>
+              <tr><td class="mono">Site / Multi-site</td><td>—</td><td><span class="zh">同一次接觸中平行測試的工位；多 site 即同時測多顆。</span><span class="en">A parallel test position within one contact; multi-site tests several units at once.</span></td><td class="mono">§5.3</td></tr>
+              <tr><td class="mono">Head</td><td>Test Head</td><td><span class="zh">測試機與待測物相連的機頭。</span><span class="en">The tester head that interfaces with the device under test.</span></td><td class="mono">§5.1</td></tr>
+              <tr><td class="mono">Touchdown</td><td>—</td><td><span class="zh">探針卡或測試座一次接觸、同時測完所有 site 的循環。</span><span class="en">One contact cycle of the probe card or socket, testing all sites at once.</span></td><td class="mono">§5.3, §11.8</td></tr>
+              <tr><td class="mono">Retest</td><td>—</td><td><span class="zh">為排除接觸不良等假性 fail 而重測；STDF 以 PART_FLG 標示取代關係。</span><span class="en">Retesting to rule out false fails such as poor contact; STDF marks the supersede via PART_FLG.</span></td><td class="mono">§5.3</td></tr>
+              <tr><td class="mono">Stop-on-fail / Continue-on-fail</td><td>—</td><td><span class="zh">遇 fail 即停止 vs 繼續執行所有測項。</span><span class="en">Halt on the first fail vs. keep running every test.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">Skip-lot / Skip-test</td><td>—</td><td><span class="zh">以 1-in-N 抽測取代 100% 全測。</span><span class="en">1-in-N sampling in place of 100% testing.</span></td><td class="mono">§1, §8</td></tr>
+              <tr><td class="mono">Adaptive Test</td><td>—</td><td><span class="zh">依證據對不同 wafer／die 套用不同測試內容。</span><span class="en">Applying different test content to different wafers/die based on evidence.</span></td><td class="mono">§11</td></tr>
+              <tr><td class="mono">Sentinel wafer / Monitor die</td><td>—</td><td><span class="zh">adaptive test 中刻意保留完整 flow 的 wafer 與 die。</span><span class="en">Wafers and die deliberately kept on the full flow in adaptive test.</span></td><td class="mono">§11.5</td></tr>
+              <tr><td class="mono">Shadow run</td><td>—</td><td><span class="zh">照常全測，背景計算「本來會 skip 哪些 die」再比對結果的試行模式。</span><span class="en">A trial mode that keeps full testing while computing in the background which die would have been skipped.</span></td><td class="mono">§11.7</td></tr>
+              <tr><td class="mono">Inkless map / Map edit</td><td>—</td><td><span class="zh">以修改電子 wafer map（而非實體打點）把 die 判退並傳給封裝端。</span><span class="en">Rejecting die by editing the electronic wafer map (instead of physical inking) and passing it to assembly.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">Overkill / Kill rate</td><td>—</td><td><span class="zh">被判退的好 die；某篩選方法判退的比例。</span><span class="en">Good die rejected; the share of die a screen rejects.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">Shmoo</td><td>—</td><td><span class="zh">在兩個掃描條件（如電壓 vs 頻率）下的 pass／fail 分布圖。</span><span class="en">A pass/fail map over two swept conditions (e.g., voltage vs. frequency).</span></td><td class="mono">§12.1</td></tr>
+              <tr><td class="mono">Fmax</td><td>Maximum operating frequency</td><td><span class="zh">晶片能正常運作的最高頻率。</span><span class="en">The highest frequency at which the chip works correctly.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">Trim</td><td>—</td><td><span class="zh">出廠前一次性校準電路（燒 fuse／寫 OTP）。</span><span class="en">One-time factory calibration of the circuit (blowing fuses / writing OTP).</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">OTP / eFuse</td><td>One-Time Programmable / electronic fuse</td><td><span class="zh">只能寫入一次的晶片內記憶體，存放 trim code 與 ECID。</span><span class="en">Write-once on-chip memory holding trim codes and the ECID.</span></td><td class="mono">§5.4</td></tr>
+              <tr><td class="mono">ECID</td><td>Electronic Chip ID</td><td><span class="zh">晶片內唯一識別碼，FT 端靠它配回 WT die。</span><span class="en">The chip's unique ID; FT units are matched back to WT die through it.</span></td><td class="mono">§1, §5.4</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.2 良率、品質與變更管理</span><span class="en">14.2 Yield, Quality & Change Control</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">Bin / HBin / SBin</td><td>Hardware Bin / Software Bin</td><td><span class="zh">測試結果分類：HBin 是實體分類，SBin 是程式定義的失效原因代碼。</span><span class="en">Test-result categories: HBin is the physical sort, SBin the program-defined failure code.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">Yield</td><td>—</td><td><span class="zh">良品數／總測試數。</span><span class="en">Good units / total units tested.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">Zonal Yield / Bin Pareto</td><td>—</td><td><span class="zh">依晶圓分區計算的良率；依 bin 由多到少排序的 fail 分布。</span><span class="en">Yield per wafer zone; fails ranked by bin from most to least frequent.</span></td><td class="mono">§11.3</td></tr>
+              <tr><td class="mono">DPPM</td><td>Defective Parts Per Million</td><td><span class="zh">百萬顆中的不良數。</span><span class="en">Defective units per million.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">Escape</td><td>—</td><td><span class="zh">應被攔下卻流到下一站或客戶端的不良品。</span><span class="en">A defective unit that should have been caught but reached the next stage or the customer.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">Incremental Catch</td><td>—</td><td><span class="zh">前站 Pass、後站該測項 Fail 的顆數。</span><span class="en">Units passing upstream but failing this item downstream.</span></td><td class="mono">§1, §6.1</td></tr>
+              <tr><td class="mono">Redundancy Index</td><td>—</td><td><span class="zh">1 − Incremental Fail／總 Fail；越接近 1 越冗餘。</span><span class="en">1 − incremental fails / total fails; closer to 1 means more redundant.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">Incident lot / Excursion lot</td><td>—</td><td><span class="zh">良率或 bin 異常、觸發 Hold 的 lot。</span><span class="en">A lot with abnormal yield or bins that triggers a hold.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">Sister lot</td><td>—</td><td><span class="zh">同時段經過同機台或同批材料的其他 lot。</span><span class="en">Other lots that went through the same tool, period, or material batch.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">SYL / SBL</td><td>Statistical Yield / Bin Limit</td><td><span class="zh">依歷史 lot 分布訂出的 yield 下限與 bin 上限。</span><span class="en">Yield floor and bin ceilings set from the historical lot distribution.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">CQC</td><td>Customer Quality Complaint</td><td><span class="zh">客戶端提出的品質客訴。</span><span class="en">A quality complaint raised by a customer.</span></td><td class="mono">§1, §10</td></tr>
+              <tr><td class="mono">RMA</td><td>Return Material Authorization</td><td><span class="zh">客戶退貨（含退回分析）程序。</span><span class="en">The customer-return (and return-analysis) process.</span></td><td class="mono">§11.4</td></tr>
+              <tr><td class="mono">8D</td><td>Eight Disciplines</td><td><span class="zh">八步驟結構化問題解決方法。</span><span class="en">A structured eight-step problem-solving method.</span></td><td class="mono">§1, §10</td></tr>
+              <tr><td class="mono">MRB</td><td>Material Review Board</td><td><span class="zh">判定異常 lot 處置的跨部門小組。</span><span class="en">The cross-functional group that dispositions abnormal lots.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">FMEA / RPN</td><td>Failure Mode and Effects Analysis / Risk Priority Number</td><td><span class="zh">以嚴重度 × 發生率 × 偵測度評估失效模式風險。</span><span class="en">Rates failure-mode risk as Severity × Occurrence × Detection.</span></td><td class="mono">§1, §7</td></tr>
+              <tr><td class="mono">ECN</td><td>Engineering Change Notice</td><td><span class="zh">正式工程變更通知。</span><span class="en">A formal engineering change notice.</span></td><td class="mono">§9</td></tr>
+              <tr><td class="mono">PCN</td><td>Product / Process Change Notification</td><td><span class="zh">通知客戶產品或製程變更。</span><span class="en">Notifying customers of a product or process change.</span></td><td class="mono">§11.7</td></tr>
+              <tr><td class="mono">PPAP</td><td>Production Part Approval Process</td><td><span class="zh">車用產業的量產件核准流程，變更常需重新提交。</span><span class="en">The automotive production-part approval process; changes often require resubmission.</span></td><td class="mono">§3.1</td></tr>
+              <tr><td class="mono">ROI</td><td>Return on Investment</td><td><span class="zh">省下的 test time 成本與風險成本的比較。</span><span class="en">Test-time savings weighed against risk cost.</span></td><td class="mono">§7</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.3 統計方法</span><span class="en">14.3 Statistical Methods</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">Cpk / Ppk</td><td>Process capability / performance index</td><td><span class="zh">分布相對 spec limit 的集中與偏移程度。</span><span class="en">How tightly and centrally a distribution sits within its spec limits.</span></td><td class="mono">§1, §6.2(c)</td></tr>
+              <tr><td class="mono">USL / LSL</td><td>Upper / Lower Spec Limit</td><td><span class="zh">規格上限／下限。</span><span class="en">Upper/lower specification limit.</span></td><td class="mono">§6.2(c)</td></tr>
+              <tr><td class="mono">Guardband / Margin</td><td>—</td><td><span class="zh">量測值與 limit 的距離；或刻意往內收的安全緩衝。</span><span class="en">Distance from a limit; or a safety buffer deliberately pulled inside it.</span></td><td class="mono">§1, §6.2(g)</td></tr>
+              <tr><td class="mono">Robust σ (MAD / IQR)</td><td>Median Absolute Deviation / Interquartile Range</td><td><span class="zh">以中位數與分位數估計的 σ，不受離群值影響。</span><span class="en">A σ estimate from medians and quantiles that outliers barely move.</span></td><td class="mono">§6.2(h)</td></tr>
+              <tr><td class="mono">Masking effect</td><td>—</td><td><span class="zh">離群值把 classical σ 撐大、讓自己躲進 limit 內的現象。</span><span class="en">Outliers inflating classical σ until they hide inside the limits.</span></td><td class="mono">§6.2(h)</td></tr>
+              <tr><td class="mono">Pearson r / Spearman ρ</td><td>—</td><td><span class="zh">線性相關係數／等級相關係數。</span><span class="en">Linear correlation / rank correlation.</span></td><td class="mono">§6.2(a), §6.2(h)</td></tr>
+              <tr><td class="mono">Fisher z</td><td>—</td><td><span class="zh">把 r 轉成近似常態分布，用於檢定與樣本數估算。</span><span class="en">Transforms r to approximate normality for tests and sample-size estimates.</span></td><td class="mono">§6.2(a)</td></tr>
+              <tr><td class="mono">CI / UCL</td><td>Confidence Interval / Upper Confidence Limit</td><td><span class="zh">信賴區間／信賴上界。</span><span class="en">Confidence interval / upper confidence bound.</span></td><td class="mono">§6.1</td></tr>
+              <tr><td class="mono">Clopper–Pearson / Rule of three</td><td>—</td><td><span class="zh">二項比例的精確信賴區間；零 fail 時上界約 3／n。</span><span class="en">Exact binomial confidence interval; with zero fails the upper bound is about 3/n.</span></td><td class="mono">§6.1</td></tr>
+              <tr><td class="mono">Tolerance interval / k-factor</td><td>—</td><td><span class="zh">以指定信心涵蓋母體指定比例的區間；k 為查表係數。</span><span class="en">An interval covering a stated share of the population at stated confidence; k is the table factor.</span></td><td class="mono">§6.2(d)</td></tr>
+              <tr><td class="mono">Chi-square (χ²)</td><td>—</td><td><span class="zh">用於 σ 信賴區間、齊一性檢定與 Mahalanobis 門檻的分布。</span><span class="en">The distribution behind σ intervals, homogeneity tests, and Mahalanobis thresholds.</span></td><td class="mono">§3.4, §11.2</td></tr>
+              <tr><td class="mono">DEFF / ICC (ρ)</td><td>Design Effect / Intra-Class Correlation</td><td><span class="zh">群聚資料的樣本數放大係數；同片 wafer 內 fail 的相關性。</span><span class="en">Sample-size inflation for clustered data; correlation of fails within a wafer.</span></td><td class="mono">§11.6</td></tr>
+              <tr><td class="mono">Mahalanobis D²</td><td>—</td><td><span class="zh">考慮參數間相關性的多變量距離。</span><span class="en">A multivariate distance that accounts for correlation between parameters.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">MCD</td><td>Minimum Covariance Determinant</td><td><span class="zh">robust 的平均值與共變異矩陣估計法。</span><span class="en">A robust estimator of mean and covariance.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">Bland–Altman LoA</td><td>Limits of Agreement</td><td><span class="zh">兩種量測方法差值的 bias ± 1.96 s。</span><span class="en">Bias ± 1.96 s of the differences between two measurement methods.</span></td><td class="mono">§12.4</td></tr>
+              <tr><td class="mono">Uncertainty (u) / GUM</td><td>Guide to the Expression of Uncertainty in Measurement</td><td><span class="zh">量測結果的不確定度及其估算方法。</span><span class="en">Measurement uncertainty and how to estimate it.</span></td><td class="mono">§12.4</td></tr>
+              <tr><td class="mono">SPC</td><td>Statistical Process Control</td><td><span class="zh">以管制圖監控製程或參數是否失控。</span><span class="en">Monitoring a process or parameter with control charts.</span></td><td class="mono">§8</td></tr>
+              <tr><td class="mono">p-chart / Overdispersion</td><td>—</td><td><span class="zh">比例管制圖；實際變異大於二項分布假設的現象。</span><span class="en">A proportion control chart; variation exceeding the binomial assumption.</span></td><td class="mono">§8.1</td></tr>
+              <tr><td class="mono">Overfitting / Hold-out</td><td>—</td><td><span class="zh">在雜訊中找規律；用未參與建模的資料驗證。</span><span class="en">Fitting noise; validating on data not used to build the model.</span></td><td class="mono">§11.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.4 Outlier 篩選</span><span class="en">14.4 Outlier Screening</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">PAT</td><td>Part Average Testing</td><td><span class="zh">以群體分布收緊 limit 的方法（AEC-Q001）。</span><span class="en">Tightening limits from the population distribution (AEC-Q001).</span></td><td class="mono">§1, §6.2(f)</td></tr>
+              <tr><td class="mono">SPAT / DPAT</td><td>Static / Dynamic PAT</td><td><span class="zh">歷史資料固定 limit／每 lot、wafer 動態重算 limit。</span><span class="en">Fixed limits from history / limits recomputed per lot or wafer.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">NNR</td><td>Nearest Neighbor Residual</td><td><span class="zh">比較 die 與鄰居的量測值，抓局部異常。</span><span class="en">Compares a die with its neighbors to catch local anomalies.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">GDBN</td><td>Good Die in Bad Neighborhood</td><td><span class="zh">fail 群中間的 good die 判為可疑。</span><span class="en">Flags good die sitting inside a fail cluster.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">ZPAT</td><td>Z-axis PAT</td><td><span class="zh">疊合整 lot 的 wafer map，找重複 fail 的座標。</span><span class="en">Stacks a lot's wafer maps to find coordinates that fail repeatedly.</span></td><td class="mono">§6.2(f)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.5 測試機與量測硬體</span><span class="en">14.5 Tester & Measurement Hardware</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">ATE</td><td>Automated Test Equipment</td><td><span class="zh">自動化測試機台。</span><span class="en">Automated test equipment.</span></td><td class="mono">§13.5</td></tr>
+              <tr><td class="mono">V93000 / SmarTest 7, 8</td><td>—</td><td><span class="zh">Advantest 測試機平台與其程式軟體（ST7 用 C++、ST8 用 Java）。</span><span class="en">Advantest's tester platform and its program software (ST7 in C++, ST8 in Java).</span></td><td class="mono">§13.5</td></tr>
+              <tr><td class="mono">Testflow / Test suite / Test method / Test table</td><td>—</td><td><span class="zh">測試流程、測試單元、量測程式碼、limit 表。</span><span class="en">Test flow, test unit, measurement code, limit table.</span></td><td class="mono">§13.5</td></tr>
+              <tr><td class="mono">PMU / DPS</td><td>Parametric Measurement Unit / Device Power Supply</td><td><span class="zh">測試機的 DC 量測單元／電源供應單元。</span><span class="en">The tester's DC measurement unit / device power supply.</span></td><td class="mono">§12</td></tr>
+              <tr><td class="mono">Digitizer</td><td>—</td><td><span class="zh">取樣類比波形的測試機儀器。</span><span class="en">A tester instrument that samples analog waveforms.</span></td><td class="mono">§12.1</td></tr>
+              <tr><td class="mono">Settling time</td><td>—</td><td><span class="zh">切換條件後等待訊號穩定的時間。</span><span class="en">Waiting for a signal to stabilize after a condition change.</span></td><td class="mono">§12.2, §13.5</td></tr>
+              <tr><td class="mono">Probe card / Prober</td><td>—</td><td><span class="zh">WT 接觸晶圓的針卡／承載晶圓並步進的機台。</span><span class="en">WT's needle card / the machine that holds and steps the wafer.</span></td><td class="mono">§3.4</td></tr>
+              <tr><td class="mono">Handler / Load board / Socket</td><td>—</td><td><span class="zh">FT 的分選機／測試板／測試座。</span><span class="en">FT's handler / load board / test socket.</span></td><td class="mono">§3.4</td></tr>
+              <tr><td class="mono">Contact / Open-short</td><td>—</td><td><span class="zh">接觸品質；檢查 pin 開路短路的測項。</span><span class="en">Contact quality; the test checking pins for opens and shorts.</span></td><td class="mono">§3.4, §8.1</td></tr>
+              <tr><td class="mono">Gauge R&amp;R / MSA</td><td>Measurement System Analysis</td><td><span class="zh">量測系統本身貢獻的變異比例。</span><span class="en">The share of variance coming from the measurement system itself.</span></td><td class="mono">§1, §3.4</td></tr>
+              <tr><td class="mono">Datalog</td><td>—</td><td><span class="zh">測試機輸出量測結果（如 STDF）的設定與紀錄。</span><span class="en">The tester's output of results (e.g., STDF) and its settings.</span></td><td class="mono">§13.5</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.6 電路、DFT 與製程</span><span class="en">14.6 Circuits, DFT & Process</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">IDDQ</td><td>Quiescent supply current</td><td><span class="zh">靜態電源電流，常用來偵測漏電缺陷。</span><span class="en">Quiescent supply current, used to detect leakage defects.</span></td><td class="mono">§6.2(f)</td></tr>
+              <tr><td class="mono">Vth / Idsat / VOH</td><td>—</td><td><span class="zh">臨界電壓／飽和電流／輸出高電壓。</span><span class="en">Threshold voltage / saturation current / output-high voltage.</span></td><td class="mono">§3.1, §7</td></tr>
+              <tr><td class="mono">LDO / Bandgap</td><td>Low-Dropout regulator / Bandgap reference</td><td><span class="zh">內部穩壓器／內部參考電壓源。</span><span class="en">Internal regulator / internal voltage reference.</span></td><td class="mono">§12.3</td></tr>
+              <tr><td class="mono">ADC / LSB / INL, DNL</td><td>Analog-to-Digital Converter / Least Significant Bit / Integral, Differential Nonlinearity</td><td><span class="zh">類比轉數位；最小解析單位；非線性誤差。</span><span class="en">Analog-to-digital converter; smallest step; nonlinearity errors.</span></td><td class="mono">§12</td></tr>
+              <tr><td class="mono">Ring oscillator</td><td>—</td><td><span class="zh">反映局部製程速度的振盪電路。</span><span class="en">An oscillator circuit reflecting local process speed.</span></td><td class="mono">§12.1</td></tr>
+              <tr><td class="mono">BIST / MBIST / LBIST</td><td>Built-In Self-Test (Memory / Logic)</td><td><span class="zh">晶片內建自我測試。</span><span class="en">On-chip built-in self-test.</span></td><td class="mono">§12.1</td></tr>
+              <tr><td class="mono">Loopback</td><td>—</td><td><span class="zh">把輸出接回輸入的自我測試，常用於 SerDes／RF。</span><span class="en">Self-test routing output back to input, common for SerDes/RF.</span></td><td class="mono">§12.1</td></tr>
+              <tr><td class="mono">Scan / JTAG / IJTAG</td><td>IEEE 1149.1 / IEEE 1687</td><td><span class="zh">存取晶片內部邏輯與內建儀器的串列介面。</span><span class="en">Serial interfaces for accessing internal logic and embedded instruments.</span></td><td class="mono">§12</td></tr>
+              <tr><td class="mono">ATPG</td><td>Automatic Test Pattern Generation</td><td><span class="zh">自動產生數位測試向量。</span><span class="en">Automatic generation of digital test vectors.</span></td><td class="mono">§3.5</td></tr>
+              <tr><td class="mono">Fault coverage (Stuck-at / Delay)</td><td>—</td><td><span class="zh">測試向量能偵測的邏輯故障比例。</span><span class="en">The share of logic faults the vectors can detect.</span></td><td class="mono">§1, §3.5</td></tr>
+              <tr><td class="mono">VHV / VLV, Vmax / Vmin</td><td>Voltage High / Low</td><td><span class="zh">高低電壓應力條件與其上下限。</span><span class="en">High/low-voltage stress conditions and their bounds.</span></td><td class="mono">§1, §3.5</td></tr>
+              <tr><td class="mono">ESD</td><td>Electrostatic Discharge</td><td><span class="zh">靜電放電與其造成的損傷。</span><span class="en">Electrostatic discharge and the damage it causes.</span></td><td class="mono">§7</td></tr>
+              <tr><td class="mono">Bump crack / Die crack</td><td>—</td><td><span class="zh">銲點或晶粒本體的機械性裂紋。</span><span class="en">Mechanical cracks at a bump joint or in the die body.</span></td><td class="mono">§1, §10</td></tr>
+              <tr><td class="mono">PCM / WAT</td><td>Process Control Monitor / Wafer Acceptance Test</td><td><span class="zh">切割道上製程監控結構的電性測試。</span><span class="en">Electrical tests on scribe-line process-monitor structures.</span></td><td class="mono">§1</td></tr>
+              <tr><td class="mono">Reticle / Shot</td><td>—</td><td><span class="zh">微影光罩；一次曝光涵蓋的區域。</span><span class="en">The litho photomask; the area one exposure covers.</span></td><td class="mono">§11.2</td></tr>
+              <tr><td class="mono">Notch / Flat</td><td>—</td><td><span class="zh">晶圓方向標記。</span><span class="en">Wafer orientation marks.</span></td><td class="mono">§11.2</td></tr>
+              <tr><td class="mono">Edge exclusion</td><td>—</td><td><span class="zh">晶圓最外圈不製作或不使用的區域。</span><span class="en">The outermost wafer ring left unused.</span></td><td class="mono">§11.2</td></tr>
+              <tr><td class="mono">CMP</td><td>Chemical Mechanical Planarization</td><td><span class="zh">化學機械研磨，常造成中心↔邊緣差異。</span><span class="en">Chemical mechanical polishing, a common source of center-to-edge variation.</span></td><td class="mono">§11.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.7 STDF 紀錄與欄位</span><span class="en">14.7 STDF Records & Fields</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">STDF</td><td>Standard Test Data Format (V4)</td><td><span class="zh">業界標準的二進位測試資料格式。</span><span class="en">The industry-standard binary test-data format.</span></td><td class="mono">§5</td></tr>
+              <tr><td class="mono">FAR / ATR</td><td>File Attributes / Audit Trail Record</td><td><span class="zh">檔案屬性（位元組順序、版本）／稽核紀錄。</span><span class="en">File attributes (byte order, version) / audit trail.</span></td><td class="mono">§5.1</td></tr>
+              <tr><td class="mono">MIR / MRR</td><td>Master Information / Results Record</td><td><span class="zh">lot 層級資訊／檔案結束紀錄。</span><span class="en">Lot-level information / end-of-file record.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">SDR / PMR</td><td>Site Description / Pin Map Record</td><td><span class="zh">測試硬體與 site 配置／pin 對應。</span><span class="en">Test hardware and site layout / pin mapping.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">WIR / WRR / WCR</td><td>Wafer Information / Results / Configuration Record</td><td><span class="zh">wafer 開始、結束統計與幾何設定。</span><span class="en">Wafer start, end counts, and geometry.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">PIR / PRR</td><td>Part Information / Results Record</td><td><span class="zh">每顆 die 的開始標記與結果（bin、X/Y、旗標、test time）。</span><span class="en">Each die's start marker and result (bin, X/Y, flags, test time).</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">PTR / MPR / FTR</td><td>Parametric / Multiple-Result Parametric / Functional Test Record</td><td><span class="zh">單值量測／多 pin 量測／功能測試結果。</span><span class="en">Single-value / multi-pin / functional test results.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">TSR / HBR / SBR / PCR</td><td>Test Synopsis / Hardware Bin / Software Bin / Part Count Record</td><td><span class="zh">測試機自算的摘要統計。</span><span class="en">Tester-computed summary statistics.</span></td><td class="mono">§5.3</td></tr>
+              <tr><td class="mono">DTR / GDR</td><td>Datalog Text / Generic Data Record</td><td><span class="zh">自由文字／自訂二進位資料。</span><span class="en">Free text / custom binary data.</span></td><td class="mono">§5.2</td></tr>
+              <tr><td class="mono">RES_SCAL / OPT_FLAG</td><td>—</td><td><span class="zh">顯示用的 10 次方指數／標示選配欄位是否有效。</span><span class="en">Power-of-ten display exponent / flags marking which optional fields are valid.</span></td><td class="mono">§5.3</td></tr>
+              <tr><td class="mono">TEST_FLG / PARM_FLG / PART_FLG</td><td>—</td><td><span class="zh">測項結果旗標／參數比較旗標／die 結果與 retest 旗標。</span><span class="en">Test-result flags / parametric-comparison flags / die-result and retest flags.</span></td><td class="mono">§5.3</td></tr>
+              <tr><td class="mono">HEAD = 255</td><td>—</td><td><span class="zh">摘要 record 中代表「所有 site 合計」。</span><span class="en">In summary records, means all sites combined.</span></td><td class="mono">§5.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="zh">14.8 標準與參考文件</span><span class="en">14.8 Standards & References</span></h3>
+        <div class="twrap">
+          <table class="gloss">
+            <thead><tr>
+              <th><span class="zh">術語</span><span class="en">Term</span></th>
+              <th><span class="zh">全名</span><span class="en">Full name</span></th>
+              <th><span class="zh">說明</span><span class="en">Meaning</span></th>
+              <th><span class="zh">見</span><span class="en">See</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">AEC-Q100</td><td>—</td><td><span class="zh">車用 IC 應力驗證標準。</span><span class="en">Stress-test qualification for automotive ICs.</span></td><td class="mono">§3.1</td></tr>
+              <tr><td class="mono">AEC-Q001 / AEC-Q002</td><td>—</td><td><span class="zh">PAT 指引／統計良率分析指引。</span><span class="en">PAT guidelines / statistical yield analysis guidelines.</span></td><td class="mono">§6.2(f), §8.1</td></tr>
+              <tr><td class="mono">JEDEC</td><td>—</td><td><span class="zh">半導體標準組織。</span><span class="en">A semiconductor standards body.</span></td><td class="mono">§3.1</td></tr>
+              <tr><td class="mono">ILAC-G8</td><td>—</td><td><span class="zh">判定規則與符合性聲明指引（guardband）。</span><span class="en">Guidelines on decision rules and conformity statements (guardbanding).</span></td><td class="mono">§6.2(g), §12.4</td></tr>
+              <tr><td class="mono">ISO 16269-6 / ASTM E2586</td><td>—</td><td><span class="zh">統計容忍區間標準。</span><span class="en">Statistical tolerance interval standards.</span></td><td class="mono">§6.2(d)</td></tr>
+              <tr><td class="mono">ISO 22514</td><td>—</td><td><span class="zh">製程能力統計方法（含非常態分位數法）。</span><span class="en">Process capability methods (including the non-normal percentile method).</span></td><td class="mono">§6.2(h)</td></tr>
+              <tr><td class="mono">JCGM 100 (GUM)</td><td>—</td><td><span class="zh">量測不確定度表示指引。</span><span class="en">Guide to the expression of uncertainty in measurement.</span></td><td class="mono">§12.4</td></tr>
+              <tr><td class="mono">IEEE 1687</td><td>IJTAG</td><td><span class="zh">存取晶片內建儀器的標準。</span><span class="en">Standard for accessing on-chip embedded instruments.</span></td><td class="mono">§12</td></tr>
+              <tr><td class="mono">ITRS / IRDS</td><td>—</td><td><span class="zh">半導體技術路線圖（含 adaptive test 章節）。</span><span class="en">Semiconductor technology roadmaps (including adaptive test).</span></td><td class="mono">§11</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     </main>
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 09:15</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 09:15</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-23 10:22</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-23 10:22</span>
   </footer>
 </div>
 
