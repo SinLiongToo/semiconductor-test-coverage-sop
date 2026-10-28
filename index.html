@@ -238,8 +238,7 @@
     margin-left:-2px;
   }
   nav.toc a:hover{color:var(--accent);border-left-color:var(--accent);}
-  nav.toc ol.toc-sub{display:none;border-left:none;margin:0 0 6px;padding:0;list-style:none;}
-  nav.toc li.open > ol.toc-sub{display:block;}
+  nav.toc ol.toc-sub{display:block;border-left:none;margin:0 0 6px;padding:0;list-style:none;}
   nav.toc ol.toc-sub a{
     padding:3px 8px 3px 26px;font-size:12.5px;line-height:1.45;color:var(--ink-faint);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
@@ -408,7 +407,7 @@
     <div class="doc-fields">
       <div><span class="zh">文件編號</span><span class="en">Document No.</span><b>Note_Eng_TTR</b></div>
       <div><span class="zh">作者</span><span class="en">Author</span><b>@MasaTu</b></div>
-      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-28 18:27</b></div>
+      <div><span class="zh">版次更新</span><span class="en">Revision Updated</span><b>2026-10-28 18:43</b></div>
       <div><span class="zh">生效日期</span><span class="en">Effective Date</span><b><span class="zh">待核准</span><span class="en">Pending approval</span></b></div>
       <div><span class="zh">適用範圍</span><span class="en">Scope</span><b><span class="zh">WT / CP ↔ FT 跨站測項</span><span class="en">WT/CP ↔ FT cross-stage items</span></b></div>
       <div><span class="zh">分類</span><span class="en">Classification</span><b><span class="zh">內部使用</span><span class="en">Internal use</span></b></div>
@@ -3242,8 +3241,8 @@
   </div>
 
   <footer class="doc-end">
-    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-28 18:27</span>
-    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-28 18:27</span>
+    <span class="zh">半導體跨站測試覆蓋優化 SOP · 版次更新於 2026-10-28 18:43</span>
+    <span class="en">Semiconductor Cross-Stage Test Coverage Optimization SOP · Revision updated 2026-10-28 18:43</span>
   </footer>
 </div>
 
@@ -3477,8 +3476,8 @@
 <script>
 (function(){
   // Add each section's h3/h4 (ids assigned by the § link script above) under
-  // its entry in the sidebar TOC, and h3 only in the mobile TOC. The sidebar
-  // shows only the current section's sub-list and highlights where you are.
+  // its entry in the sidebar TOC, and h3 only in the mobile TOC. All sub-lists
+  // stay visible; the current section and subheading are highlighted.
   var main = document.querySelector('main');
   var nav = document.querySelector('nav.toc');
   var mobile = document.querySelector('details.toc-m');
